@@ -14,17 +14,30 @@ STATIONTHICKNESS = 5
 
 screen = pygame.display.set_mode((500, 500))
 
+class Car():
+	"""A railcar. Each track holds at least one"""
+	
+	def __init__(self,track):
+		self.track = track
+		self.pos = track.startpos
+		
+	def draw(self):
+		pygame.draw.polygon(screen,BLUE,((10,10),(10,20),(20,20),(20,10)),0)
+
 class Track():
-	"""A railtrack"""
+	"""A railtrack between stations. Holds at minimum one Car"""
 	
 	def __init__(self,pos):
 		# pygame.sprite.Sprite.__init__(self)
 		self.startpos = pos
 		self.endpos = pos
-		# self.status = 'new'
+		self.cars = []
+		self.cars.append(Car(self))
 		
 	def draw(self):
 		pygame.draw.line(screen,RED,self.startpos,self.endpos,5)
+		for c in self.cars:
+			c.draw()
 		
 class Station():
 	"""a station"""
@@ -115,7 +128,7 @@ def main():
 
 			pygame.draw.line(screen,BLACK,track.startpos,pos,5)
 
-		# display some stations and tracks
+		# display all stations and tracks
 		for t in tracks:
 			t.draw()		
 		for s in stations:
