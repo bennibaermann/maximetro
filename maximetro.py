@@ -25,7 +25,8 @@ class Car():
 	def __init__(self,track):
 		self.track = track
 		self.pos = track.startpos
-		self.direction = 0
+		self.direction = 1
+		self.counter = 0
 		
 	def draw(self):
 		"""draw the car. should be a rectangle, but we use a circle for proof
@@ -40,6 +41,11 @@ class Car():
 		
 		self.pos = self.track.get_newpos(self.pos,self.direction)
 		print "new position: ", self.pos
+		if self.track.is_end(self.pos) and self.counter > 1:
+			print "TURN AROUND!"
+			self.direction *= -1
+			self.counter = 0
+		self.counter += 1
 
 
 class Track():
@@ -65,21 +71,32 @@ class Track():
 		end = self.endpos
 		return sqrt( (start[0]-end[0])**2 + (start[1]-end[1])**2 )
 		
-	def get_newpos(self,pos,dir=0):
+	def get_newpos(self,pos,direction=1):
 		""" calculates new position of a car in direction. should be more 
-		sophisticated with some trigonometry to ensure stable speed"""
+		sophisticated with some trigonometry to ensure stable speed
+		direction should be 1 or -1"""
 		start = self.startpos
 		end = self.endpos
 		ret = list(pos)
 		if pos[0] < end[0]:
-			ret[0] += CARSPEED
+			ret[0] += CARSPEED * direction
 		else:
-			ret[0] -= CARSPEED
+			ret[0] -= CARSPEED * direction
 		if pos[1] < end[1]:
-			ret[1] += CARSPEED
+			ret[1] += CARSPEED * direction
 		else:
-			ret[1] -= CARSPEED
+			ret[1] -= CARSPEED * direction
 		return ret
+		
+	def is_end(self,pos):
+		"""returns True if is one of the ends of the track"""
+		start = self.startpos
+		end = self.endpos
+		if start[0] == pos[0] and start[1] == pos[1]:
+			return True
+		if end[0] == pos[0] and end[1] == pos[1]:
+			return True
+		return False
 		
 
 class Station():
@@ -92,7 +109,7 @@ class Station():
 	def draw(self):
 		size = 20
 		pos = self.pos
-		#		print "draw circle at pos: " , pos
+
 		if self.shape == 'circle':
 			pygame.draw.circle(screen,BLACK,pos,STATIONSIZE)
 			pygame.draw.circle(screen,WHITE,pos,STATIONSIZE-STATIONTHICKNESS)
