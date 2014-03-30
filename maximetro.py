@@ -12,7 +12,12 @@ RED =   (255,   0,   0)
 STATIONSIZE = 17
 STATIONTHICKNESS = 5
 
+CARWITH = 10
+CARLENGTH = 20
+CARSPEED = 2
+
 screen = pygame.display.set_mode((500, 500))
+
 
 class Car():
 	"""A railcar. Each track holds at least one"""
@@ -20,9 +25,22 @@ class Car():
 	def __init__(self,track):
 		self.track = track
 		self.pos = track.startpos
+		self.direction = 0
 		
 	def draw(self):
-		pygame.draw.polygon(screen,BLUE,((10,10),(10,20),(20,20),(20,10)),0)
+		"""draw the car. should be a rectangle, but we use a circle for proof
+		of concept now"""
+		
+		print "drawing car at ", self.pos
+		pygame.draw.circle(screen,BLUE,self.pos,CARWITH)
+		# pygame.draw.polygon(screen,BLUE,((10,10),(10,20),(20,20),(20,10)),0)
+
+	def update(self):
+		"""calculate new position of car"""
+		
+		self.pos = self.track.get_newpos(self.pos,self.direction)
+		print "new position: ", self.pos
+
 
 class Track():
 	"""A railtrack between stations. Holds at minimum one Car"""
@@ -38,7 +56,32 @@ class Track():
 		pygame.draw.line(screen,RED,self.startpos,self.endpos,5)
 		for c in self.cars:
 			c.draw()
+
+	def length(self):
+		"""returns the length of the track"""
 		
+		#TODO: calculate only once if track changes
+		start = self.startpos
+		end = self.endpos
+		return sqrt( (start[0]-end[0])**2 + (start[1]-end[1])**2 )
+		
+	def get_newpos(self,pos,dir=0):
+		""" calculates new position of a car in direction. should be more 
+		sophisticated with some trigonometry to ensure stable speed"""
+		start = self.startpos
+		end = self.endpos
+		ret = list(pos)
+		if pos[0] < end[0]:
+			ret[0] += CARSPEED
+		else:
+			ret[0] -= CARSPEED
+		if pos[1] < end[1]:
+			ret[1] += CARSPEED
+		else:
+			ret[1] -= CARSPEED
+		return ret
+		
+
 class Station():
 	"""a station"""
 
@@ -54,11 +97,13 @@ class Station():
 			pygame.draw.circle(screen,BLACK,pos,STATIONSIZE)
 			pygame.draw.circle(screen,WHITE,pos,STATIONSIZE-STATIONTHICKNESS)
 
+
 stations = Station((100,100)),Station((200,200))
 tracks = []
 
+
 def is_in_range(pos1,pos2,dist=STATIONSIZE):
-	"""retruns true if pos1 and pos2 are not more than dist pixels apart"""
+	"""returns true if pos1 and pos2 are not more than dist pixels apart"""
 	
 	if pos1[0] < pos2[0] - dist:
 		return False
@@ -79,6 +124,15 @@ def is_station_pos(pos):
 		if is_in_range(pos,s.pos):
 			return s.pos
 	return False
+
+
+def update():
+	"""updates (position of) all user independent objects"""
+	
+	for t in tracks:
+		for c in t.cars:
+			c.update()
+
 
 def main():
 
@@ -125,8 +179,10 @@ def main():
 					draw_status = False
 		
 		if draw_status:
-
+			# should be in track class
 			pygame.draw.line(screen,BLACK,track.startpos,pos,5)
+
+		update()
 
 		# display all stations and tracks
 		for t in tracks:
