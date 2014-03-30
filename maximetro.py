@@ -14,7 +14,6 @@ STATIONTHICKNESS = 5
 
 screen = pygame.display.set_mode((500, 500))
 
-
 class Track():
 	"""A railtrack"""
 	
@@ -76,20 +75,7 @@ def main():
 	# Initialise screen
 	pygame.init()
 	clock = pygame.time.Clock()
-	# screen = pygame.display.set_mode((500, 500))
 	pygame.display.set_caption('Maxi Metro')
-
-	# Fill background
-	#background = pygame.Surface(screen.get_size())
-	#background = background.convert()
-	#background.fill(WHITE)
-
-	# Display some text
-	#font = pygame.font.Font(None, 36)
-	#text = font.render("Hello There", 1, (10, 10, 10))
-	#textpos = text.get_rect()
-	#textpos.centerx = background.get_rect().centerx
-	#background.blit(text, textpos)
 
 	screen.fill(WHITE)
 		
@@ -108,14 +94,14 @@ def main():
 				return
 			elif event.type == MOUSEBUTTONDOWN:
 				pos = event.pos
-				if is_station_pos(pos):
+				if is_station_pos(pos) and not draw_status:
 					track = Track(pos)
 					print "start drawing from " , track.startpos
 					draw_status = True
 			elif event.type == MOUSEMOTION:
 				pos = event.pos
 			elif event.type == MOUSEBUTTONUP:
-				if draw_status:
+				if draw_status and is_station_pos(pos):
 					# pos = event.pos
 					print "stop drawing at " , pos
 					# screen.fill(WHITE)
