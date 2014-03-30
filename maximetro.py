@@ -59,12 +59,12 @@ def is_in_range(pos1,pos2,dist=STATIONSIZE):
 	return True
 
 def is_station_pos(pos):
-	"""returns true if at pos is a station.
+	"""returns center of station if at pos is a station.
 	this could maybe easier implemented with SpriteGroups?"""
 	
 	for s in stations:
 		if is_in_range(pos,s.pos):
-			return True 
+			return s.pos
 	return False
 
 def main():
@@ -94,18 +94,20 @@ def main():
 				return
 			elif event.type == MOUSEBUTTONDOWN:
 				pos = event.pos
-				if is_station_pos(pos) and not draw_status:
-					track = Track(pos)
-					print "start drawing from " , track.startpos
+				spos = is_station_pos(pos)
+				if spos and not draw_status:
+					track = Track(spos)
+					print "start drawing from " ,pos, " moving to ", track.startpos
 					draw_status = True
 			elif event.type == MOUSEMOTION:
 				pos = event.pos
 			elif event.type == MOUSEBUTTONUP:
-				if draw_status and is_station_pos(pos):
+				spos = is_station_pos(pos)
+				if draw_status and spos:
 					# pos = event.pos
-					print "stop drawing at " , pos
+					print "stop drawing at " , pos , " moving to " , spos
 					# screen.fill(WHITE)
-					track.endpos = pos
+					track.endpos = spos
 					tracks.append(track)
 					draw_status = False
 		
