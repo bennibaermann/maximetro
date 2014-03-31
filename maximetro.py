@@ -14,7 +14,7 @@ STATIONTHICKNESS = 5
 
 CARWITH = 10
 CARLENGTH = 20
-CARSPEED = 2
+CARSPEED = 3
 
 screen = pygame.display.set_mode((500, 500))
 
@@ -32,18 +32,19 @@ class Car():
 		"""draw the car. should be a rectangle, but we use a circle for proof
 		of concept now"""
 		
-		print "drawing car at ", self.pos
+		# print "drawing car at ", self.pos
 		pygame.draw.circle(screen,BLUE,self.pos,CARWITH)
 		# pygame.draw.polygon(screen,BLUE,((10,10),(10,20),(20,20),(20,10)),0)
 
 	def update(self):
 		"""calculate new position of car"""
 		
-		self.pos = self.track.get_newpos(self.pos,self.direction)
+		self.pos = self.track.get_newpos(self.pos,self.counter,self.direction)
 		print "new position: ", self.pos
 		if self.track.is_end(self.pos) and self.counter > 1:
 			print "TURN AROUND!"
 			self.direction *= -1
+			print "NEW DIRECTION: ", self.direction
 			self.counter = 0
 		self.counter += 1
 
@@ -69,34 +70,38 @@ class Track():
 		#TODO: calculate only once if track changes
 		start = self.startpos
 		end = self.endpos
-		return sqrt( (start[0]-end[0])**2 + (start[1]-end[1])**2 )
+		return ( (start[0]-end[0])**2 + (start[1]-end[1])**2 ) ** .5
 		
-	def get_newpos(self,pos,direction=1):
-		""" calculates new position of a car in direction. should be more 
-		sophisticated with some trigonometry to ensure stable speed
+	def get_newpos(self,pos,count,direction=1):
+		""" calculates new position of a car in direction. 
 		direction should be 1 or -1"""
+		
 		start = self.startpos
 		end = self.endpos
-		ret = list(pos)
-		if pos[0] < end[0]:
-			ret[0] += CARSPEED * direction
+		ret = [0,0]
+		length = self.length()
+		xdiff = (start[0] - end[0]) / length * CARSPEED * -1
+		ydiff = (start[1] - end[1]) / length * CARSPEED * -1
+		if direction > 0:
+			ret[0] = int(xdiff * count) + start[0]
+			ret[1] = int(ydiff * count) + start[1]
 		else:
-			ret[0] -= CARSPEED * direction
-		if pos[1] < end[1]:
-			ret[1] += CARSPEED * direction
-		else:
-			ret[1] -= CARSPEED * direction
+			ret[0] = end[0] - int(xdiff * count)
+			ret[1] = end[1] - int(ydiff * count)
 		return ret
 		
 	def is_end(self,pos):
 		"""returns True if is one of the ends of the track"""
+		# TODO should not rely on exact match
 		start = self.startpos
 		end = self.endpos
-		if start[0] == pos[0] and start[1] == pos[1]:
-			return True
-		if end[0] == pos[0] and end[1] == pos[1]:
-			return True
-		return False
+		x_range = [start[0],end[0]]
+		y_range = [start[1],end[1]]
+		x_range.sort()
+		y_range.sort()
+		if x_range[0] < pos[0] < x_range[1] and y_range[0] < pos[1] < y_range[1]:
+			return False
+		return True
 		
 
 class Station():
@@ -115,7 +120,7 @@ class Station():
 			pygame.draw.circle(screen,WHITE,pos,STATIONSIZE-STATIONTHICKNESS)
 
 
-stations = Station((100,100)),Station((200,200))
+stations = Station((110,150)),Station((230,200)),Station((140,300))
 tracks = []
 
 
@@ -187,6 +192,7 @@ def main():
 				pos = event.pos
 			elif event.type == MOUSEBUTTONUP:
 				spos = is_station_pos(pos)
+				# TODO: end should be not start
 				if draw_status and spos:
 					# pos = event.pos
 					print "stop drawing at " , pos , " moving to " , spos
