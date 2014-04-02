@@ -11,6 +11,9 @@ BLUE =  (  0,   0, 255)
 GREEN = (  0, 255,   0)
 RED =   (255,   0,   0)
 
+MAXLINE = 3
+LINES = [BLUE,GREEN,RED]
+
 STATIONSIZE = 17
 STATIONTHICKNESS = 5
 
@@ -43,7 +46,6 @@ class Car():
 		end = self.track.endpos
 		v = Vec2d(start[0]-end[0],start[1]-end[1])
 		angle = v.get_angle() + 90
-		print "angle: ", angle
 		
 		# turn around
 		turnedpol = []
@@ -62,7 +64,8 @@ class Car():
 		"""draw the car."""
 
 		moved = self.move()
-		pygame.draw.polygon(screen,BLUE,moved,0)
+		pygame.draw.polygon(screen,self.track.color,moved,0)
+		# pygame.draw.aalines(screen,BLUE,False,moved,5)
 
 	def update(self):
 		"""calculate new position of car"""
@@ -81,14 +84,20 @@ class Track():
 	"""A railtrack between stations. Holds at minimum one Car"""
 	
 	def __init__(self,pos):
-		# pygame.sprite.Sprite.__init__(self)
+		try:
+			self.color = LINES.pop()
+		except IndexError:
+			print "NO MORE LINES ALLOWED!"
+			return
+
 		self.startpos = pos
 		self.endpos = pos
 		self.cars = []
 		self.cars.append(Car(self))
+			
 		
 	def draw(self):
-		pygame.draw.line(screen,RED,self.startpos,self.endpos,5)
+		pygame.draw.line(screen,self.color,self.startpos,self.endpos,5)
 		for c in self.cars:
 			c.draw()
 
@@ -131,6 +140,10 @@ class Track():
 			return False
 		return True
 		
+class Line():
+	"""A line contains multiple tracks between stations"""
+	
+	# TODO
 
 class Station():
 	"""a station"""
@@ -209,6 +222,7 @@ def main():
 				spos = is_station_pos(pos)
 				if spos and not draw_status:
 					track = Track(spos)
+					print track
 					print "start drawing from " ,pos, " moving to ", track.startpos
 					draw_status = True
 			elif event.type == MOUSEMOTION:
