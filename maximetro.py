@@ -2,6 +2,8 @@
 
 import pygame
 from pygame.locals import *
+import Vec2D
+from Vec2D import *
 
 BLACK = (  0,   0,   0)
 WHITE = (255, 255, 255)
@@ -12,8 +14,8 @@ RED =   (255,   0,   0)
 STATIONSIZE = 17
 STATIONTHICKNESS = 5
 
-CARWITH = 10
-CARLENGTH = 20
+CARWITH = 10     # actually half of it
+CARLENGTH = 20   # actually half of it
 CARSPEED = 3
 
 screen = pygame.display.set_mode((500, 500))
@@ -27,14 +29,40 @@ class Car():
 		self.pos = track.startpos
 		self.direction = 1
 		self.counter = 0
+		self.poly = ((-CARWITH,-CARLENGTH),(-CARWITH,CARLENGTH),
+		   			 (CARWITH,CARLENGTH),(CARWITH,-CARLENGTH))
+			
+	def move(self):
+		"""returns the moved polygon to self.pos with angle of self.track"""
+
+		ret = []
+		pol = self.poly
+
+		# determine angle of track 
+		start = self.track.startpos
+		end = self.track.endpos
+		v = Vec2d(start[0]-end[0],start[1]-end[1])
+		angle = v.get_angle() + 90
+		print "angle: ", angle
 		
+		# turn around
+		turnedpol = []
+		for p in pol:
+			v = Vec2d(p)
+			turnedpol.append(v.rotated(angle))
+		
+		# move to self.pos
+		for p in turnedpol:
+			ret.append([p[0] + self.pos[0], p[1] + self.pos[1]])
+		
+		return ret
+			
+	
 	def draw(self):
-		"""draw the car. should be a rectangle, but we use a circle for proof
-		of concept now"""
-		
-		# print "drawing car at ", self.pos
-		pygame.draw.circle(screen,BLUE,self.pos,CARWITH)
-		# pygame.draw.polygon(screen,BLUE,((10,10),(10,20),(20,20),(20,10)),0)
+		"""draw the car."""
+
+		moved = self.move()
+		pygame.draw.polygon(screen,BLUE,moved,0)
 
 	def update(self):
 		"""calculate new position of car"""
@@ -92,7 +120,7 @@ class Track():
 		
 	def is_end(self,pos):
 		"""returns True if is one of the ends of the track"""
-		# TODO should not rely on exact match
+	
 		start = self.startpos
 		end = self.endpos
 		x_range = [start[0],end[0]]
@@ -135,7 +163,6 @@ def is_in_range(pos1,pos2,dist=STATIONSIZE):
 		return False 
 	if pos1[1] > pos2[1] + dist:
 		return False 
-		
 	return True
 
 def is_station_pos(pos):
@@ -158,18 +185,13 @@ def update():
 
 def main():
 
-	# initialize global status
+	# this status is True if the user is drawing a track
 	draw_status = False
 
 	# Initialise screen
 	pygame.init()
 	clock = pygame.time.Clock()
 	pygame.display.set_caption('Maxi Metro')
-
-	screen.fill(WHITE)
-		
-	# Blit everything to the screen
-	#screen.blit(background, (0, 0))
 	pygame.display.update()
 
 	pos = (0,0);
@@ -178,6 +200,7 @@ def main():
 
 		screen.fill(WHITE)
 			
+		# TODO: the whole handling of track-drawing should be in Track-class
 		for event in pygame.event.get():
 			if event.type == QUIT:
 				return
@@ -194,15 +217,12 @@ def main():
 				spos = is_station_pos(pos)
 				# TODO: end should be not start
 				if draw_status and spos:
-					# pos = event.pos
 					print "stop drawing at " , pos , " moving to " , spos
-					# screen.fill(WHITE)
 					track.endpos = spos
 					tracks.append(track)
 					draw_status = False
 		
 		if draw_status:
-			# should be in track class
 			pygame.draw.line(screen,BLACK,track.startpos,pos,5)
 
 		update()
