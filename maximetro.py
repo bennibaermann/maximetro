@@ -71,7 +71,7 @@ class Car():
 		"""calculate new position of car"""
 		
 		self.pos = self.track.get_newpos(self.pos,self.counter,self.direction)
-		print "new position: ", self.pos
+		# print "new position: ", self.pos
 		if self.track.is_end(self.pos) and self.counter > 1:
 			print "TURN AROUND!"
 			self.direction *= -1
@@ -84,12 +84,9 @@ class Track():
 	"""A railtrack between stations. Holds at minimum one Car"""
 	
 	def __init__(self,pos):
-		try:
-			self.color = LINES.pop()
-		except IndexError:
-			print "NO MORE LINES ALLOWED!"
-			return
-
+		"""constructor should only be called, if LINES[] is not empty"""
+		
+		self.color = LINES.pop()
 		self.startpos = pos
 		self.endpos = pos
 		self.cars = []
@@ -218,13 +215,16 @@ def main():
 			if event.type == QUIT:
 				return
 			elif event.type == MOUSEBUTTONDOWN:
-				pos = event.pos
-				spos = is_station_pos(pos)
-				if spos and not draw_status:
-					track = Track(spos)
-					print track
-					print "start drawing from " ,pos, " moving to ", track.startpos
-					draw_status = True
+				if LINES:
+					pos = event.pos
+					spos = is_station_pos(pos)
+					if spos and not draw_status:
+						track = Track(spos)
+						print track
+						print "start drawing from " ,pos, " moving to ", track.startpos
+						draw_status = True
+				else:
+					print "NO MORE LINES AVAIABLE!"
 			elif event.type == MOUSEMOTION:
 				pos = event.pos
 			elif event.type == MOUSEBUTTONUP:
