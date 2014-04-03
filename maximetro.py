@@ -254,23 +254,23 @@ def main():
 					spos = is_station_pos(pos)
 					if spos and not draw_status:
 						track = Track(spos)
-						print track
 						print "start drawing from " ,pos, " moving to ", track.startpos
 						draw_status = True
 				else:
 					print "NO MORE LINES AVAIABLE!"
 			elif event.type == MOUSEMOTION:
 				pos = event.pos
-			elif event.type == MOUSEBUTTONUP:
 				spos = is_station_pos(pos)
 				# TODO: end should be not start
-				# TODO: there sould be no station in the way
+				# TODO: there should be no station in the way 
+				#       (plus a little extrasize)
 				# TODO: should not cross other tracks
-				if draw_status and spos:
+				if draw_status and spos and not is_in_range(pos,track.startpos):
 					print "stop drawing at " , pos , " moving to " , spos
-					track.endpos = spos
+					track.endpos = spos #??
 					tracks.append(track)
 					draw_status = False
+			# elif event.type == MOUSEBUTTONUP:
 		
 		if draw_status:
 			pygame.draw.line(screen,BLACK,track.startpos,pos,5)
