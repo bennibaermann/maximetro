@@ -137,7 +137,8 @@ class Track():
 		y_range = [start[1],end[1]]
 		x_range.sort()
 		y_range.sort()
-		if x_range[0] < pos[0] < x_range[1] and y_range[0] < pos[1] < y_range[1]:
+		if (x_range[0] <= pos[0] <= x_range[1] and 
+		   y_range[0] <= pos[1] <= y_range[1]):
 			return False
 		return True
 		
@@ -169,15 +170,16 @@ def init_city():
 	"""we set some Stations in place."""
 	
 	print "Setting stations..."
-	print range(0,MAXSTATIONS)
+	# print range(0,MAXSTATIONS)
 	for i in range(0,MAXSTATIONS):
+		# TODO: stations should have a minimum distance to eachother
 		print i,
 		s = Station((random.randint(0 + 2 * STATIONSIZE, 
 								   MAX_X - 2 * STATIONSIZE),
 			        random.randint(0 + 2 * STATIONSIZE, 
 								   MAX_Y - 2 * STATIONSIZE)))
 		stations.append(s)	        
-		
+	print	
 
 def is_in_range(pos1,pos2,dist=STATIONSIZE):
 	"""returns true if pos1 and pos2 are not more than dist pixels apart"""
