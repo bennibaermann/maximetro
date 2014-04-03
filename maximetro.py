@@ -245,7 +245,8 @@ def main():
 
 		screen.fill(WHITE)
 			
-		# TODO: the whole handling of track-drawing should be in Track-class
+		# TODO: the whole handling of track-creation should be 
+		#       in the Line-class
 		for event in pygame.event.get():
 			if event.type == QUIT:
 				return
@@ -276,7 +277,7 @@ def main():
 			# elif event.type == MOUSEBUTTONUP:
 		
 		if draw_status:
-			pygame.draw.line(screen,BLACK,startpos,pos,5)
+			pygame.draw.line(screen,LINES[-1],startpos,pos,5)
 
 		update()
 
