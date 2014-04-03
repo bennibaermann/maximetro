@@ -91,13 +91,13 @@ class Car():
 class Track():
 	"""A railtrack between stations. Holds at minimum one Car"""
 	
-	def __init__(self,pos):
+	def __init__(self,start,end):
 		"""constructor should only be called, if LINES[] is not empty"""
 		
 		self.color = LINES.pop()
 		print "Track has color ", self.color
-		self.startpos = pos
-		self.endpos = pos
+		self.startpos = start
+		self.endpos = end
 		self.cars = []
 		self.cars.append(Car(self))
 			
@@ -239,6 +239,7 @@ def main():
 	pygame.display.update()
 
 	pos = (0,0);
+	startpos = (0,0)
 	# Event loop
 	while 1:
 
@@ -249,13 +250,15 @@ def main():
 			if event.type == QUIT:
 				return
 			elif event.type == MOUSEBUTTONDOWN:
+				draw_status = False
 				if LINES:
 					pos = event.pos
 					spos = is_station_pos(pos)
 					if spos and not draw_status:
-						track = Track(spos)
-						print "start drawing from " ,pos, " moving to ", track.startpos
-						draw_status = True
+						#track = Track(spos)
+						startpos = spos
+						print "start drawing from " ,pos, " moving to ", startpos
+						draw_status = True				
 				else:
 					print "NO MORE LINES AVAIABLE!"
 			elif event.type == MOUSEMOTION:
@@ -265,15 +268,15 @@ def main():
 				# TODO: there should be no station in the way 
 				#       (plus a little extrasize)
 				# TODO: should not cross other tracks
-				if draw_status and spos and not is_in_range(pos,track.startpos):
+				if draw_status and spos and not is_in_range(pos,startpos):
 					print "stop drawing at " , pos , " moving to " , spos
-					track.endpos = spos #??
+					track = Track(startpos, spos)
 					tracks.append(track)
 					draw_status = False
 			# elif event.type == MOUSEBUTTONUP:
 		
 		if draw_status:
-			pygame.draw.line(screen,BLACK,track.startpos,pos,5)
+			pygame.draw.line(screen,BLACK,startpos,pos,5)
 
 		update()
 
