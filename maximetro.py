@@ -4,6 +4,7 @@ import pygame
 from pygame.locals import *
 import Vec2D
 from Vec2D import *
+import random
 
 BLACK = (  0,   0,   0)
 WHITE = (255, 255, 255)
@@ -11,7 +12,10 @@ BLUE =  (  0,   0, 255)
 GREEN = (  0, 255,   0)
 RED =   (255,   0,   0)
 
-MAXLINE = 3
+MAXSTATIONS = 5
+
+MAX_X = MAX_Y = 500
+
 LINES = [BLUE,GREEN,RED]
 
 STATIONSIZE = 17
@@ -21,7 +25,7 @@ CARWITH = 10     # actually half of it
 CARLENGTH = 20   # actually half of it
 CARSPEED = 3
 
-screen = pygame.display.set_mode((500, 500))
+screen = pygame.display.set_mode((MAX_X, MAX_Y))
 
 
 class Car():
@@ -158,9 +162,22 @@ class Station():
 			pygame.draw.circle(screen,WHITE,pos,STATIONSIZE-STATIONTHICKNESS)
 
 
-stations = Station((110,150)),Station((230,200)),Station((140,300))
+stations = []
 tracks = []
 
+def init_city():
+	"""we set some Stations in place."""
+	
+	print "Setting stations..."
+	print range(0,MAXSTATIONS)
+	for i in range(0,MAXSTATIONS):
+		print i,
+		s = Station((random.randint(0 + 2 * STATIONSIZE, 
+								   MAX_X - 2 * STATIONSIZE),
+			        random.randint(0 + 2 * STATIONSIZE, 
+								   MAX_Y - 2 * STATIONSIZE)))
+		stations.append(s)	        
+		
 
 def is_in_range(pos1,pos2,dist=STATIONSIZE):
 	"""returns true if pos1 and pos2 are not more than dist pixels apart"""
@@ -197,7 +214,9 @@ def main():
 
 	# this status is True if the user is drawing a track
 	draw_status = False
-
+	
+	init_city()
+	
 	# Initialise screen
 	pygame.init()
 	clock = pygame.time.Clock()
