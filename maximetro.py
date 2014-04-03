@@ -11,19 +11,23 @@ WHITE = (255, 255, 255)
 BLUE =  (  0,   0, 255)
 GREEN = (  0, 255,   0)
 RED =   (255,   0,   0)
+MAGENTA = (255,0,255)
+CYAN = (0,255,255)
+YELLOW = (255,255,0)
 
 MAXSTATIONS = 5
 
 MAX_X = MAX_Y = 500
 
-LINES = [BLUE,GREEN,RED]
-
-STATIONSIZE = 17
-STATIONTHICKNESS = 5
+LINES = [YELLOW,MAGENTA,CYAN,GREEN,BLUE,RED]
 
 CARWITH = 10     # actually half of it
 CARLENGTH = 20   # actually half of it
 CARSPEED = 3
+
+STATIONSIZE = 17
+STATIONTHICKNESS = 5
+STATIONDISTANCE = CARLENGTH * 4
 
 screen = pygame.display.set_mode((MAX_X, MAX_Y))
 
@@ -76,7 +80,7 @@ class Car():
 		
 		self.pos = self.track.get_newpos(self.pos,self.counter,self.direction)
 		# print "new position: ", self.pos
-		if self.track.is_end(self.pos) and self.counter > 1:
+		if self.track.is_end(self.pos):
 			print "TURN AROUND!"
 			self.direction *= -1
 			print "NEW DIRECTION: ", self.direction
@@ -91,6 +95,7 @@ class Track():
 		"""constructor should only be called, if LINES[] is not empty"""
 		
 		self.color = LINES.pop()
+		print "Track has color ", self.color
 		self.startpos = pos
 		self.endpos = pos
 		self.cars = []
@@ -170,16 +175,24 @@ def init_city():
 	"""we set some Stations in place."""
 	
 	print "Setting stations..."
-	# print range(0,MAXSTATIONS)
 	for i in range(0,MAXSTATIONS):
-		# TODO: stations should have a minimum distance to eachother
-		print i,
-		s = Station((random.randint(0 + 2 * STATIONSIZE, 
+		foundpos = False
+		while not foundpos:
+			newstationpos = (random.randint(0 + 2 * STATIONSIZE, 
 								   MAX_X - 2 * STATIONSIZE),
 			        random.randint(0 + 2 * STATIONSIZE, 
-								   MAX_Y - 2 * STATIONSIZE)))
-		stations.append(s)	        
-	print	
+								   MAX_Y - 2 * STATIONSIZE))
+			print "trying position ", newstationpos
+			foundpos = True
+			for s in stations:
+				if is_in_range(newstationpos,s.pos,STATIONDISTANCE):
+					foundpos = False
+					print "... is to near to ", s.pos
+					
+			if foundpos:
+				print "position ok!"
+				s = Station(newstationpos)
+				stations.append(s)
 
 def is_in_range(pos1,pos2,dist=STATIONSIZE):
 	"""returns true if pos1 and pos2 are not more than dist pixels apart"""
@@ -251,6 +264,8 @@ def main():
 			elif event.type == MOUSEBUTTONUP:
 				spos = is_station_pos(pos)
 				# TODO: end should be not start
+				# TODO: there sould be no station in the way
+				# TODO: should not cross other tracks
 				if draw_status and spos:
 					print "stop drawing at " , pos , " moving to " , spos
 					track.endpos = spos
