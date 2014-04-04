@@ -91,11 +91,10 @@ class Car():
 class Track():
 	"""A railtrack between stations. Holds at minimum one Car"""
 	
-	def __init__(self,start,end):
+	def __init__(self,start,end,color):
 		"""constructor should only be called, if LINES[] is not empty"""
 		
-		self.color = LINES.pop()
-		print "Track has color ", self.color
+		self.color = color
 		self.startpos = start
 		self.endpos = end
 		self.cars = []
@@ -147,10 +146,23 @@ class Track():
 			return False
 		return True
 		
+
 class Line():
 	"""A line contains multiple tracks between stations"""
 	
-	# TODO
+	def __init__(self,start,end):
+		self.color = LINES.pop()
+		self.tracks = []
+		self.tracks.append(Track(start,end,self.color))
+		
+	def update(self):
+		for t in self.tracks:
+			t.update()
+			
+	def draw(self):
+		for t in self.tracks:
+			t.draw()
+
 
 class Station():
 	"""a station"""
@@ -169,7 +181,7 @@ class Station():
 
 
 stations = []
-tracks = []
+lines = []
 
 def init_city():
 	"""we set some Stations in place."""
@@ -220,9 +232,10 @@ def is_station_pos(pos):
 def update():
 	"""updates (position of) all user independent objects"""
 	
-	for t in tracks:
-		for c in t.cars:
-			c.update()
+	for l in lines:
+		for t in l.tracks:
+			for c in t.cars:
+				c.update()
 
 
 def main():
@@ -271,8 +284,8 @@ def main():
 				# TODO: should not cross other tracks
 				if draw_status and spos and not is_in_range(pos,startpos):
 					print "stop drawing at " , pos , " moving to " , spos
-					track = Track(startpos, spos)
-					tracks.append(track)
+					line = Line(startpos, spos)
+					lines.append(line)
 					draw_status = False
 			# elif event.type == MOUSEBUTTONUP:
 		
@@ -282,8 +295,8 @@ def main():
 		update()
 
 		# display all stations and tracks
-		for t in tracks:
-			t.draw()		
+		for l in lines:
+			l.draw()		
 		for s in stations:
 			s.draw()
 
