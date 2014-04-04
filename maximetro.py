@@ -15,7 +15,7 @@ MAGENTA = (255,0,255)
 CYAN = (0,255,255)
 YELLOW = (255,255,0)
 
-MAXSTATIONS = 5
+MAXSTATIONS = 8
 
 MAX_X = MAX_Y = 500
 
@@ -91,14 +91,15 @@ class Car():
 class Track():
 	"""A railtrack between stations. Holds at minimum one Car"""
 	
-	def __init__(self,start,end,color):
+	def __init__(self,start,end,color,withcar=1):
 		"""constructor should only be called, if LINES[] is not empty"""
 		
 		self.color = color
 		self.startpos = start
 		self.endpos = end
 		self.cars = []
-		self.cars.append(Car(self))
+		if withcar:
+			self.cars.append(Car(self))
 			
 		
 	def draw(self):
@@ -291,7 +292,7 @@ def main():
 						print "appending track to line..."
 						# startpos = spos
 
-						line.tracks.append(Track(startpos,spos,line.color))
+						line.tracks.append(Track(startpos,spos,line.color,0))
 					else:
 						print "creating new line..."
 						line = Line(startpos, spos)
