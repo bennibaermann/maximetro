@@ -151,7 +151,7 @@ class Line():
 	"""A line contains multiple tracks between stations"""
 	
 	def __init__(self,start,end):
-		self.color = LINES.pop()
+		self.color = LINES[-1]
 		self.tracks = []
 		self.tracks.append(Track(start,end,self.color))
 		
@@ -220,8 +220,7 @@ def is_in_range(pos1,pos2,dist=STATIONSIZE):
 	return True
 
 def is_station_pos(pos):
-	"""returns center of station if at pos is a station.
-	this could maybe easier implemented with SpriteGroups?"""
+	"""returns center of station if at pos is a station."""
 	
 	for s in stations:
 		if is_in_range(pos,s.pos):
@@ -253,6 +252,8 @@ def main():
 
 	pos = (0,0);
 	startpos = (0,0)
+	have_line = False
+	line = ""
 	# Event loop
 	while 1:
 
@@ -265,6 +266,9 @@ def main():
 				return
 			elif event.type == MOUSEBUTTONDOWN:
 				draw_status = False
+				if have_line:
+					LINES.pop()
+				have_line = False
 				if LINES:
 					pos = event.pos
 					spos = is_station_pos(pos)
@@ -272,21 +276,29 @@ def main():
 						#track = Track(spos)
 						startpos = spos
 						print "start drawing from " ,pos, " moving to ", startpos
-						draw_status = True				
+						draw_status = True
 				else:
 					print "NO MORE LINES AVAIABLE!"
 			elif event.type == MOUSEMOTION:
 				pos = event.pos
 				spos = is_station_pos(pos)
-				# TODO: end should be not start
 				# TODO: there should be no station in the way 
 				#       (plus a little extrasize)
 				# TODO: should not cross other tracks
 				if draw_status and spos and not is_in_range(pos,startpos):
 					print "stop drawing at " , pos , " moving to " , spos
-					line = Line(startpos, spos)
-					lines.append(line)
-					draw_status = False
+					if have_line:
+						print "appending track to line..."
+						# startpos = spos
+
+						line.tracks.append(Track(startpos,spos,line.color))
+					else:
+						print "creating new line..."
+						line = Line(startpos, spos)
+						lines.append(line)
+						have_line = True
+					startpos = spos
+						# draw_status = False
 			# elif event.type == MOUSEBUTTONUP:
 		
 		if draw_status:
