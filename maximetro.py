@@ -106,6 +106,10 @@ class Track():
 		pygame.draw.line(screen,self.color,self.startpos,self.endpos,5)
 		for c in self.cars:
 			c.draw()
+			
+	def update(self):
+		for c in self.cars:
+			c.update()
 
 	def length(self):
 		"""returns the length of the track"""
@@ -134,7 +138,7 @@ class Track():
 		return ret
 		
 	def is_end(self,pos):
-		"""returns True if is one of the ends of the track"""
+		"""returns True if pos is not on track"""
 	
 		start = self.startpos
 		end = self.endpos
@@ -233,10 +237,7 @@ def update():
 	"""updates (position of) all user independent objects"""
 	
 	for l in lines:
-		for t in l.tracks:
-			for c in t.cars:
-				c.update()
-
+		l.update()
 
 def main():
 
