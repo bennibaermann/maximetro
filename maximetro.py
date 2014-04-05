@@ -33,6 +33,7 @@ STATIONDISTANCE = CARLENGTH * 4
 
 PASSANGERSIZE = 7
 PASSENGERPROBABILITY = .002
+MAXWAITING = 5
 
 FPS = 30
 
@@ -275,8 +276,10 @@ class Station():
 				
 	def update(self):
 		if random.random() < PASSENGERPROBABILITY:
-			self.passengers.append(Passenger(self))
-			
+			if len(self.passengers) < MAXWAITING:
+				self.passengers.append(Passenger(self))
+			else:
+				print "game over!"
 
 stations = []
 lines = []
