@@ -31,6 +31,8 @@ STATIONSIZE = 17
 STATIONTHICKNESS = 5
 STATIONDISTANCE = CARLENGTH * 4
 
+PASSANGERSIZE = 5
+
 FPS = 30
 
 screen = pygame.display.set_mode((MAX_X, MAX_Y))
@@ -217,6 +219,20 @@ class Line():
 		for t in self.tracks:
 			t.draw()
 
+class Passenger():
+	"""they want to travel!"""
+	
+	def __init__(self,station):
+		self.station = station
+		shapes = list(SHAPES) # copy list the fastest way
+		shapes.remove(station.shape)
+		self.shape = random.choice(shapes)
+
+	def draw(self,pos):
+		if self.shape == 'circle':
+			pygame.draw.circle(screen,BLACK,pos,PASSANGERSIZE)
+			
+
 
 class Station():
 	"""a station"""
@@ -226,20 +242,27 @@ class Station():
 			shape = random.choice(SHAPES)
 		self.shape = shape
 		self.pos = pos
+		self.passengers = [Passenger(self)]
 		
 	def draw(self):
 		size = 20
 		pos = self.pos
 
+		# TODO: calculate area of shapes to make it same size optical 
+		#		dont use this ugly constants anymore
 		if self.shape == 'circle':
 			pygame.draw.circle(screen,BLACK,pos,STATIONSIZE)
 			pygame.draw.circle(screen,WHITE,pos,STATIONSIZE-STATIONTHICKNESS)
 		if self.shape == 'triangle':
-			draw_triangle(pos,STATIONSIZE,BLACK)
-			draw_triangle(pos,STATIONSIZE-STATIONTHICKNESS*2,WHITE)
+			draw_triangle(pos,STATIONSIZE+4,BLACK)
+			draw_triangle(pos,STATIONSIZE+4-STATIONTHICKNESS*2,WHITE)
 		if self.shape == 'square':
-			draw_square(pos,STATIONSIZE,BLACK)
-			draw_square(pos,STATIONSIZE-STATIONTHICKNESS,WHITE)
+			draw_square(pos,STATIONSIZE-3,BLACK)
+			draw_square(pos,STATIONSIZE-STATIONTHICKNESS-3,WHITE)
+
+		for p in self.passengers:
+			p.draw((pos[0]+STATIONSIZE*2,pos[1]))
+				
 
 stations = []
 lines = []
