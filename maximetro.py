@@ -29,7 +29,7 @@ STATIONSIZE = 17
 STATIONTHICKNESS = 5
 STATIONDISTANCE = CARLENGTH * 4
 
-FPS = 40
+FPS = 30
 
 screen = pygame.display.set_mode((MAX_X, MAX_Y))
 
@@ -163,36 +163,37 @@ class Line():
 		self.tracks = []
 		self.tracks.append(Track(start,end,self.color,self))
 		
+	def is_circle(self):
+		if self.tracks[0].startpos == self.tracks[-1].endpos:
+			return True
+		return False
+		
 	def update(self):
 		for t in self.tracks:
 			if t.cars:
 				for c in t.cars:
 					self.update_car(t,c)
-				
+
 	def update_car(self,track,car):
 		"""calculate new position of cars"""
 	
 		car.pos = track.get_newpos(car.pos,car.counter,car.direction)
-		# print "new position: ", self.pos
 
 		if track.is_end(car.pos):
 			pil = self.tracks.index(track)
 			line = track.line
-			next_track = track
-			if car.direction > 0:
-				if pil < len(self.tracks) - 1:
-					next_track = self.tracks[pil+1]
+			
+			next_pil = pil + car.direction
+			if next_pil < 0 or next_pil > len(self.tracks)-1:
+				if self.is_circle():
+					next_pil = (car.direction -1) / 2
 				else:
 					car.direction *= -1
+					next_pil = pil
 					print "NEW DIRECTION: ", car.direction
-
-			else:
-				if pil > 0:
-					next_track = self.tracks[pil-1]
-				else:
-					car.direction *= -1
-					print "NEW DIRECTION: ", car.direction
-
+				
+			next_track = self.tracks[next_pil]
+							
 			track.cars.remove(car)
 			next_track.add_car(car)
 			car.counter = 0
