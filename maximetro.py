@@ -31,7 +31,8 @@ STATIONSIZE = 17
 STATIONTHICKNESS = 5
 STATIONDISTANCE = CARLENGTH * 4
 
-PASSANGERSIZE = 5
+PASSANGERSIZE = 7
+PASSENGERPROBABILITY = .002
 
 FPS = 30
 
@@ -228,10 +229,13 @@ class Passenger():
 		shapes.remove(station.shape)
 		self.shape = random.choice(shapes)
 
-	def draw(self,pos):
+	def draw(self,pos,angle=0):
 		if self.shape == 'circle':
 			pygame.draw.circle(screen,BLACK,pos,PASSANGERSIZE)
-			
+		elif self.shape == 'triangle':
+			draw_triangle(pos,PASSANGERSIZE+1,BLACK)
+		elif self.shape == 'square':
+			draw_square(pos,PASSANGERSIZE-1,BLACK)
 
 
 class Station():
@@ -242,7 +246,11 @@ class Station():
 			shape = random.choice(SHAPES)
 		self.shape = shape
 		self.pos = pos
-		self.passengers = [Passenger(self)]
+		self.passengers = []
+		# self.passengers = [Passenger(self)]
+		
+	def add_passenger(self):
+		passengers.append(Passenger(self))
 		
 	def draw(self):
 		size = 20
@@ -260,9 +268,15 @@ class Station():
 			draw_square(pos,STATIONSIZE-3,BLACK)
 			draw_square(pos,STATIONSIZE-STATIONTHICKNESS-3,WHITE)
 
+		count = 0
 		for p in self.passengers:
-			p.draw((pos[0]+STATIONSIZE*2,pos[1]))
+			p.draw((pos[0]+int(STATIONSIZE*1.5)+STATIONSIZE*count,pos[1]))
+			count += 1
 				
+	def update(self):
+		if random.random() < PASSENGERPROBABILITY:
+			self.passengers.append(Passenger(self))
+			
 
 stations = []
 lines = []
@@ -317,6 +331,8 @@ def update():
 	
 	for l in lines:
 		l.update()
+	for s in stations:
+		s.update()
 
 def main():
 
@@ -392,7 +408,7 @@ def main():
 			l.draw()		
 		for s in stations:
 			s.draw()
-
+			
 		pygame.display.update()
 		msElapsed = clock.tick(FPS) # TODO: Gamespeed should be FPS-independent
 		
