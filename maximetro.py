@@ -15,6 +15,8 @@ MAGENTA = (255,0,255)
 CYAN = (0,255,255)
 YELLOW = (255,255,0)
 
+SHAPES = ('circle','triangle','square')
+
 MAXSTATIONS = 8
 
 MAX_X = MAX_Y = 500
@@ -33,6 +35,22 @@ FPS = 30
 
 screen = pygame.display.set_mode((MAX_X, MAX_Y))
 
+def draw_triangle(pos,size,color):
+	"""draws an equilateral triangle in the outer circle at pos with size in color"""
+	b = size / 2
+	x = (size*size - b*b) ** .5
+	# print "size: ", size, "x: ", x, "b: ",b
+	poly = ((pos[0],pos[1]-size),
+		(pos[0]+x,pos[1]+b),
+		(pos[0]-x,pos[1]+b))
+	pygame.draw.polygon(screen,color,poly,0)
+		
+def draw_square(pos,size,color):
+	"""draw square at pos with size in color"""
+	rect = pygame.Rect(pos[0]-size,pos[1]-size,
+					   size*2,size*2)
+	pygame.draw.rect(screen,color,rect)
+	
 
 class Car():
 	"""A railcar. Each track holds at least one"""
@@ -79,7 +97,7 @@ class Car():
 
 
 class Track():
-	"""A railtrack between stations. Holds at minimum one Car"""
+	"""A railtrack between stations."""
 	
 	def __init__(self,start,end,color,line,withcar=1):
 		"""constructor should only be called, if LINES[] is not empty"""
@@ -141,14 +159,8 @@ class Track():
 		   y_range[0] <= pos[1] <= y_range[1]):
 			return False
 		return True
-		
-#	def remove_car(self,car):
-#		for c in self.cars:
-#			if c == car:
-#				
-#				print "REMOVE!"
-		
-		
+	
+	
 	def add_car(self,car):
 		car.track = self
 		self.cars.append(car)
@@ -209,7 +221,9 @@ class Line():
 class Station():
 	"""a station"""
 
-	def __init__(self,pos,shape='circle'):
+	def __init__(self,pos,shape=''):
+		if not shape:
+			shape = random.choice(SHAPES)
 		self.shape = shape
 		self.pos = pos
 		
@@ -220,7 +234,12 @@ class Station():
 		if self.shape == 'circle':
 			pygame.draw.circle(screen,BLACK,pos,STATIONSIZE)
 			pygame.draw.circle(screen,WHITE,pos,STATIONSIZE-STATIONTHICKNESS)
-
+		if self.shape == 'triangle':
+			draw_triangle(pos,STATIONSIZE,BLACK)
+			draw_triangle(pos,STATIONSIZE-STATIONTHICKNESS*2,WHITE)
+		if self.shape == 'square':
+			draw_square(pos,STATIONSIZE,BLACK)
+			draw_square(pos,STATIONSIZE-STATIONTHICKNESS,WHITE)
 
 stations = []
 lines = []
