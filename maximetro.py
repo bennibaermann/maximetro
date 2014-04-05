@@ -29,6 +29,8 @@ STATIONSIZE = 17
 STATIONTHICKNESS = 5
 STATIONDISTANCE = CARLENGTH * 4
 
+FPS = 40
+
 screen = pygame.display.set_mode((MAX_X, MAX_Y))
 
 
@@ -75,25 +77,14 @@ class Car():
 		pygame.draw.polygon(screen,self.track.color,moved,0)
 		# pygame.draw.aalines(screen,BLUE,False,moved,5)
 
-	def update(self):
-		"""calculate new position of car"""
-		
-		self.pos = self.track.get_newpos(self.pos,self.counter,self.direction)
-		# print "new position: ", self.pos
-		if self.track.is_end(self.pos):
-			print "TURN AROUND!"
-			self.direction *= -1
-			print "NEW DIRECTION: ", self.direction
-			self.counter = 0
-		self.counter += 1
-
 
 class Track():
 	"""A railtrack between stations. Holds at minimum one Car"""
 	
-	def __init__(self,start,end,color,withcar=1):
+	def __init__(self,start,end,color,line,withcar=1):
 		"""constructor should only be called, if LINES[] is not empty"""
-		
+		# self.pos_in_line = pil
+		self.line = line
 		self.color = color
 		self.startpos = start
 		self.endpos = end
@@ -151,6 +142,18 @@ class Track():
 			return False
 		return True
 		
+#	def remove_car(self,car):
+#		for c in self.cars:
+#			if c == car:
+#				
+#				print "REMOVE!"
+		
+		
+	def add_car(self,car):
+		car.track = self
+		self.cars.append(car)
+	
+		
 
 class Line():
 	"""A line contains multiple tracks between stations"""
@@ -158,12 +161,45 @@ class Line():
 	def __init__(self,start,end):
 		self.color = LINES[-1]
 		self.tracks = []
-		self.tracks.append(Track(start,end,self.color))
+		self.tracks.append(Track(start,end,self.color,self))
 		
 	def update(self):
 		for t in self.tracks:
-			t.update()
-			
+			if t.cars:
+				for c in t.cars:
+					self.update_car(t,c)
+				
+	def update_car(self,track,car):
+		"""calculate new position of cars"""
+	
+		car.pos = track.get_newpos(car.pos,car.counter,car.direction)
+		# print "new position: ", self.pos
+
+		if track.is_end(car.pos):
+			pil = self.tracks.index(track)
+			line = track.line
+			next_track = track
+			if car.direction > 0:
+				if pil < len(self.tracks) - 1:
+					next_track = self.tracks[pil+1]
+				else:
+					car.direction *= -1
+					print "NEW DIRECTION: ", car.direction
+
+			else:
+				if pil > 0:
+					next_track = self.tracks[pil-1]
+				else:
+					car.direction *= -1
+					print "NEW DIRECTION: ", car.direction
+
+			track.cars.remove(car)
+			next_track.add_car(car)
+			car.counter = 0
+
+		car.counter += 1
+		
+		
 	def draw(self):
 		for t in self.tracks:
 			t.draw()
@@ -293,7 +329,7 @@ def main():
 						print "appending track to line..."
 						# startpos = spos
 
-						line.tracks.append(Track(startpos,spos,line.color,0))
+						line.tracks.append(Track(startpos,spos,line.color,line,0))
 					else:
 						print "creating new line..."
 						line = Line(startpos, spos)
@@ -315,7 +351,7 @@ def main():
 			s.draw()
 
 		pygame.display.update()
-		msElapsed = clock.tick(10)
+		msElapsed = clock.tick(FPS) # TODO: Gamespeed should be FPS-independent
 		
 		
 if __name__ == '__main__': main()
