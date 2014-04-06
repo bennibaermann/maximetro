@@ -24,6 +24,7 @@ LINES = [YELLOW,MAGENTA,CYAN,GREEN,BLUE,RED]
 CARWITH = 10     # actually half of it
 CARLENGTH = 20   # actually half of it
 CARSPEED = 3
+CARCAPACITY = 1
 
 STATIONSIZE = 17
 STATIONTHICKNESS = 5
@@ -203,17 +204,21 @@ class Line():
 			
 			# moving passengers
 			station = get_station(car.pos)
+			for p in car.passengers:
+				if station.shape == p.shape:
+					car.passengers.remove(p) # TODO: PERFORMANCE
 			for p in station.passengers:
-				station.passengers.remove(p)
-				car.passengers.append(p)
-			
+				if len(car.passengers) < CARCAPACITY:
+					station.passengers.remove(p) # TODO: PERFORMANCE
+					car.passengers.append(p)
+	
 			# which is next track?
 			pil = self.tracks.index(track)
 			next_pil = pil + car.direction
 			if next_pil < 0 or next_pil > len(self.tracks)-1:
 				if self.is_circle():
 					# this transforms from direction -1/1 to index -1/0
-					next_pil = (car.direction -1) / 2
+					next_pil = (car.direction - 1) / 2
 				else:
 					car.direction *= -1
 					next_pil = pil
