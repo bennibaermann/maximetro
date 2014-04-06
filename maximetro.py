@@ -19,8 +19,6 @@ SHAPES = ('circle','triangle','square')
 
 MAXSTATIONS = 8
 
-MAX_X = MAX_Y = 500
-
 LINES = [YELLOW,MAGENTA,CYAN,GREEN,BLUE,RED]
 
 CARWITH = 10     # actually half of it
@@ -34,6 +32,11 @@ STATIONDISTANCE = CARLENGTH * 4
 PASSANGERSIZE = 7
 PASSENGERPROBABILITY = .002
 MAXWAITING = 5
+
+RIGHT_OFFSET = int(MAXWAITING * STATIONSIZE) 
+
+MAX_Y = 500
+MAX_X = MAX_Y + RIGHT_OFFSET
 
 FPS = 30
 
@@ -66,6 +69,7 @@ class Car():
 		self.counter = 0
 		self.poly = ((-CARWITH,-CARLENGTH),(-CARWITH,CARLENGTH),
 		   			 (CARWITH,CARLENGTH),(CARWITH,-CARLENGTH))
+		self.passengers = []
 			
 	def move(self):
 		"""returns the moved polygon to self.pos with angle of self.track"""
@@ -79,7 +83,7 @@ class Car():
 		v = Vec2d(start[0]-end[0],start[1]-end[1])
 		angle = v.get_angle() + 90
 		
-		# turn around
+		# rotate car
 		turnedpol = []
 		for p in pol:
 			v = Vec2d(p)
@@ -97,8 +101,8 @@ class Car():
 
 		moved = self.move()
 		pygame.draw.polygon(screen,self.track.color,moved,0)
-		# pygame.draw.aalines(screen,BLUE,False,moved,5)
-
+		for p in self.passengers:
+			p.draw(self.pos)
 
 class Track():
 	"""A railtrack between stations."""
@@ -196,12 +200,19 @@ class Line():
 		car.pos = track.get_newpos(car.pos,car.counter,car.direction)
 
 		if track.is_end(car.pos):
-			pil = self.tracks.index(track)
-			line = track.line
 			
+			# moving passengers
+			station = get_station(car.pos)
+			for p in station.passengers:
+				station.passengers.remove(p)
+				car.passengers.append(p)
+			
+			# which is next track?
+			pil = self.tracks.index(track)
 			next_pil = pil + car.direction
 			if next_pil < 0 or next_pil > len(self.tracks)-1:
 				if self.is_circle():
+					# this transforms from direction -1/1 to index -1/0
 					next_pil = (car.direction -1) / 2
 				else:
 					car.direction *= -1
@@ -209,7 +220,8 @@ class Line():
 					print "NEW DIRECTION: ", car.direction
 				
 			next_track = self.tracks[next_pil]
-							
+			
+			# move car to next track
 			track.cars.remove(car)
 			next_track.add_car(car)
 			car.counter = 0
@@ -292,7 +304,7 @@ def init_city():
 		foundpos = False
 		while not foundpos:
 			newstationpos = (random.randint(0 + 2 * STATIONSIZE, 
-								   MAX_X - 2 * STATIONSIZE),
+								   MAX_X - 2 * STATIONSIZE - RIGHT_OFFSET),
 			        random.randint(0 + 2 * STATIONSIZE, 
 								   MAX_Y - 2 * STATIONSIZE))
 			print "trying position ", newstationpos
@@ -328,6 +340,9 @@ def is_station_pos(pos):
 			return s.pos
 	return False
 
+def get_station(pos):
+	"""returns station at position"""
+	return next(s for s in stations if s.pos == is_station_pos(pos))
 
 def update():
 	"""updates (position of) all user independent objects"""
@@ -406,6 +421,9 @@ def main():
 
 		update()
 
+		pygame.draw.line(screen,BLACK,(MAX_X-RIGHT_OFFSET,0),
+									  (MAX_X-RIGHT_OFFSET,MAX_Y))
+			
 		# display all stations and tracks
 		for l in lines:
 			l.draw()		
