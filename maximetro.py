@@ -17,7 +17,7 @@ YELLOW = (255,255,0)
 
 SHAPES = ('circle','triangle','square')
 
-MAXSTATIONS = 8
+MAXSTATIONS = 15
 
 LINES = [YELLOW,MAGENTA,CYAN,GREEN,BLUE,RED]
 
@@ -40,6 +40,9 @@ MAX_Y = 500
 MAX_X = MAX_Y + RIGHT_OFFSET
 
 FPS = 30
+
+score = 0
+gameover = False
 
 screen = pygame.display.set_mode((MAX_X, MAX_Y))
 
@@ -197,7 +200,8 @@ class Line():
 
 	def update_car(self,track,car):
 		"""calculate new position of cars"""
-	
+		global score # TODO: ugly
+		
 		car.pos = track.get_newpos(car.pos,car.counter,car.direction)
 
 		if track.is_end(car.pos):
@@ -207,6 +211,8 @@ class Line():
 			for p in car.passengers:
 				if station.shape == p.shape:
 					car.passengers.remove(p) # TODO: PERFORMANCE
+					score += 1
+					print "Score: ", score
 			for p in station.passengers:
 				if len(car.passengers) < CARCAPACITY:
 					station.passengers.remove(p) # TODO: PERFORMANCE
@@ -222,7 +228,7 @@ class Line():
 				else:
 					car.direction *= -1
 					next_pil = pil
-					print "NEW DIRECTION: ", car.direction
+					# print "NEW DIRECTION: ", car.direction
 				
 			next_track = self.tracks[next_pil]
 			
@@ -292,18 +298,20 @@ class Station():
 			count += 1
 				
 	def update(self):
+		global gameover
 		if random.random() < PASSENGERPROBABILITY:
 			if len(self.passengers) < MAXWAITING:
 				self.passengers.append(Passenger(self))
 			else:
-				print "game over!"
+				print "game over! Your score: ", score
+				gameover = True
 
 stations = []
 lines = []
 
 def init_city():
 	"""we set some Stations in place."""
-	
+
 	print "Setting stations..."
 	for i in range(0,MAXSTATIONS):
 		foundpos = False
@@ -358,7 +366,7 @@ def update():
 		s.update()
 
 def main():
-
+	
 	# this status is True if the user is drawing a track
 	draw_status = False
 	
@@ -382,7 +390,7 @@ def main():
 		# TODO: the whole handling of track-creation should be 
 		#       in the Line-class
 		for event in pygame.event.get():
-			if event.type == QUIT:
+			if event.type == QUIT or gameover:
 				return
 			elif event.type == MOUSEBUTTONDOWN:
 				draw_status = False
