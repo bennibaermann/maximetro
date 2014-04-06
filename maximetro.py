@@ -19,7 +19,7 @@ SHAPES = ('circle','triangle','square')
 
 MAXSTATIONS = 15
 
-LINES = [YELLOW,MAGENTA,CYAN,GREEN,BLUE,RED]
+LINES = [CYAN,GREEN,BLUE,RED]
 
 CARWITH = 10     # actually half of it
 CARLENGTH = 20   # actually half of it
@@ -383,14 +383,14 @@ def main():
 	have_line = False
 	line = ""
 	# Event loop
-	while 1:
+	while not gameover:
 
 		screen.fill(WHITE)
 			
 		# TODO: the whole handling of track-creation should be 
 		#       in the Line-class
 		for event in pygame.event.get():
-			if event.type == QUIT or gameover:
+			if event.type == QUIT:
 				return
 			elif event.type == MOUSEBUTTONDOWN:
 				draw_status = False
