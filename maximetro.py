@@ -46,17 +46,39 @@ gameover = False
 
 screen = pygame.display.set_mode((MAX_X, MAX_Y))
 
-def draw_triangle(pos,size,color):
+def rotate_poly(pol,angle):
+	"""rotate polygon pol around (0,0) with angle and returns turned one"""
+
+	# rotate car
+	turnedpol = []
+	for p in pol:
+		v = Vec2d(p)
+		turnedpol.append(v.rotated(angle))
+	return turnedpol
+
+def move_poly(poly,pos):
+	"""return a moved polygon shiftet with pos"""
+	ret = []
+	for p in poly:
+		ret.append([p[0] + pos[0], p[1] + pos[1]])
+	return ret
+
+
+def draw_triangle(pos,size,color,angle=0):
 	"""draws an equilateral triangle in the outer circle at pos with size in color"""
 	b = size / 2
 	x = (size*size - b*b) ** .5
-	# print "size: ", size, "x: ", x, "b: ",b
-	poly = ((pos[0],pos[1]-size),
-		(pos[0]+x,pos[1]+b),
-		(pos[0]-x,pos[1]+b))
+	
+	triangle = ((0,-size),(x,b),(-x,b))
+	if angle:
+		triangle = rotate_poly(triangle,angle)
+	poly = move_poly(triangle,pos)
+	#poly = ((pos[0],pos[1]-size),
+	#	(pos[0]+x,pos[1]+b),
+	#	(pos[0]-x,pos[1]+b))
 	pygame.draw.polygon(screen,color,poly,0)
 		
-def draw_square(pos,size,color):
+def draw_square(pos,size,color,angle=0):
 	"""draw square at pos with size in color"""
 	rect = pygame.Rect(pos[0]-size,pos[1]-size,
 					   size*2,size*2)
@@ -74,6 +96,7 @@ class Car():
 		self.poly = ((-CARWITH,-CARLENGTH),(-CARWITH,CARLENGTH),
 		   			 (CARWITH,CARLENGTH),(CARWITH,-CARLENGTH))
 		self.passengers = []
+		self.angle = 0
 			
 	def move(self):
 		"""returns the moved polygon to self.pos with angle of self.track"""
@@ -82,20 +105,17 @@ class Car():
 		pol = self.poly
 
 		# determine angle of track 
+		# TODO: should calculated only once
 		start = self.track.startpos
 		end = self.track.endpos
 		v = Vec2d(start[0]-end[0],start[1]-end[1])
-		angle = v.get_angle() + 90
+		self.angle = v.get_angle() + 90
 		
 		# rotate car
-		turnedpol = []
-		for p in pol:
-			v = Vec2d(p)
-			turnedpol.append(v.rotated(angle))
-		
+		turnedpol = rotate_poly(pol,self.angle)
+	
 		# move to self.pos
-		for p in turnedpol:
-			ret.append([p[0] + self.pos[0], p[1] + self.pos[1]])
+		ret = move_poly(turnedpol,self.pos)
 		
 		return ret
 			
@@ -106,7 +126,7 @@ class Car():
 		moved = self.move()
 		pygame.draw.polygon(screen,self.track.color,moved,0)
 		for p in self.passengers:
-			p.draw(self.pos)
+			p.draw(self.pos,self.angle)
 
 class Track():
 	"""A railtrack between stations."""
@@ -257,9 +277,9 @@ class Passenger():
 		if self.shape == 'circle':
 			pygame.draw.circle(screen,BLACK,pos,PASSANGERSIZE)
 		elif self.shape == 'triangle':
-			draw_triangle(pos,PASSANGERSIZE+1,BLACK)
+			draw_triangle(pos,PASSANGERSIZE+1,BLACK,angle)
 		elif self.shape == 'square':
-			draw_square(pos,PASSANGERSIZE-1,BLACK)
+			draw_square(pos,PASSANGERSIZE-1,BLACK,angle)
 
 
 class Station():
@@ -383,7 +403,7 @@ def main():
 	have_line = False
 	line = ""
 	# Event loop
-	while not gameover:
+	while 1: # not gameover:
 
 		screen.fill(WHITE)
 			
