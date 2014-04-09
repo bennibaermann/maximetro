@@ -294,6 +294,11 @@ class Line():
 		"""deletes the last track from the line"""
 		
 		print "delete track from line color: ", self.color
+		track = self.tracks[-1]
+		if track.cars:
+			print "we can't delete tracks with cars"
+		else:
+			self.tracks.pop()
 		
 		
 
