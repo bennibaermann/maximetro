@@ -277,6 +277,18 @@ class Line():
 			t.draw()
 			
 
+	def __contains__(self,shape):
+		"""returns True if Line contains stations with shape"""
+
+		for pos in self.stations:
+			sshape = None
+			for s in stations:
+				if s.pos == pos:
+					sshape = s.shape
+			if shape == sshape:
+				return True
+		return False
+
 class Passenger():
 	"""they want to travel!"""
 	
@@ -308,14 +320,16 @@ class Passenger():
 		
 		# stupid passenger: sits in car if shape is on line, leaves otherwise
 		if self.car:
-			# should be maybe in Line.__contains__?
-			for pos in self.car.track.line.stations:
-				shape = None
-				for s in stations:
-					if s.pos == pos:
-						shape = s.shape
-				if shape == self.shape:
-					return False
+			if self.shape in self.car.track.line:
+				return False
+			# # should be maybe in Line.__contains__?
+			# for pos in self.car.track.line.stations:
+				# shape = None
+				# for s in stations:
+					# if s.pos == pos:
+						# shape = s.shape
+				# if shape == self.shape:
+					# return False
 		
 		return True
 
