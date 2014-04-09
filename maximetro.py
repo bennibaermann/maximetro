@@ -80,9 +80,15 @@ def draw_triangle(pos,size,color,angle=0):
 		
 def draw_square(pos,size,color,angle=0):
 	"""draw square at pos with size in color"""
-	rect = pygame.Rect(pos[0]-size,pos[1]-size,
-					   size*2,size*2)
-	pygame.draw.rect(screen,color,rect)
+
+	#rect = pygame.Rect(pos[0]-size,pos[1]-size,
+	#				   size*2,size*2)
+	square = ((-size,-size),(-size,size),(size,size),(size,-size))
+	if angle:
+		square = rotate_poly(square,angle)
+	rect = move_poly(square,pos)
+	
+	pygame.draw.polygon(screen,color,rect,0)
 	
 
 class Car():
