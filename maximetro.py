@@ -19,7 +19,7 @@ SHAPES = ('circle','triangle','square')
 
 MAXSTATIONS = 15
 
-LINES = [CYAN,GREEN,BLUE,RED]
+LINES = [YELLOW,MAGENTA,CYAN,GREEN,BLUE,RED]
 
 CARWITH = 10     # actually half of it
 CARLENGTH = 20   # actually half of it
@@ -31,7 +31,7 @@ STATIONTHICKNESS = 5
 STATIONDISTANCE = CARLENGTH * 4
 
 PASSANGERSIZE = 7
-PASSENGERPROBABILITY = .002
+PASSENGERPROBABILITY = .001
 MAXWAITING = 5
 
 RIGHT_OFFSET = int(MAXWAITING * STATIONSIZE) 
@@ -206,6 +206,7 @@ class Line():
 		self.color = LINES[-1]
 		self.tracks = []
 		self.tracks.append(Track(start,end,self.color,self))
+		self.stations = [start,end]
 		
 	def is_circle(self):
 		if self.tracks[0].startpos == self.tracks[-1].endpos:
@@ -228,15 +229,26 @@ class Line():
 			
 			# moving passengers
 			station = get_station(car.pos)
+			platform = [] # just for intermediate memory
 			for p in car.passengers:
-				if station.shape == p.shape:
+				if p.leave_at(station):
+					# p leaves the car
 					car.passengers.remove(p) # TODO: PERFORMANCE
-					score += 1
-					print "Score: ", score
+					if p.shape == station.shape:
+						score += 1
+						print "Score: ", score
+					else:
+						# transition
+						platform.append(p) 
 			for p in station.passengers:
-				if len(car.passengers) < CARCAPACITY:
+				if len(car.passengers) < CARCAPACITY and p.enter(car):
+					# p enters the car
 					station.passengers.remove(p) # TODO: PERFORMANCE
 					car.passengers.append(p)
+					p.car = car 
+			for p in platform:
+				station.passengers.append(p)
+	
 	
 			# which is next track?
 			pil = self.tracks.index(track)
@@ -263,15 +275,17 @@ class Line():
 	def draw(self):
 		for t in self.tracks:
 			t.draw()
+			
 
 class Passenger():
 	"""they want to travel!"""
 	
 	def __init__(self,station):
 		self.station = station
-		shapes = list(SHAPES) # copy list the fastest way
+		shapes = list(SHAPES) # copy list
 		shapes.remove(station.shape)
 		self.shape = random.choice(shapes)
+		self.car = None
 
 	def draw(self,pos,angle=0):
 		if self.shape == 'circle':
@@ -281,6 +295,29 @@ class Passenger():
 		elif self.shape == 'square':
 			draw_square(pos,PASSANGERSIZE-1,BLACK,angle)
 
+	def enter(self,car):
+		"""returns True if this passenger wants to enter this car"""
+		
+		return True
+
+	def leave_at(self,station):
+		"""returns True if this passenger wants to leave the car at the station"""
+		
+		if station.shape == self.shape:
+			return True
+		
+		# stupid passenger: sits in car if shape is on line, leaves otherwise
+		if self.car:
+			# should be maybe in Line.__contains__?
+			for pos in self.car.track.line.stations:
+				shape = None
+				for s in stations:
+					if s.pos == pos:
+						shape = s.shape
+				if shape == self.shape:
+					return False
+		
+		return True
 
 class Station():
 	"""a station"""
@@ -440,6 +477,7 @@ def main():
 						# startpos = spos
 
 						line.tracks.append(Track(startpos,spos,line.color,line,0))
+						line.stations.append(spos) # TODO: should not be double if circle
 					else:
 						print "creating new line..."
 						line = Line(startpos, spos)
