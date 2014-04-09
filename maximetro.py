@@ -19,7 +19,8 @@ SHAPES = ('circle','triangle','square')
 
 MAXSTATIONS = 15
 
-LINES = [YELLOW,MAGENTA,CYAN,GREEN,BLUE,RED]
+COLORS = [YELLOW,MAGENTA,CYAN,GREEN,BLUE,RED]
+LINES = list(COLORS)
 
 CARWITH = 10     # actually half of it
 CARLENGTH = 20   # actually half of it
@@ -73,16 +74,11 @@ def draw_triangle(pos,size,color,angle=0):
 	if angle:
 		triangle = rotate_poly(triangle,angle)
 	poly = move_poly(triangle,pos)
-	#poly = ((pos[0],pos[1]-size),
-	#	(pos[0]+x,pos[1]+b),
-	#	(pos[0]-x,pos[1]+b))
 	pygame.draw.polygon(screen,color,poly,0)
 		
 def draw_square(pos,size,color,angle=0):
 	"""draw square at pos with size in color"""
 
-	#rect = pygame.Rect(pos[0]-size,pos[1]-size,
-	#				   size*2,size*2)
 	square = ((-size,-size),(-size,size),(size,size),(size,-size))
 	if angle:
 		square = rotate_poly(square,angle)
@@ -417,6 +413,23 @@ def init_city():
 				s = Station(newstationpos)
 				stations.append(s)
 
+def draw_interface():
+	"""draw the user interface"""
+
+	count = 0
+	for l in reversed(COLORS):
+		rect = pygame.Rect(MAX_X-RIGHT_OFFSET,count*50,RIGHT_OFFSET,50)
+		#rect = pygame.Rect(,100,100,100)
+		pygame.draw.rect(screen,l,rect)
+		pygame.draw.rect(screen,BLACK,rect,1)
+		
+		#print "draw interface" , rect, l
+		count += 1
+
+	pygame.draw.line(screen,BLACK,(MAX_X-RIGHT_OFFSET,0),
+									  (MAX_X-RIGHT_OFFSET,MAX_Y))
+
+		
 def is_in_range(pos1,pos2,dist=STATIONSIZE):
 	"""returns true if pos1 and pos2 are not more than dist pixels apart"""
 	
@@ -519,10 +532,9 @@ def main():
 			pygame.draw.line(screen,LINES[-1],startpos,pos,5)
 
 		update()
-
-		pygame.draw.line(screen,BLACK,(MAX_X-RIGHT_OFFSET,0),
-									  (MAX_X-RIGHT_OFFSET,MAX_Y))
 			
+		draw_interface()
+		
 		# display all stations and tracks
 		for l in lines:
 			l.draw()		
