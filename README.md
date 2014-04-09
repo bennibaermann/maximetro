@@ -1,7 +1,7 @@
 maximetro
 =========
 
-Maxi Metro is a Traffic game inspired by Mini Metro. 
+Maxi Metro is a traffic game inspired by Mini Metro(*) 
 It is writen in Python using Pygame. Should be multi user some day.
 
 Stil in early pre-alpha. I plan to make a more strategical game than
@@ -17,13 +17,14 @@ But keep in mind: The game is stil in very early development and far from beeing
 Installation:
 -------------
 
-You need python and pygame. Under Debian/Ubuntu ans similar systems the following should work:
+You need python and pygame. Under Debian/Ubuntu and similar systems the following should work:
 
 	apt-get install python python-pygame git
 	git clone https://github.com/bennibaermann/maximetro.git
 	maximetro/maximetro
 	
-I have no idea how to install under other systems. But in general you need python and pygame and than clone the git repository.
+I have no idea how to install under other systems. But in general you need python and pygame and than clone the git repository. The underlying technologies (SDL, Pygame, Python) are all very portable, so it should be possible to run it more or less on any system.
 
 Have fun.
-	
+
+	(*) http://dinopoloclub.com/minimetro/
