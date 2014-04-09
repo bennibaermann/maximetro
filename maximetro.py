@@ -281,11 +281,8 @@ class Line():
 		"""returns True if Line contains stations with shape"""
 
 		for pos in self.stations:
-			sshape = None
-			for s in stations:
-				if s.pos == pos:
-					sshape = s.shape
-			if shape == sshape:
+			station = get_station(pos)
+			if shape == station.shape:
 				return True
 		return False
 
@@ -318,20 +315,16 @@ class Passenger():
 		if station.shape == self.shape:
 			return True
 		
-		# stupid passenger: sits in car if shape is on line, leaves otherwise
 		if self.car:
+			# stupid passenger: sits in car if shape is on line
 			if self.shape in self.car.track.line:
 				return False
-			# # should be maybe in Line.__contains__?
-			# for pos in self.car.track.line.stations:
-				# shape = None
-				# for s in stations:
-					# if s.pos == pos:
-						# shape = s.shape
-				# if shape == self.shape:
-					# return False
-		
-		return True
+			
+			# stupid passenger: leaves if another line here
+			if len(station.get_lines()) > 1:					
+				return True
+
+		return False
 
 class Station():
 	"""a station"""
@@ -376,6 +369,21 @@ class Station():
 			else:
 				print "game over! Your score: ", score
 				gameover = True
+				
+	def get_lines(self):
+		"""returns a list of lines connected to the station"""
+		#TODO PERFORMANCE: should be stored not calculated
+		ret = []
+		for l in lines:
+			for t in l.tracks:
+				start = get_station(t.startpos)
+				end = get_station(t.endpos)
+				if start == self or end == self:
+					if l not in ret:
+						ret.append(l)
+		# print "length get_lines(): ", len(ret)			
+		return ret
+
 
 stations = []
 lines = []
