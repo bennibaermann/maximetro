@@ -530,6 +530,10 @@ def main():
 								del lines[color]
 						else:
 							print "add track to line with color ", color
+							draw_status = have_line = True
+							line = lines[color]
+							LINES.append(line.color)
+							startpos = line.tracks[-1].endpos
 							
 			elif event.type == MOUSEMOTION:
 				pos = event.pos
