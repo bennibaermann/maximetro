@@ -21,7 +21,8 @@ MAXSTATIONS = 15
 
 COLORS = [YELLOW,MAGENTA,CYAN,GREEN,BLUE,RED]
 LINES = list(COLORS)
-
+COLORNAMES = ['red','blue','green','cyan','magenta','yellow']
+	
 CARWITH = 10     # actually half of it
 CARLENGTH = 20   # actually half of it
 CARSPEED = 3
@@ -206,6 +207,7 @@ class Line():
 	
 	def __init__(self,start,end):
 		self.color = LINES[-1]
+		# self.colorname = COLORNAMES[-1]
 		self.tracks = []
 		self.tracks.append(Track(start,end,self.color,self))
 		self.stations = [start,end]
@@ -287,6 +289,13 @@ class Line():
 			if shape == station.shape:
 				return True
 		return False
+		
+	def delete_track(self):
+		"""deletes the last track from the line"""
+		
+		print "delete track from line color: ", self.color
+		
+		
 
 class Passenger():
 	"""they want to travel!"""
@@ -417,10 +426,10 @@ def draw_interface():
 	"""draw the user interface"""
 
 	count = 0
-	for l in reversed(COLORS):
+	for l in lines:
 		rect = pygame.Rect(MAX_X-RIGHT_OFFSET,count*50,RIGHT_OFFSET,50)
 		#rect = pygame.Rect(,100,100,100)
-		pygame.draw.rect(screen,l,rect)
+		pygame.draw.rect(screen,l.color,rect)
 		pygame.draw.rect(screen,BLACK,rect,1)
 		
 		#print "draw interface" , rect, l
@@ -428,6 +437,9 @@ def draw_interface():
 
 	pygame.draw.line(screen,BLACK,(MAX_X-RIGHT_OFFSET,0),
 									  (MAX_X-RIGHT_OFFSET,MAX_Y))
+	pygame.draw.line(screen,BLACK,(int(MAX_X-RIGHT_OFFSET/2),0),
+									  (int(MAX_X-RIGHT_OFFSET/2),count*50))
+	
 
 		
 def is_in_range(pos1,pos2,dist=STATIONSIZE):
@@ -463,30 +475,22 @@ def update():
 	for s in stations:
 		s.update()
 
-def main():
-	
-	# this status is True if the user is drawing a track
-	draw_status = False
-	
-	init_city()
-	
-	# Initialise screen
-	pygame.init()
-	clock = pygame.time.Clock()
-	pygame.display.set_caption('Maxi Metro')
-	pygame.display.update()
 
-	pos = (0,0);
-	startpos = (0,0)
-	have_line = False
+def main():
+	# Initialise stuff
+	init_city()
+	pygame.init()
+	pygame.display.set_caption('Maxi Metro')
+	clock = pygame.time.Clock()
+	
+	pos = startpos = (0,0)
+	have_line = draw_status = False
 	line = ""
 	# Event loop
 	while 1: # not gameover:
-
 		screen.fill(WHITE)
 			
-		# TODO: the whole handling of track-creation should be 
-		#       in the Line-class
+		# TODO: ugly code. we have to wrote some functions here
 		for event in pygame.event.get():
 			if event.type == QUIT:
 				return
@@ -499,12 +503,22 @@ def main():
 					pos = event.pos
 					spos = is_station_pos(pos)
 					if spos and not draw_status:
-						#track = Track(spos)
 						startpos = spos
 						print "start drawing from " ,pos, " moving to ", startpos
 						draw_status = True
 				else:
 					print "NO MORE LINES AVAIABLE!"
+					
+				# handling of clicks at the right side
+				if event.pos[0] >= MAX_X - RIGHT_OFFSET:
+					color = int (event.pos[1] / 50)
+					in_use = len(COLORS) - len(LINES)
+					if color < in_use:
+						if event.pos[0] < MAX_X - RIGHT_OFFSET / 2:
+							lines[color].delete_track()
+						else:
+							print "add track to line with color ", color
+							
 			elif event.type == MOUSEMOTION:
 				pos = event.pos
 				spos = is_station_pos(pos)
@@ -525,9 +539,7 @@ def main():
 						lines.append(line)
 						have_line = True
 					startpos = spos
-						# draw_status = False
-			# elif event.type == MOUSEBUTTONUP:
-		
+	
 		if draw_status:
 			pygame.draw.line(screen,LINES[-1],startpos,pos,5)
 
