@@ -295,10 +295,14 @@ class Line():
 		
 		print "delete track from line color: ", self.color
 		track = self.tracks[-1]
-		if track.cars:
-			print "we can't delete tracks with cars"
+		l = len(self.tracks)
+		if track.cars and not l == 1:
+			print "we can't delete tracks with cars (unless last one)"
+			print "len(): " , l
 		else:
 			self.tracks.pop()
+			if l == 1:
+				LINES.append(track.color)
 		
 		
 
@@ -520,7 +524,10 @@ def main():
 					in_use = len(COLORS) - len(LINES)
 					if color < in_use:
 						if event.pos[0] < MAX_X - RIGHT_OFFSET / 2:
-							lines[color].delete_track()
+							line = lines[color]
+							line.delete_track()
+							if not line.tracks:
+								del lines[color]
 						else:
 							print "add track to line with color ", color
 							
