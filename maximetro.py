@@ -33,16 +33,16 @@ CARWITH = PASSANGERSIZE + 3     # actually half of it
 CARLENGTH = 13 + PASSANGERSIZE * CARCAPACITY   # actually half of it
 CARSPEED = 3
 
-
 STATIONSIZE = 17
 STATIONTHICKNESS = 5
 STATIONDISTANCE = CARLENGTH * 4
-
 
 PROBABILITY_START = .001
 #PROBABILITY_DIFF = .000001
 PROBABILITY_DIFF = 0
 MAXWAITING = 5
+
+DOUBLE_TRACKS = False
 
 RIGHT_OFFSET = int(MAXWAITING * STATIONSIZE) 
 #RIGHT_OFFSET = 200
@@ -527,7 +527,16 @@ def update():
     for s in stations:
         s.update()
 
+def is_track(start,end):
+    """returns True if there is any track betwen start and end"""
 
+    for l in lines:
+        for t in l.tracks:
+            if t.startpos == start and t.endpos == end:
+                return True
+    return False
+            
+            
 def main():
     global count
     # Initialise stuff
@@ -586,19 +595,21 @@ def main():
                 #       (plus a little extrasize)
                 # TODO: should not cross other tracks
                 if draw_status and spos and not is_in_range(pos,startpos):
-                    print "stop drawing at " , pos , " moving to " , spos
-                    if have_line:
-                        print "appending track to line..."
-                        # startpos = spos
-
-                        line.tracks.append(Track(startpos,spos,line.color,line,0))
-                        line.stations.append(spos) # TODO: should not be double if circle
-                    else:
-                        print "creating new line..."
-                        line = Line(startpos, spos)
-                        lines.append(line)
-                        have_line = True
-                    startpos = spos
+                    if not DOUBLE_TRACKS and not is_track(startpos,spos) and \
+                       not is_track(spos,startpos):
+                        print "stop drawing at " , pos , " moving to " , spos
+                        if have_line:
+                            print "appending track to line..."
+                            # startpos = spos
+    
+                            line.tracks.append(Track(startpos,spos,line.color,line,0))
+                            line.stations.append(spos) # TODO: should not be double if circle
+                        else:
+                            print "creating new line..."
+                            line = Line(startpos, spos)
+                            lines.append(line)
+                            have_line = True
+                        startpos = spos
         screen.fill(WHITE)
             
         draw_interface()
