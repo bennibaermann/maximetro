@@ -16,10 +16,13 @@ CYAN = (0,255,255)
 YELLOW = (255,255,0)
 
 SHAPES = ('circle','triangle','square')
+OTHERSTATIONS = ('circle','triangle')
+MAINSTATION = 'square'
 
 MAXSTATIONS = 15
 
-COLORS = [YELLOW,MAGENTA,CYAN,GREEN,BLUE,RED]
+#COLORS = [YELLOW,MAGENTA,CYAN,GREEN,BLUE,RED]
+COLORS = [CYAN,GREEN,BLUE,RED]
 LINES = list(COLORS)
 COLORNAMES = ['red','blue','green','cyan','magenta','yellow']
 	
@@ -33,7 +36,7 @@ STATIONTHICKNESS = 5
 STATIONDISTANCE = CARLENGTH * 4
 
 PASSANGERSIZE = 7
-PASSENGERPROBABILITY = .001
+PASSENGERPROBABILITY = .003
 MAXWAITING = 5
 
 RIGHT_OFFSET = int(MAXWAITING * STATIONSIZE) 
@@ -349,7 +352,7 @@ class Station():
 
 	def __init__(self,pos,shape=''):
 		if not shape:
-			shape = random.choice(SHAPES)
+			shape = random.choice(OTHERSTATIONS)
 		self.shape = shape
 		self.pos = pos
 		self.passengers = []
@@ -385,7 +388,7 @@ class Station():
 			if len(self.passengers) < MAXWAITING:
 				self.passengers.append(Passenger(self))
 			else:
-				print "game over! Your score: ", score
+				#print "game over! Your score: ", score
 				gameover = True
 				
 	def get_lines(self):
@@ -407,7 +410,10 @@ lines = []
 
 def init_city():
 	"""we set some Stations in place."""
-
+	
+	print "Setting main station..."
+	stations.append(Station((int((MAX_X-RIGHT_OFFSET)/2), int (MAX_Y/2)),\
+							"square"))
 	print "Setting stations..."
 	for i in range(0,MAXSTATIONS):
 		foundpos = False
@@ -464,7 +470,7 @@ def draw_interface():
 	pygame.draw.line(screen,BLACK,(int(MAX_X-RIGHT_OFFSET/2),0),
 									  (int(MAX_X-RIGHT_OFFSET/2),count*50))
 	
-	text((MAX_X-RIGHT_OFFSET,MAX_Y-20),"score: " + str(score))
+	text((MAX_X-RIGHT_OFFSET+10,MAX_Y-20),"score: " + str(score))
 
 		
 def is_in_range(pos1,pos2,dist=STATIONSIZE):
@@ -518,7 +524,7 @@ def main():
 		for event in pygame.event.get():
 			if event.type == QUIT:
 				return
-			elif event.type == MOUSEBUTTONDOWN:
+			elif event.type == MOUSEBUTTONDOWN and not gameover:
 				draw_status = False
 				if have_line:
 					LINES.pop()
@@ -550,7 +556,7 @@ def main():
 							LINES.append(line.color)
 							startpos = line.tracks[-1].endpos
 							
-			elif event.type == MOUSEMOTION:
+			elif event.type == MOUSEMOTION and not gameover:
 				pos = event.pos
 				spos = is_station_pos(pos)
 				# TODO: there should be no station in the way 
@@ -572,10 +578,14 @@ def main():
 					startpos = spos
 		screen.fill(WHITE)
 
-		if draw_status:
-			pygame.draw.line(screen,LINES[-1],startpos,pos,5)
 
-		update()
+		if not gameover:
+			if draw_status:
+				pygame.draw.line(screen,LINES[-1],startpos,pos,5)
+			update()
+		else:
+			center_text((int(MAX_X/2),int(MAX_Y/2)),"GAME OVER!",RED,50)
+
 			
 		draw_interface()
 		
