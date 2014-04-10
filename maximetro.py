@@ -37,7 +37,7 @@ PASSENGERPROBABILITY = .001
 MAXWAITING = 5
 
 RIGHT_OFFSET = int(MAXWAITING * STATIONSIZE) 
-
+#RIGHT_OFFSET = 200
 MAX_Y = 500
 MAX_X = MAX_Y + RIGHT_OFFSET
 
@@ -240,7 +240,6 @@ class Line():
 					car.passengers.remove(p) # TODO: PERFORMANCE
 					if p.shape == station.shape:
 						score += 1
-						print "Score: ", score
 					else:
 						# transition
 						platform.append(p) 
@@ -429,10 +428,24 @@ def init_city():
 				s = Station(newstationpos)
 				stations.append(s)
 
+ 
+def center_text(pos,string,color=BLACK,size=12):
+	"""TODO BUGGY: prints string centered at pos"""
+
+	font = pygame.font.Font(pygame.font.get_default_font(),size)
+	text = font.render(string, False, color)
+	rect = text.get_rect()
+	pos = list(pos)
+	pos[0] -= int(rect.x/2)
+	pos[1] -= int(rect.y/2)
+	screen.blit(text, pos)
+
 def text(pos,string,color=BLACK,size=12):
-    font = pygame.font.Font(pygame.font.get_default_font(),size)
-    text = font.render(string, False, color)
-    screen.blit(text, pos)
+	"""prints string in default font at pos"""
+	
+	font = pygame.font.Font(pygame.font.get_default_font(),size)
+	text = font.render(string, False, color)
+	screen.blit(text, pos)
 
 def draw_interface():
 	"""draw the user interface"""
@@ -442,6 +455,8 @@ def draw_interface():
 		rect = pygame.Rect(MAX_X-RIGHT_OFFSET,count*50,RIGHT_OFFSET,50)
 		pygame.draw.rect(screen,l.color,rect)
 		pygame.draw.rect(screen,BLACK,rect,1)
+		center_text((MAX_X-int(RIGHT_OFFSET*.75),count*50),"-",BLACK,30)
+		center_text((MAX_X-int(RIGHT_OFFSET*.25),count*50),"+",BLACK,30)		
 		count += 1
 
 	pygame.draw.line(screen,BLACK,(MAX_X-RIGHT_OFFSET,0),
@@ -450,8 +465,6 @@ def draw_interface():
 									  (int(MAX_X-RIGHT_OFFSET/2),count*50))
 	
 	text((MAX_X-RIGHT_OFFSET,MAX_Y-20),"score: " + str(score))
-	#text((100,100),"score: " + str(score))
-	
 
 		
 def is_in_range(pos1,pos2,dist=STATIONSIZE):
@@ -500,7 +513,6 @@ def main():
 	line = ""
 	# Event loop
 	while 1: # not gameover:
-		screen.fill(WHITE)
 			
 		# TODO: ugly code. we have to wrote some functions here
 		for event in pygame.event.get():
@@ -558,7 +570,8 @@ def main():
 						lines.append(line)
 						have_line = True
 					startpos = spos
-	
+		screen.fill(WHITE)
+
 		if draw_status:
 			pygame.draw.line(screen,LINES[-1],startpos,pos,5)
 
