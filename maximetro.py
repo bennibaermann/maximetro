@@ -298,7 +298,6 @@ class Line():
 		l = len(self.tracks)
 		if track.cars and not l == 1:
 			print "we can't delete tracks with cars (unless last one)"
-			print "len(): " , l
 		else:
 			self.tracks.pop()
 			if l == 1:
@@ -401,7 +400,6 @@ class Station():
 				if start == self or end == self:
 					if l not in ret:
 						ret.append(l)
-		# print "length get_lines(): ", len(ret)			
 		return ret
 
 
@@ -431,23 +429,28 @@ def init_city():
 				s = Station(newstationpos)
 				stations.append(s)
 
+def text(pos,string,color=BLACK,size=12):
+    font = pygame.font.Font(pygame.font.get_default_font(),size)
+    text = font.render(string, False, color)
+    screen.blit(text, pos)
+
 def draw_interface():
 	"""draw the user interface"""
 
 	count = 0
 	for l in lines:
 		rect = pygame.Rect(MAX_X-RIGHT_OFFSET,count*50,RIGHT_OFFSET,50)
-		#rect = pygame.Rect(,100,100,100)
 		pygame.draw.rect(screen,l.color,rect)
 		pygame.draw.rect(screen,BLACK,rect,1)
-		
-		#print "draw interface" , rect, l
 		count += 1
 
 	pygame.draw.line(screen,BLACK,(MAX_X-RIGHT_OFFSET,0),
 									  (MAX_X-RIGHT_OFFSET,MAX_Y))
 	pygame.draw.line(screen,BLACK,(int(MAX_X-RIGHT_OFFSET/2),0),
 									  (int(MAX_X-RIGHT_OFFSET/2),count*50))
+	
+	text((MAX_X-RIGHT_OFFSET,MAX_Y-20),"score: " + str(score))
+	#text((100,100),"score: " + str(score))
 	
 
 		
