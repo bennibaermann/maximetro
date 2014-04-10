@@ -36,7 +36,8 @@ STATIONTHICKNESS = 5
 STATIONDISTANCE = CARLENGTH * 4
 
 PASSANGERSIZE = 7
-PASSENGERPROBABILITY = .003
+PROBABILITY_START = .001
+PROBABILITY_DIFF = .000001
 MAXWAITING = 5
 
 RIGHT_OFFSET = int(MAXWAITING * STATIONSIZE) 
@@ -47,6 +48,7 @@ MAX_X = MAX_Y + RIGHT_OFFSET
 FPS = 30
 
 score = 0
+count = 0
 gameover = False
 
 screen = pygame.display.set_mode((MAX_X, MAX_Y))
@@ -384,7 +386,8 @@ class Station():
 				
 	def update(self):
 		global gameover
-		if random.random() < PASSENGERPROBABILITY:
+		global count
+		if random.random() < PROBABILITY_START + count * PROBABILITY_DIFF:
 			if len(self.passengers) < MAXWAITING:
 				self.passengers.append(Passenger(self))
 			else:
@@ -508,6 +511,7 @@ def update():
 
 
 def main():
+	global count
 	# Initialise stuff
 	init_city()
 	pygame.init()
@@ -518,7 +522,8 @@ def main():
 	have_line = draw_status = False
 	line = ""
 	# Event loop
-	while 1: # not gameover:
+	while 1:
+		count += 1
 			
 		# TODO: ugly code. we have to wrote some functions here
 		for event in pygame.event.get():
