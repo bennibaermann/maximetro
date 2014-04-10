@@ -388,7 +388,6 @@ class Station():
 			if len(self.passengers) < MAXWAITING:
 				self.passengers.append(Passenger(self))
 			else:
-				#print "game over! Your score: ", score
 				gameover = True
 				
 	def get_lines(self):
@@ -442,8 +441,9 @@ def center_text(pos,string,color=BLACK,size=12):
 	text = font.render(string, False, color)
 	rect = text.get_rect()
 	pos = list(pos)
-	pos[0] -= int(rect.x/2)
-	pos[1] -= int(rect.y/2)
+	# print "x: ", rect.x, " y: ", rect.y
+	pos[0] -= int(rect.width/2)
+	pos[1] -= int(rect.height/2)
 	screen.blit(text, pos)
 
 def text(pos,string,color=BLACK,size=12):
@@ -461,16 +461,16 @@ def draw_interface():
 		rect = pygame.Rect(MAX_X-RIGHT_OFFSET,count*50,RIGHT_OFFSET,50)
 		pygame.draw.rect(screen,l.color,rect)
 		pygame.draw.rect(screen,BLACK,rect,1)
-		center_text((MAX_X-int(RIGHT_OFFSET*.75),count*50),"-",BLACK,30)
-		center_text((MAX_X-int(RIGHT_OFFSET*.25),count*50),"+",BLACK,30)		
+		center_text((MAX_X-int(RIGHT_OFFSET*.75),count*50+25),"-",BLACK,30)
+		center_text((MAX_X-int(RIGHT_OFFSET*.25),count*50+25),"+",BLACK,30)		
 		count += 1
 
 	pygame.draw.line(screen,BLACK,(MAX_X-RIGHT_OFFSET,0),
 									  (MAX_X-RIGHT_OFFSET,MAX_Y))
 	pygame.draw.line(screen,BLACK,(int(MAX_X-RIGHT_OFFSET/2),0),
-									  (int(MAX_X-RIGHT_OFFSET/2),count*50))
+									  (int(MAX_X-RIGHT_OFFSET/2),count*50-1))
 	
-	text((MAX_X-RIGHT_OFFSET+10,MAX_Y-20),"score: " + str(score))
+	text((MAX_X-RIGHT_OFFSET+10,MAX_Y-20),"SCORE: " + str(score))
 
 		
 def is_in_range(pos1,pos2,dist=STATIONSIZE):
@@ -577,24 +577,21 @@ def main():
 						have_line = True
 					startpos = spos
 		screen.fill(WHITE)
-
-
+			
+		draw_interface()
+		
+		for l in lines:
+			l.draw()		
 		if not gameover:
 			if draw_status:
 				pygame.draw.line(screen,LINES[-1],startpos,pos,5)
 			update()
-		else:
-			center_text((int(MAX_X/2),int(MAX_Y/2)),"GAME OVER!",RED,50)
-
-			
-		draw_interface()
-		
-		# display all stations and tracks
-		for l in lines:
-			l.draw()		
 		for s in stations:
 			s.draw()
-			
+		if gameover:	
+			center_text((int(MAX_X/2),int(MAX_Y/2)),"GAME OVER!",BLACK,52)
+			center_text((int(MAX_X/2),int(MAX_Y/2)),"GAME OVER!",RED,50)
+		
 		pygame.display.update()
 		msElapsed = clock.tick(FPS) # TODO: Gamespeed should be FPS-independent
 		
