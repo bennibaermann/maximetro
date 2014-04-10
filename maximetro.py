@@ -19,30 +19,34 @@ SHAPES = ('circle','triangle','square')
 OTHERSTATIONS = ('circle','triangle')
 MAINSTATION = 'square'
 
-MAXSTATIONS = 15
+MAXSTATIONS = 10
 
 #COLORS = [YELLOW,MAGENTA,CYAN,GREEN,BLUE,RED]
 COLORS = [CYAN,GREEN,BLUE,RED]
 LINES = list(COLORS)
 COLORNAMES = ['red','blue','green','cyan','magenta','yellow']
-	
-CARWITH = 10     # actually half of it
-CARLENGTH = 20   # actually half of it
+
+PASSANGERSIZE = 7
+CARCAPACITY = 3
+
+CARWITH = PASSANGERSIZE + 3     # actually half of it
+CARLENGTH = 13 + PASSANGERSIZE * CARCAPACITY   # actually half of it
 CARSPEED = 3
-CARCAPACITY = 1
+
 
 STATIONSIZE = 17
 STATIONTHICKNESS = 5
 STATIONDISTANCE = CARLENGTH * 4
 
-PASSANGERSIZE = 7
+
 PROBABILITY_START = .001
-PROBABILITY_DIFF = .000001
+#PROBABILITY_DIFF = .000001
+PROBABILITY_DIFF = 0
 MAXWAITING = 5
 
 RIGHT_OFFSET = int(MAXWAITING * STATIONSIZE) 
 #RIGHT_OFFSET = 200
-MAX_Y = 500
+MAX_Y = 800
 MAX_X = MAX_Y + RIGHT_OFFSET
 
 FPS = 30
@@ -133,8 +137,10 @@ class Car():
 
 		moved = self.move()
 		pygame.draw.polygon(screen,self.track.color,moved,0)
+		offset = CARCAPACITY - 1
 		for p in self.passengers:
-			p.draw(self.pos,self.angle)
+			offset -= 1
+			p.draw(self.pos,offset,self.angle)
 
 class Track():
 	"""A railtrack between stations."""
@@ -310,7 +316,7 @@ class Line():
 		
 
 class Passenger():
-	"""they want to travel!"""
+	"""they want to travel to a station with shape self.shape!"""
 	
 	def __init__(self,station):
 		self.station = station
@@ -319,7 +325,15 @@ class Passenger():
 		self.shape = random.choice(shapes)
 		self.car = None
 
-	def draw(self,pos,angle=0):
+	def draw(self,pos,offset=0,angle=0):
+		# generate vector in angle and length PASSANGERSIZE
+		v = Vec2d(PASSANGERSIZE*3,0)
+		v.rotate(angle+90)
+		
+		# add vector for every offset to pos
+		v_pos = Vec2d(pos)
+		v_new = v_pos + v * offset
+		pos = (int(v_new.x),int(v_new.y))
 		if self.shape == 'circle':
 			pygame.draw.circle(screen,BLACK,pos,PASSANGERSIZE)
 		elif self.shape == 'triangle':
@@ -339,6 +353,8 @@ class Passenger():
 			return True
 		
 		if self.car:
+			# TODO: we need some kind of recursive path finding here instead
+			
 			# stupid passenger: sits in car if shape is on line
 			if self.shape in self.car.track.line:
 				return False
@@ -358,7 +374,6 @@ class Station():
 		self.shape = shape
 		self.pos = pos
 		self.passengers = []
-		# self.passengers = [Passenger(self)]
 		
 	def add_passenger(self):
 		passengers.append(Passenger(self))
