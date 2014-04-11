@@ -94,7 +94,18 @@ def intersect( track,start,end ):
             y = slope12 * ( x - x1 ) + y1
         
         # only true if intersection is between track.startpos and track.endpos
-        if x1 < x < x2 and y1 < y < y2:
+        x12_range = [x1,x2]
+        y12_range = [y1,y2]
+        x34_range = [x3,x4]
+        y34_range = [y3,y4]
+        x12_range.sort()
+        y12_range.sort()    
+        x34_range.sort()
+        y34_range.sort()
+        if x12_range[0] < x < x12_range[1] and \
+           y12_range[0] < y < y12_range[1] and \
+           x34_range[0] < x < x34_range[1] and \
+           y34_range[0] < y < y34_range[1]:
             return True
         else:
             return False
