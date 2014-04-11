@@ -6,11 +6,11 @@ import Vec2D
 from Vec2D import *
 import random
 
-BLACK = (  0,   0,   0)
+BLACK = (  0,    0,     0)
 WHITE = (255, 255, 255)
-BLUE =  (  0,   0, 255)
-GREEN = (  0, 255,   0)
-RED =   (255,   0,   0)
+BLUE =    (  0,    0, 255)
+GREEN = (  0, 255,     0)
+RED =    (255,    0,     0)
 MAGENTA = (255,0,255)
 CYAN = (0,255,255)
 YELLOW = (255,255,0)
@@ -29,7 +29,7 @@ COLORNAMES = ['red','blue','green','cyan','magenta','yellow']
 PASSANGERSIZE = 7
 CARCAPACITY = 3
 
-CARWITH = PASSANGERSIZE + 3     # actually half of it
+CARWITH = PASSANGERSIZE + 3        # actually half of it
 CARLENGTH = 13 + PASSANGERSIZE * CARCAPACITY   # actually half of it
 CARSPEED = 3
 
@@ -42,7 +42,9 @@ PROBABILITY_START = .001
 PROBABILITY_DIFF = 0
 MAXWAITING = 5
 
-DOUBLE_TRACKS = False
+DOUBLE_TRACKS = False # more than one track between same stations allowed?
+CROSSING = False # crossing tracks allowed?
+COLLISION = True # TODO: set False if Cars should stop if other car is in range
 
 RIGHT_OFFSET = int(MAXWAITING * STATIONSIZE) 
 #RIGHT_OFFSET = 200
@@ -56,6 +58,59 @@ count = 0
 gameover = False
 
 screen = pygame.display.set_mode((MAX_X, MAX_Y))
+
+
+def intersect( track,start,end ):
+    """Calculates the intersection of line P1-P2 with P3-P4."""
+
+    x1, y1 = track.startpos
+    x2, y2 = track.endpos
+    x3, y3 = start
+    x4, y4 = end
+    
+    try:
+        # code from https://twitter.com/mekkablue
+        try:
+            slope12 = ( float(y2) - float(y1) ) / ( float(x2) - float(x1) )
+        except:
+            slope12 = None
+        try:
+            slope34 = ( float(y4) - float(y3) ) / ( float(x4) - float(x3) )
+        except:
+            slope34 = None
+            
+        if slope12 == slope34:
+            return False
+        elif slope12 is None:
+            # first line is vertical
+            x = x1
+            y = slope34 * ( x - x3 ) + y3
+        elif slope34 is None:
+            # second line is vertical
+            x = x3
+            y = slope12 * ( x - x1 ) + y1
+        else:
+            x = ( slope12 * x1 - y1 - slope34 * x3 + y3 ) / ( slope12 - slope34 )
+            y = slope12 * ( x - x1 ) + y1
+        
+        # only true if intersection is between track.startpos and track.endpos
+        if x1 < x < x2 and y1 < y < y2:
+            return True
+        else:
+            return False
+        
+    except Exception as e:
+        print str(e)
+        return False
+        
+def intersect_any(start,end):
+    """returns True if any intersection with existing tracks"""
+    for l in lines:
+        for t in l.tracks:
+            if intersect(t,start,end):
+                return True
+    return False
+
 
 def rotate_poly(pol,angle):
     """rotate polygon pol around (0,0) with angle and returns turned one"""
@@ -205,7 +260,6 @@ class Track():
            y_range[0] <= pos[1] <= y_range[1]):
             return False
         return True
-    
     
     def add_car(self,car):
         car.track = self
@@ -386,7 +440,7 @@ class Station():
         pos = self.pos
 
         # TODO: calculate area of shapes to make it same size optical 
-        #       dont use this ugly constants anymore
+        #        dont use this ugly constants anymore
         if self.shape == 'circle':
             pygame.draw.circle(screen,BLACK,pos,STATIONSIZE)
             pygame.draw.circle(screen,WHITE,pos,STATIONSIZE-STATIONTHICKNESS)
@@ -483,7 +537,7 @@ def draw_interface():
         pygame.draw.rect(screen,l.color,rect)
         pygame.draw.rect(screen,BLACK,rect,1)
         center_text((MAX_X-int(RIGHT_OFFSET*.75),count*50+25),"-",BLACK,30)
-        center_text((MAX_X-int(RIGHT_OFFSET*.25),count*50+25),"+",BLACK,30)     
+        center_text((MAX_X-int(RIGHT_OFFSET*.25),count*50+25),"+",BLACK,30)        
         count += 1
 
     pygame.draw.line(screen,BLACK,(MAX_X-RIGHT_OFFSET,0),
@@ -589,29 +643,30 @@ def main():
                             startpos = line.tracks[-1].endpos
                             
             elif event.type == MOUSEMOTION and not gameover:
-                pos = event.pos
-                spos = is_station_pos(pos)
-                # TODO: there should be no station in the way 
-                #       (plus a little extrasize)
-                # TODO: should not cross other tracks
-                if draw_status and spos and not is_in_range(pos,startpos):
-                    if not DOUBLE_TRACKS and not is_track(startpos,spos) and \
-                       not is_track(spos,startpos):
-                        print "stop drawing at " , pos , " moving to " , spos
-                        if have_line:
-                            print "appending track to line..."
-                            # startpos = spos
-    
-                            line.tracks.append(Track(startpos,spos,line.color,line,0))
-                            line.stations.append(spos) # TODO: should not be double if circle
-                        else:
-                            print "creating new line..."
-                            line = Line(startpos, spos)
-                            lines.append(line)
-                            have_line = True
-                        startpos = spos
+                if not CROSSING and not intersect_any(startpos,event.pos):            
+                    pos = event.pos
+                    spos = is_station_pos(pos)
+                    # TODO: there should be no station in the way 
+                    #        (plus a little extrasize)
+                    # TODO: should not cross other tracks
+                    if draw_status and spos and not is_in_range(pos,startpos):
+                        if not DOUBLE_TRACKS and not is_track(startpos,spos) and \
+                           not is_track(spos,startpos):
+                            print "stop drawing at " , pos , " moving to " , spos
+                            if have_line:
+                                print "appending track to line..."
+                                # startpos = spos
+        
+                                line.tracks.append(Track(startpos,spos,line.color,line,0))
+                                line.stations.append(spos) # TODO: should not be double if circle
+                            else:
+                                print "creating new line..."
+                                line = Line(startpos, spos)
+                                lines.append(line)
+                                have_line = True
+                            startpos = spos
         screen.fill(WHITE)
-            
+
         draw_interface()
         
         for l in lines:
@@ -628,6 +683,6 @@ def main():
         
         pygame.display.update()
         msElapsed = clock.tick(FPS) # TODO: Gamespeed should be FPS-independent
-        
+    
         
 if __name__ == '__main__': main()
