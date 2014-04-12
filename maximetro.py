@@ -33,17 +33,17 @@ LINES = list(COLORS)
 COLORNAMES = ['red','blue','green','cyan','magenta','yellow']
 
 PASSANGERSIZE = 7
-CARCAPACITY = 5
+CARCAPACITY = 3
 
 CARWITH = PASSANGERSIZE + 3        # actually half of it
 CARLENGTH = 13 + PASSANGERSIZE * CARCAPACITY   # actually half of it
-CARSPEED = 1
+CARSPEED = 3
 
 STATIONSIZE = 17
 STATIONTHICKNESS = 5
 STATIONDISTANCE = CARLENGTH * 4
 
-PROBABILITY_START = .0001
+PROBABILITY_START = .005
 #PROBABILITY_DIFF = .000001
 PROBABILITY_DIFF = 0
 MAXWAITING = 5
@@ -387,7 +387,7 @@ class Car():
 
         moved = self.move()
         pygame.draw.polygon(screen,self.track.color,moved,0)
-        offset = CARCAPACITY - 1
+        offset = CARCAPACITY/2 +1
         for p in self.passengers:
             offset -= 1
             p.draw(self.pos,offset,self.angle)
