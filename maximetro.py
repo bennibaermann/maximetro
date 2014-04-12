@@ -702,7 +702,7 @@ class Station():
 ########################################################################
                         
 def main():
-    global count, lines, semaphores, stations, gameover, LINES
+    global count, lines, semaphores, stations, gameover, LINES, score
     # Initialise stuff
     init_city()
     pygame.init()
@@ -733,6 +733,7 @@ def main():
                     line = None
                     LINES = list(COLORS)
                     init_city()
+                    score = 0
                 else:
                     draw_status = False
                     if have_line:
