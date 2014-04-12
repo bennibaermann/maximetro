@@ -307,7 +307,7 @@ def for_all_cars(function):
 ################################################################
 
 class Car():
-    """A railcar. Each track holds at least one"""
+    """A railcar. Each Line holds at least one"""
     
     def __init__(self,track):
         self.track = track
@@ -702,7 +702,7 @@ class Station():
 ########################################################################
                         
 def main():
-    global count
+    global count, lines, semaphores, stations, gameover, LINES
     # Initialise stuff
     init_city()
     pygame.init()
@@ -711,7 +711,7 @@ def main():
     
     pos = startpos = (0,0)
     have_line = draw_status = False
-    line = ""
+    line = None
     # Event loop
     while 1:
         count += 1
@@ -720,38 +720,51 @@ def main():
         for event in pygame.event.get():
             if event.type == QUIT:
                 return
-            elif event.type == MOUSEBUTTONDOWN and not gameover:
-                draw_status = False
-                if have_line:
-                    LINES.pop()
-                have_line = False
-                if LINES:
-                    pos = event.pos
-                    spos = is_station_pos(pos)
-                    if spos and not draw_status:
-                        startpos = spos
-                        print "start drawing from " ,pos, " moving to ", startpos
-                        draw_status = True
+            elif event.type == MOUSEBUTTONDOWN:
+                if gameover:
+                    # game restart
+                    # TODO: should be function
+                    gameover = False
+                    stations = []
+                    lines = []
+                    semaphore = []
+                    pos = startpos = (0,0)
+                    have_line = draw_status = False
+                    line = None
+                    LINES = list(COLORS)
+                    init_city()
                 else:
-                    print "NO MORE LINES AVAIABLE!"
-                    
-                # handling of clicks at the right side
-                if event.pos[0] >= MAX_X - RIGHT_OFFSET:
-                    color = int (event.pos[1] / 50)
-                    in_use = len(COLORS) - len(LINES)
-                    if color < in_use:
-                        if event.pos[0] < MAX_X - RIGHT_OFFSET / 2:
-                            line = lines[color]
-                            line.delete_track()
-                            if not line.tracks:
-                                del lines[color]
-                        else:
-                            print "add track to line with color ", color
-                            draw_status = have_line = True
-                            line = lines[color]
-                            LINES.append(line.color)
-                            startpos = line.tracks[-1].endpos
-                            
+                    draw_status = False
+                    if have_line:
+                        LINES.pop()
+                    have_line = False
+                    if LINES:
+                        pos = event.pos
+                        spos = is_station_pos(pos)
+                        if spos and not draw_status:
+                            startpos = spos
+                            print "start drawing from " ,pos, " moving to ", startpos
+                            draw_status = True
+                    else:
+                        print "NO MORE LINES AVAIABLE!"
+                        
+                    # handling of clicks at the right side
+                    if event.pos[0] >= MAX_X - RIGHT_OFFSET:
+                        color = int (event.pos[1] / 50)
+                        in_use = len(COLORS) - len(LINES)
+                        if color < in_use:
+                            if event.pos[0] < MAX_X - RIGHT_OFFSET / 2:
+                                line = lines[color]
+                                line.delete_track()
+                                if not line.tracks:
+                                    del lines[color]
+                            else:
+                                print "add track to line with color ", color
+                                draw_status = have_line = True
+                                line = lines[color]
+                                LINES.append(line.color)
+                                startpos = line.tracks[-1].endpos
+                                
             elif event.type == MOUSEMOTION and not gameover:
                 if not CROSSING and not intersect_any(startpos,event.pos):            
                     pos = event.pos
@@ -790,6 +803,8 @@ def main():
         if gameover:    
             center_text((int(MAX_X/2),int(MAX_Y/2)),"GAME OVER!",BLACK,52)
             center_text((int(MAX_X/2),int(MAX_Y/2)),"GAME OVER!",RED,50)
+            center_text((int(MAX_X/2),int(MAX_Y/2)+100),"click to restart",BLACK,20)
+            
         
         pygame.display.update()
         msElapsed = clock.tick(FPS) # TODO: Gamespeed should be FPS-independent
