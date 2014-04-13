@@ -128,7 +128,7 @@ def intersect( track,start,end ):
             return False
         
     except Exception as e:
-        print str(e)
+        print (str(e))
         return False
        
         
@@ -186,10 +186,10 @@ def draw_square(pos,size,color,angle=0):
 def init_city():
     """we set some Stations in place."""
     
-    print "Setting main station..."
+    print ("Setting main station...")
     stations.append(Station((int((MAX_X-RIGHT_OFFSET)/2), int (MAX_Y/2)),\
                             "square"))
-    print "Setting stations..."
+    print ("Setting stations...")
     for i in range(0,MAXSTATIONS):
         foundpos = False
         while not foundpos:
@@ -197,15 +197,15 @@ def init_city():
                                    MAX_X - 2 * STATIONSIZE - RIGHT_OFFSET),
                     random.randint(0 + 2 * STATIONSIZE, 
                                    MAX_Y - 2 * STATIONSIZE))
-            print "trying position ", newstationpos
+            print ("trying position ", newstationpos)
             foundpos = True
             for s in stations:
                 if is_in_range(newstationpos,s.pos,STATIONDISTANCE):
                     foundpos = False
-                    print "... is to near to ", s.pos
+                    print ("... is to near to ", s.pos)
                     
             if foundpos:
-                print "position ok!"
+                print( "position ok!")
                 s = Station(newstationpos)
                 stations.append(s)
 
@@ -217,7 +217,6 @@ def center_text(pos,string,color=BLACK,size=12):
     text = font.render(string, False, color)
     rect = text.get_rect()
     pos = list(pos)
-    # print "x: ", rect.x, " y: ", rect.y
     pos[0] -= int(rect.width/2)
     pos[1] -= int(rect.height/2)
     screen.blit(text, pos)
@@ -306,7 +305,7 @@ def for_all_cars(function):
 # classes
 ################################################################
 
-class Car():
+class Car(object):
     """A railcar. Each Line holds at least one"""
     
     def __init__(self,track):
@@ -352,7 +351,6 @@ class Car():
                 for c in t.cars:
                     if c != self:
                         if is_in_range(c.pos,self.pos,CARLENGTH*2):
-                            # print "possible collision detected!"
                             ret.append(c)
             
         return ret
@@ -394,7 +392,7 @@ class Car():
 
 
 
-class Track():
+class Track(object):
     """A railtrack between stations."""
     
     def __init__(self,start,end,color,line,withcar=1):
@@ -468,7 +466,7 @@ class Track():
     
         
 
-class Line():
+class Line(object):
     """A line contains multiple tracks between stations"""
     
     def __init__(self,start,end):
@@ -487,7 +485,6 @@ class Line():
         
     def update(self):
         if semaphore:
-            # print len(semaphore)
             c = semaphore.pop()
             c.waiting = False
         for t in self.tracks:
@@ -540,7 +537,6 @@ class Line():
                 else:
                     car.direction *= -1
                     next_pil = pil
-                    # print "NEW DIRECTION: ", car.direction
                 
             next_track = self.tracks[next_pil]
             
@@ -570,11 +566,11 @@ class Line():
     def delete_track(self):
         """deletes the last track from the line"""
         
-        print "delete track from line color: ", self.color
+        print ("delete track from line color: ", self.color)
         track = self.tracks[-1]
         l = len(self.tracks)
         if track.cars and not l == 1:
-            print "we can't delete tracks with cars (unless last one)"
+            print ("we can't delete tracks with cars (unless last one)")
         else:
             self.tracks.pop()
             if l == 1:
@@ -582,7 +578,7 @@ class Line():
         
         
 
-class Passenger():
+class Passenger(object):
     """they want to travel to a station with shape self.shape!"""
     
     def __init__(self,station):
@@ -637,7 +633,7 @@ class Passenger():
 
 
 
-class Station():
+class Station(object):
     """a station"""
 
     def __init__(self,pos,shape=''):
@@ -744,10 +740,10 @@ def main():
                         spos = is_station_pos(pos)
                         if spos and not draw_status:
                             startpos = spos
-                            print "start drawing from " ,pos, " moving to ", startpos
+                            print ("start drawing from " ,pos, " moving to ", startpos)
                             draw_status = True
                     else:
-                        print "NO MORE LINES AVAIABLE!"
+                        print ("NO MORE LINES AVAIABLE!")
                         
                     # handling of clicks at the right side
                     if event.pos[0] >= MAX_X - RIGHT_OFFSET:
@@ -760,7 +756,7 @@ def main():
                                 if not line.tracks:
                                     del lines[color]
                             else:
-                                print "add track to line with color ", color
+                                print ("add track to line with color ", color)
                                 draw_status = have_line = True
                                 line = lines[color]
                                 LINES.append(line.color)
@@ -776,15 +772,15 @@ def main():
                     if draw_status and spos and not is_in_range(pos,startpos):
                         if not DOUBLE_TRACKS and not is_track(startpos,spos) and \
                            not is_track(spos,startpos):
-                            print "stop drawing at " , pos , " moving to " , spos
+                            print ("stop drawing at " , pos , " moving to " , spos)
                             if have_line:
-                                print "appending track to line..."
+                                print ("appending track to line...")
                                 # startpos = spos
         
                                 line.tracks.append(Track(startpos,spos,line.color,line,0))
                                 line.stations.append(spos) # TODO: should not be double if circle
                             else:
-                                print "creating new line..."
+                                print ("creating new line...")
                                 line = Line(startpos, spos)
                                 lines.append(line)
                                 have_line = True
