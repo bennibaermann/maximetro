@@ -25,7 +25,7 @@ SHAPES = ('circle','triangle','square')
 OTHERSTATIONS = ('circle','triangle')
 MAINSTATION = 'square'
 
-MAXSTATIONS = 15
+MAXSTATIONS = 20
 
 COLORS = [YELLOW,MAGENTA,CYAN,GREEN,BLUE,RED]
 #COLORS = [CYAN,GREEN,BLUE,RED]
@@ -55,7 +55,7 @@ COLLISION = False # set False if Cars should stop if other car is in range
 
 RIGHT_OFFSET = int(MAXWAITING * STATIONSIZE) 
 #RIGHT_OFFSET = 200
-MAX_Y = 800
+MAX_Y = 500
 MAX_X = MAX_Y + RIGHT_OFFSET
 
 FPS = 30
@@ -192,8 +192,10 @@ def init_city():
                             "square"))
     print ("Setting stations...")
     for i in range(0,MAXSTATIONS):
+        # TODO: make shure that any shape can be reached
         foundpos = False
-        while not foundpos:
+        failed = 0
+        while not foundpos and failed < 10:
             newstationpos = (random.randint(0 + 2 * STATIONSIZE, 
                                    MAX_X - 2 * STATIONSIZE - RIGHT_OFFSET),
                     random.randint(0 + 2 * STATIONSIZE, 
@@ -209,6 +211,9 @@ def init_city():
                 print( "position ok!")
                 s = Station(newstationpos)
                 stations.append(s)
+            else:
+                failed += 1
+                
 
  
 def center_text(pos,string,color=BLACK,size=12):
