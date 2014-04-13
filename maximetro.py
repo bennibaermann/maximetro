@@ -43,6 +43,7 @@ STATIONSIZE = 17
 STATIONTHICKNESS = 5
 STATIONDISTANCE = CARLENGTH * 4
 MAXSTATIONTRACKS = 5
+STATIONTRACKDIST = 0 # TODO: minimal distance between tracks and center of station
 
 PROBABILITY_START = .001
 #PROBABILITY_DIFF = .000001
@@ -52,6 +53,8 @@ MAXWAITING = 5
 DOUBLE_TRACKS = False # more than one track between same stations allowed?
 CROSSING = False # crossing tracks allowed?
 COLLISION = False # set False if Cars should stop if other car is in range
+
+MIN_ANGLE = 0 # TODO: minimal angle between tracks
 
 RIGHT_OFFSET = int(MAXWAITING * STATIONSIZE) 
 #RIGHT_OFFSET = 200
@@ -77,6 +80,17 @@ lines = []
 ################################################################
 # global functions
 ################################################################
+
+def init_game():
+    """ should be called at game (re)start """
+    global lines, semaphores, stations, gameover, LINES, score
+    gameover = False
+    stations = []
+    lines = []
+    semaphore = []
+    LINES = list(COLORS)
+    init_city()
+    score = 0
 
 def intersect( track,start,end ):
     """Calculates the intersection of line P1-P2 with P3-P4."""
@@ -501,16 +515,16 @@ class Line(object):
             l = len(semaphore)
             for c in semaphore:
                 future_pos = c.track.get_newpos(c.pos,c.counter,c.direction,CARLENGTH/CARSPEED * 5)
-                print ",",
+                #print ",",
                 if(not c.car_in_range(future_pos)):
-                    print ".",
+                    #print ".",
                     c.waiting = False
                     semaphore.remove(c)
                     
                     # break
-            print "-"
+            #print "-"
             if(len(semaphore)==l):
-                print "+"
+                #print "+"
                 c = semaphore.pop()
                 c.waiting = False
                 
@@ -599,6 +613,8 @@ class Line(object):
         if track.cars and not l == 1:
             print ("we can't delete tracks with cars (unless last one)")
         else:
+            # TODO: if car would be deleted, we should do something
+            #       with the passengers...
             self.tracks.pop()
             if l == 1:
                 LINES.append(track.color)
@@ -738,9 +754,9 @@ class Station(object):
 ########################################################################
                         
 def main():
-    global count, lines, semaphores, stations, gameover, LINES, score
+    global count
     # Initialise stuff
-    init_city()
+    init_game()
     pygame.init()
     pygame.display.set_caption('Maxi Metro')
     clock = pygame.time.Clock()
@@ -758,18 +774,10 @@ def main():
                 return
             elif event.type == MOUSEBUTTONDOWN:
                 if gameover:
-                    # game restart
-                    # TODO: should be function
-                    gameover = False
-                    stations = []
-                    lines = []
-                    semaphore = []
+                    init_game()
                     pos = startpos = (0,0)
                     have_line = draw_status = False
                     line = None
-                    LINES = list(COLORS)
-                    init_city()
-                    score = 0
                 else:
                     draw_status = False
                     if have_line:
