@@ -25,7 +25,7 @@ SHAPES = ('circle','triangle','square')
 OTHERSTATIONS = ('circle','triangle')
 MAINSTATION = 'square'
 
-MAXSTATIONS = 8
+MAXSTATIONS = 15
 
 COLORS = [YELLOW,MAGENTA,CYAN,GREEN,BLUE,RED]
 #COLORS = [CYAN,GREEN,BLUE,RED]
@@ -43,7 +43,7 @@ STATIONSIZE = 17
 STATIONTHICKNESS = 5
 STATIONDISTANCE = CARLENGTH * 4
 
-PROBABILITY_START = .005
+PROBABILITY_START = .001
 #PROBABILITY_DIFF = .000001
 PROBABILITY_DIFF = 0
 MAXWAITING = 5
@@ -342,15 +342,15 @@ class Car(object):
         return ret
         
             
-    def car_in_range(self,pos):
-        """returns a list with cars in range CARLENGTH from pos"""
+    def car_in_range(self):
+        """returns a list with cars in range CARLENGTH * 3 from pos"""
         
         ret = []
         for l in lines:
             for t in l.tracks:
                 for c in t.cars:
                     if c != self:
-                        if is_in_range(c.pos,self.pos,CARLENGTH*2):
+                        if is_in_range(c.pos,self.pos,CARLENGTH*3):
                             ret.append(c)
             
         return ret
@@ -362,8 +362,8 @@ class Car(object):
         if COLLISION == True:
             return True
         else:
-            future_pos = self.track.get_newpos(self.pos,self.counter,self.direction,CARLENGTH/CARSPEED)
-            others = self.car_in_range(future_pos)
+            #future_pos = self.track.get_newpos(self.pos,self.counter,self.direction,CARLENGTH/CARSPEED)
+            others = self.car_in_range() # very simplified collision detection
             if others:
                 self.waiting = True
                 ret = True
@@ -485,6 +485,8 @@ class Line(object):
         
     def update(self):
         if semaphore:
+            # TODO: this should be more sophisticated. the moving car should be depend
+            #       on moving direction
             c = semaphore.pop()
             c.waiting = False
         for t in self.tracks:
