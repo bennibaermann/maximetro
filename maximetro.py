@@ -42,6 +42,7 @@ CARSPEED = 3
 STATIONSIZE = 17
 STATIONTHICKNESS = 5
 STATIONDISTANCE = CARLENGTH * 4
+MAXSTATIONTRACKS = 5
 
 PROBABILITY_START = .001
 #PROBABILITY_DIFF = .000001
@@ -342,7 +343,7 @@ class Car(object):
         return ret
         
             
-    def car_in_range(self):
+    def car_in_range(self, alternative_position=None):
         """returns a list with cars in range CARLENGTH * 3 from pos"""
         
         ret = []
@@ -350,8 +351,13 @@ class Car(object):
             for t in l.tracks:
                 for c in t.cars:
                     if c != self:
-                        if is_in_range(c.pos,self.pos,CARLENGTH*3):
-                            ret.append(c)
+                        if alternative_position:
+                            # we test not with the position of the car, but with another
+                            if(is_in_range(c.pos,alternative_position,CARLENGTH*3)):
+                                ret.append(c)
+                        else:
+                            if is_in_range(c.pos,self.pos,CARLENGTH*3):
+                                ret.append(c)
             
         return ret
     
@@ -366,6 +372,7 @@ class Car(object):
             others = self.car_in_range() # very simplified collision detection
             if others:
                 self.waiting = True
+                # semaphore.append(self)   
                 ret = True
                 for c in others:
                     if c.waiting:
@@ -484,11 +491,24 @@ class Line(object):
         
         
     def update(self):
+        # we try to remove a car from semaphore which is moving in a good direction
         if semaphore:
-            # TODO: this should be more sophisticated. the moving car should be depend
-            #       on moving direction
-            c = semaphore.pop()
-            c.waiting = False
+            l = len(semaphore)
+            for c in semaphore:
+                future_pos = c.track.get_newpos(c.pos,c.counter,c.direction,CARLENGTH/CARSPEED * 5)
+                print ",",
+                if(not c.car_in_range(future_pos)):
+                    print ".",
+                    c.waiting = False
+                    semaphore.remove(c)
+                    
+                    # break
+            print "-"
+            if(len(semaphore)==l):
+                print "+"
+                c = semaphore.pop()
+                c.waiting = False
+                
         for t in self.tracks:
             if t.cars:
                 for c in t.cars:
@@ -694,6 +714,19 @@ class Station(object):
                     if l not in ret:
                         ret.append(l)
         return ret
+    
+    def get_tracks(self):
+        """returns a list of tracks connected to the station"""
+        #TODO PERFORMANCE: should be stored, not calculated
+        ret = []
+        for l in lines:
+            for t in l.tracks:
+                start = get_station(t.startpos)
+                end = get_station(t.endpos)
+                if start == self or end == self:
+                        ret.append(t)
+        return ret
+        
 
 ########################################################################
 # main programm
@@ -769,24 +802,30 @@ def main():
                     pos = event.pos
                     spos = is_station_pos(pos)
                     # TODO: there should be no station in the way 
-                    #        (plus a little extrasize)
-                    # TODO: should not cross other tracks
+                    #       (plus a little extrasize)
+                    #       or: minimum angle between tracks
                     if draw_status and spos and not is_in_range(pos,startpos):
                         if not DOUBLE_TRACKS and not is_track(startpos,spos) and \
                            not is_track(spos,startpos):
-                            print ("stop drawing at " , pos , " moving to " , spos)
-                            if have_line:
-                                print ("appending track to line...")
-                                # startpos = spos
-        
-                                line.tracks.append(Track(startpos,spos,line.color,line,0))
-                                line.stations.append(spos) # TODO: should not be double if circle
+                            if len(get_station(spos).get_tracks()) < MAXSTATIONTRACKS and \
+                                len(get_station(startpos).get_tracks()) < MAXSTATIONTRACKS:
+                                print ("stop drawing at " , pos , " moving to " , spos)
+                                if have_line:
+                                    print ("appending track to line...")
+                                    # startpos = spos
+            
+                                    line.tracks.append(Track(startpos,spos,line.color,line,0))
+                                    line.stations.append(spos) # TODO: should not be double if circle
+                                else:
+                                    print ("creating new line...")
+                                    line = Line(startpos, spos)
+                                    lines.append(line)
+                                    have_line = True
+                                startpos = spos
                             else:
-                                print ("creating new line...")
-                                line = Line(startpos, spos)
-                                lines.append(line)
-                                have_line = True
-                            startpos = spos
+                                print("to many tracks at station!")
+                        else:
+                            print("no doubletracks allowed!")
         screen.fill(WHITE)
 
         draw_interface()
