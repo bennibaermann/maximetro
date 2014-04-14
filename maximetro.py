@@ -33,7 +33,7 @@ LINES = list(COLORS)
 COLORNAMES = ['red','blue','green','cyan','magenta','yellow']
 
 PASSANGERSIZE = 7
-CARCAPACITY = 3
+CARCAPACITY = 2
 
 CARWITH = PASSANGERSIZE + 3        # actually half of it
 CARLENGTH = 13 + PASSANGERSIZE * CARCAPACITY   # actually half of it
@@ -613,7 +613,7 @@ class Line(object):
         if track.cars and not l == 1:
             print ("we can't delete tracks with cars (unless last one)")
         else:
-            # TODO: if car would be deleted, we should do something
+            # TODO: if car is deleted, we should do something
             #       with the passengers...
             self.tracks.pop()
             if l == 1:
@@ -788,8 +788,11 @@ def main():
                         spos = is_station_pos(pos)
                         if spos and not draw_status:
                             startpos = spos
-                            print ("start drawing from " ,pos, " moving to ", startpos)
-                            draw_status = True
+                            if len(get_station(startpos).get_tracks()) < MAXSTATIONTRACKS:
+                                print ("start drawing from " ,pos, " moving to ", startpos)
+                                draw_status = True
+                            else:
+                                print("no more tracks avaiable at this station")
                     else:
                         print ("NO MORE LINES AVAIABLE!")
                         
@@ -818,10 +821,11 @@ def main():
                     #       (plus a little extrasize)
                     #       or: minimum angle between tracks
                     if draw_status and spos and not is_in_range(pos,startpos):
-                        if not DOUBLE_TRACKS and not is_track(startpos,spos) and \
-                           not is_track(spos,startpos):
-                            if len(get_station(spos).get_tracks()) < MAXSTATIONTRACKS and \
-                                len(get_station(startpos).get_tracks()) < MAXSTATIONTRACKS:
+                        if (not DOUBLE_TRACKS and not is_track(startpos,spos) and
+                           not is_track(spos,startpos)):
+                            if (MAXSTATIONTRACKS and
+                                len(get_station(spos).get_tracks()) < MAXSTATIONTRACKS and 
+                                len(get_station(startpos).get_tracks()) < MAXSTATIONTRACKS):
                                 print ("stop drawing at " , pos , " moving to " , spos)
                                 if have_line:
                                     print ("appending track to line...")
@@ -847,8 +851,12 @@ def main():
             l.draw()        
         if not gameover:
             if draw_status:
-                pygame.draw.line(screen,LINES[-1],startpos,pos,5)
+                if (MAXSTATIONTRACKS and len(get_station(startpos).get_tracks()) < MAXSTATIONTRACKS):
+                    pygame.draw.line(screen,LINES[-1],startpos,pos,5)
+                else:
+                    draw_status = False
             update()
+            
         for s in stations:
             s.draw()
         if gameover:    
