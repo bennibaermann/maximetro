@@ -12,6 +12,8 @@ import random
 # configuration section
 ##################################################################
 
+DEBUG = True
+
 BLACK =   (  0,   0,   0)
 WHITE =   (255, 255, 255)
 BLUE =    (  0,   0, 255)
@@ -33,7 +35,7 @@ LINES = list(COLORS)
 COLORNAMES = ['red','blue','green','cyan','magenta','yellow']
 
 PASSANGERSIZE = 7
-CARCAPACITY = 2
+CARCAPACITY = 3
 
 CARWITH = PASSANGERSIZE + 3        # actually half of it
 CARLENGTH = 13 + PASSANGERSIZE * CARCAPACITY   # actually half of it
@@ -58,7 +60,7 @@ MIN_ANGLE = 0 # TODO: minimal angle between tracks
 
 RIGHT_OFFSET = int(MAXWAITING * STATIONSIZE) 
 #RIGHT_OFFSET = 200
-MAX_Y = 500
+MAX_Y = 800
 MAX_X = MAX_Y + RIGHT_OFFSET
 
 FPS = 30
@@ -410,8 +412,16 @@ class Car(object):
         """draw the car."""
 
         moved = self.move()
-        pygame.draw.polygon(screen,self.track.color,moved,0)
-        offset = CARCAPACITY/2 +1
+        if self.waiting and DEBUG:
+            pygame.draw.polygon(screen,BLACK,moved,0)
+        else:
+            pygame.draw.polygon(screen,self.track.color,moved,0)
+        if self in semaphore and DEBUG:
+            pygame.draw.circle(screen,WHITE,self.pos,10)
+            
+        # drawing of passengers
+        # TODO: stil buggy for some values of CARCAPACITY
+        offset = CARCAPACITY/2 + 1
         for p in self.passengers:
             offset -= 1
             p.draw(self.pos,offset,self.angle)
