@@ -12,7 +12,7 @@ import random
 # configuration section
 ##################################################################
 
-DEBUG = True
+DEBUG = False
 
 BLACK =   (  0,   0,   0)
 WHITE =   (255, 255, 255)
@@ -334,15 +334,24 @@ class Semaphore(object):
         self.used = False
         self.queue = []
         
-    def block(car):
-        self.queue.push(car)
+    def block(self,car):
+        if DEBUG:
+            print("block Semaphore")
+            
+        self.queue.append(car)
         self.used = True
         
-    def free():
-        ret = self.queue.pop()
-        if not len(self.queue):
+    def free(self):
+        if DEBUG:
+            print("free Semaphore")
+            
+        l = len(self.queue)
+        if l:
+            print l
+            self.queue.pop()
+        if not self.queue:
             self.used = False
-        return ret
+
 
 class Car(object):
     """A railcar. Each Line holds at least one"""
@@ -356,6 +365,7 @@ class Car(object):
                      (CARWITH,CARLENGTH),(CARWITH,-CARLENGTH))
         self.passengers = []
         self.angle = 0
+        self.has_semaphore = False
         # self.waiting = False
             
             
@@ -407,21 +417,29 @@ class Car(object):
             # there is no moving restriction if collision-detection is off
             return True
         else:
-            return True
-            #future_pos = self.track.get_newpos(self.pos,self.counter,self.direction,CARLENGTH/CARSPEED)
-            #others = self.car_in_range() # very simplified collision detection
-            #if others:
-            #    if not self in semaphore:
-            #        semaphore.append(self)
-            #        return True
-            #    return False
-            #else:
-            #    if self in semaphore:
-            #        semaphore.remove(self)
-            #    return True
-            #       
-                
-    
+            #calculate distance from start
+            if self.direction > 0:
+                start = self.track.startpos
+                end = self.track.endpos
+            else:
+                start = self.track.endpos
+                end = self.track.startpos
+            dist = ( (start[0]-self.pos[0])**2 + (start[1]-self.pos[1])**2 ) ** .5
+            # stay at center of track unless we have a free station
+            if dist < self.track.length() / 2:
+                return True
+            else:
+                sema = get_station(end).sem
+                if sema.used and not self.has_semaphore:
+                    return False
+                elif not self.has_semaphore:                    
+                    sema.block(self)
+                    self.has_semaphore = True
+                    return True
+                else:
+                    return True
+ 
+   
     def draw(self):
         """draw the car."""
 
@@ -591,6 +609,8 @@ class Line(object):
             track.cars.remove(car)
             next_track.add_car(car)
             car.counter = 0
+            car.has_semaphore = False
+            station.sem.free()
 
         car.counter += 1
         
@@ -691,6 +711,7 @@ class Station(object):
         self.shape = shape
         self.pos = pos
         self.passengers = []
+        self.sem = Semaphore()
         
         
     def add_passenger(self):
@@ -703,15 +724,18 @@ class Station(object):
 
         # TODO: calculate area of shapes to make it same size optical 
         #        dont use this ugly constants anymore
+        innercolor = WHITE
+        if DEBUG and self.sem.used:
+            innercolor = BLACK
         if self.shape == 'circle':
             pygame.draw.circle(screen,BLACK,pos,STATIONSIZE)
-            pygame.draw.circle(screen,WHITE,pos,STATIONSIZE-STATIONTHICKNESS)
+            pygame.draw.circle(screen,innercolor,pos,STATIONSIZE-STATIONTHICKNESS)
         if self.shape == 'triangle':
             draw_triangle(pos,STATIONSIZE+4,BLACK)
-            draw_triangle(pos,STATIONSIZE+4-STATIONTHICKNESS*2,WHITE)
+            draw_triangle(pos,STATIONSIZE+4-STATIONTHICKNESS*2,innercolor)
         if self.shape == 'square':
             draw_square(pos,STATIONSIZE-3,BLACK)
-            draw_square(pos,STATIONSIZE-STATIONTHICKNESS-3,WHITE)
+            draw_square(pos,STATIONSIZE-STATIONTHICKNESS-3,innercolor)
 
         count = 0
         for p in self.passengers:
