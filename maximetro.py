@@ -75,7 +75,7 @@ gameover = False
 
 screen = pygame.display.set_mode((MAX_X, MAX_Y))
 
-semaphore = [] # sorage for cars with possible COLLISION
+# semaphore = [] # sorage for cars with possible COLLISION
 stations = []
 lines = []
 
@@ -85,11 +85,11 @@ lines = []
 
 def init_game():
     """ should be called at game (re)start """
-    global lines, semaphores, stations, gameover, LINES, score
+    global lines, stations, gameover, LINES, score #, semaphores
     gameover = False
     stations = []
     lines = []
-    semaphore = []
+    # semaphore = []
     LINES = list(COLORS)
     init_city()
     score = 0
@@ -327,6 +327,23 @@ def for_all_cars(function):
 # classes
 ################################################################
 
+class Semaphore(object):
+    '''Blocks a station or (part of) a track for use with other cars'''
+    
+    def __init__(self):
+        self.used = False
+        self.queue = []
+        
+    def block(car):
+        self.queue.push(car)
+        self.used = True
+        
+    def free():
+        ret = self.queue.pop()
+        if not len(self.queue):
+            self.used = False
+        return ret
+
 class Car(object):
     """A railcar. Each Line holds at least one"""
     
@@ -339,7 +356,7 @@ class Car(object):
                      (CARWITH,CARLENGTH),(CARWITH,-CARLENGTH))
         self.passengers = []
         self.angle = 0
-        self.waiting = False
+        # self.waiting = False
             
             
     def move(self):
@@ -387,38 +404,39 @@ class Car(object):
         """collision detection is handled here"""
         
         if COLLISION == True:
+            # there is no moving restriction if collision-detection is off
             return True
         else:
+            return True
             #future_pos = self.track.get_newpos(self.pos,self.counter,self.direction,CARLENGTH/CARSPEED)
-            others = self.car_in_range() # very simplified collision detection
-            if others:
-                self.waiting = True
-                # semaphore.append(self)   
-                ret = True
-                for c in others:
-                    if c.waiting:
-                        ret = False
-                        if not c in semaphore:
-                            semaphore.append(c)
-                        if not self in semaphore:
-                            semaphore.append(self)
-                 
-                return ret
-            else:
-                return True
-   
+            #others = self.car_in_range() # very simplified collision detection
+            #if others:
+            #    if not self in semaphore:
+            #        semaphore.append(self)
+            #        return True
+            #    return False
+            #else:
+            #    if self in semaphore:
+            #        semaphore.remove(self)
+            #    return True
+            #       
+                
     
     def draw(self):
         """draw the car."""
 
         moved = self.move()
-        if self.waiting and DEBUG:
-            pygame.draw.polygon(screen,BLACK,moved,0)
-        else:
-            pygame.draw.polygon(screen,self.track.color,moved,0)
-        if self in semaphore and DEBUG:
-            pygame.draw.circle(screen,WHITE,self.pos,10)
-            
+        #if self.waiting and DEBUG:
+        #    pygame.draw.polygon(screen,BLACK,moved,0)
+        #else:
+        pygame.draw.polygon(screen,self.track.color,moved,0)
+        if DEBUG:
+            None
+            #future_pos = self.track.get_newpos(self.pos,self.counter,self.direction,CARLENGTH/CARSPEED * 3)
+            #pygame.draw.circle(screen,self.track.color,future_pos,CARLENGTH*3,2)
+            #if self in semaphore:
+            #    pygame.draw.circle(screen,WHITE,self.pos,10)
+            #
         # drawing of passengers
         # TODO: stil buggy for some values of CARCAPACITY
         offset = CARCAPACITY/2 + 1
@@ -448,11 +466,6 @@ class Track(object):
         for c in self.cars:
             c.draw()
           
-            
-    def update(self):
-        for c in self.cars:
-            c.update()
-
 
     def length(self):
         """returns the length of the track"""
@@ -465,13 +478,14 @@ class Track(object):
         
     def get_newpos(self,pos,count,direction=1,iter=1):
         """ calculates new position of a car in iter iterations"""
-        
+    
+        count += (iter - 1)
         start = self.startpos
         end = self.endpos
         ret = [0,0]
         length = self.length()
-        xdiff = (start[0] - end[0]) / length * CARSPEED * iter * -1
-        ydiff = (start[1] - end[1]) / length * CARSPEED * iter * -1
+        xdiff = (start[0] - end[0]) / length * CARSPEED * -1
+        ydiff = (start[1] - end[1]) / length * CARSPEED * -1
         if direction > 0:
             ret[0] = int(xdiff * count) + start[0]
             ret[1] = int(ydiff * count) + start[1]
@@ -520,23 +534,6 @@ class Line(object):
         
         
     def update(self):
-        # we try to remove a car from semaphore which is moving in a good direction
-        if semaphore:
-            l = len(semaphore)
-            for c in semaphore:
-                future_pos = c.track.get_newpos(c.pos,c.counter,c.direction,CARLENGTH/CARSPEED * 5)
-                #print ",",
-                if(not c.car_in_range(future_pos)):
-                    #print ".",
-                    c.waiting = False
-                    semaphore.remove(c)
-                    
-                    # break
-            #print "-"
-            if(len(semaphore)==l):
-                #print "+"
-                c = semaphore.pop()
-                c.waiting = False
                 
         for t in self.tracks:
             if t.cars:
@@ -576,7 +573,6 @@ class Line(object):
                     p.car = car 
             for p in platform:
                 station.passengers.append(p)
-    
     
             # which is next track?
             pil = self.tracks.index(track)
@@ -824,7 +820,8 @@ def main():
                                 startpos = line.tracks[-1].endpos
                                 
             elif event.type == MOUSEMOTION and not gameover:
-                if not CROSSING and not intersect_any(startpos,event.pos):            
+                if not CROSSING and not intersect_any(startpos,event.pos):
+                    # TODO: there is stil a bug in CROSSING = False in seldom cases
                     pos = event.pos
                     spos = is_station_pos(pos)
                     # TODO: there should be no station in the way 
@@ -857,8 +854,6 @@ def main():
 
         draw_interface()
         
-        for l in lines:
-            l.draw()        
         if not gameover:
             if draw_status:
                 if (MAXSTATIONTRACKS and len(get_station(startpos).get_tracks()) < MAXSTATIONTRACKS):
@@ -866,7 +861,9 @@ def main():
                 else:
                     draw_status = False
             update()
-            
+        for l in lines:
+            l.draw()        
+              
         for s in stations:
             s.draw()
         if gameover:    
