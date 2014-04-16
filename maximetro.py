@@ -34,11 +34,11 @@ COLORS = [YELLOW,MAGENTA,CYAN,GREEN,BLUE,RED]
 LINES = list(COLORS)
 COLORNAMES = ['red','blue','green','cyan','magenta','yellow']
 
-PASSANGERSIZE = 7
+PASSENGERSIZE = 7
 CARCAPACITY = 3
 
-CARWITH = PASSANGERSIZE + 3        # actually half of it
-CARLENGTH = 13 + PASSANGERSIZE * CARCAPACITY   # actually half of it
+CARWITH = PASSENGERSIZE + 3        # actually half of it
+CARLENGTH = 13 + PASSENGERSIZE * CARCAPACITY   # actually half of it
 CARSPEED = 3
 
 STATIONSIZE = 17
@@ -208,7 +208,7 @@ def init_city():
                             "square"))
     print ("Setting stations...")
     for i in range(0,MAXSTATIONS):
-        # TODO: make shure that any shape can be reached
+        # TODO: make sure that any shape can be reached
         foundpos = False
         failed = 0
         while not foundpos and failed < 10:
@@ -347,7 +347,7 @@ class Semaphore(object):
             
         l = len(self.queue)
         if l:
-            print l
+            # print l
             self.queue.pop()
         if not self.queue:
             self.used = False
@@ -494,10 +494,10 @@ class Track(object):
         return ( (start[0]-end[0])**2 + (start[1]-end[1])**2 ) ** .5
       
         
-    def get_newpos(self,pos,count,direction=1,iter=1):
-        """ calculates new position of a car in iter iterations"""
+    def get_newpos(self,pos,count,direction=1,i=1):
+        """ calculates new position of a car in i iterations"""
     
-        count += (iter - 1)
+        count += (i - 1)
         start = self.startpos
         end = self.endpos
         ret = [0,0]
@@ -659,8 +659,8 @@ class Passenger(object):
 
 
     def draw(self,pos,offset=0,angle=0):
-        # generate vector in angle and length PASSANGERSIZE
-        v = Vec2d(PASSANGERSIZE*3,0)
+        # generate vector in angle and length PASSENGERSIZE
+        v = Vec2d(PASSENGERSIZE*3,0)
         v.rotate(angle+90)
         
         # add vector for every offset to pos
@@ -668,11 +668,11 @@ class Passenger(object):
         v_new = v_pos + v * offset
         pos = (int(v_new.x),int(v_new.y))
         if self.shape == 'circle':
-            pygame.draw.circle(screen,BLACK,pos,PASSANGERSIZE)
+            pygame.draw.circle(screen,BLACK,pos,PASSENGERSIZE)
         elif self.shape == 'triangle':
-            draw_triangle(pos,PASSANGERSIZE+1,BLACK,angle)
+            draw_triangle(pos,PASSENGERSIZE+1,BLACK,angle)
         elif self.shape == 'square':
-            draw_square(pos,PASSANGERSIZE-1,BLACK,angle)
+            draw_square(pos,PASSENGERSIZE-1,BLACK,angle)
 
 
     def enter(self,car):
