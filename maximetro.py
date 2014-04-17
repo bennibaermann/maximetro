@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
 # (c) 2014, Benni Baermann http://bennibaermann.de/
 # COPYING: See LICENSE. This program is Free Software under AGPL
 
@@ -13,6 +14,8 @@ import random
 ##################################################################
 
 DEBUG = False
+
+ANIMALS = False
 
 BLACK =   (  0,   0,   0)
 WHITE =   (255, 255, 255)
@@ -176,6 +179,12 @@ def move_poly(poly,pos):
         ret.append([p[0] + pos[0], p[1] + pos[1]])
     return ret
 
+def draw_image(image,pos,size,color,angle=0):
+    image = pygame.image.load(image)
+    image = pygame.transform.rotate(image,360-angle)
+    w,h = image.get_size()
+    pos = (pos[0]-w/2,pos[1]-h/2)
+    screen.blit(image,pos)
 
 def draw_triangle(pos,size,color,angle=0):
     """draws an equilateral triangle in the outer circle at pos with size in color"""
@@ -667,13 +676,21 @@ class Passenger(object):
         v_pos = Vec2d(pos)
         v_new = v_pos + v * offset
         pos = (int(v_new.x),int(v_new.y))
-        if self.shape == 'circle':
-            pygame.draw.circle(screen,BLACK,pos,PASSENGERSIZE)
-        elif self.shape == 'triangle':
-            draw_triangle(pos,PASSENGERSIZE+1,BLACK,angle)
-        elif self.shape == 'square':
-            draw_square(pos,PASSENGERSIZE-1,BLACK,angle)
-
+        if ANIMALS:
+            if self.shape == 'circle':
+                draw_image('ladybeetle.png',pos,PASSENGERSIZE-1,BLACK,angle)
+            elif self.shape == 'triangle':
+                draw_image('ant.png',pos,PASSENGERSIZE-1,BLACK,angle)
+            elif self.shape == 'square':
+                draw_image('blowfish.png',pos,PASSENGERSIZE-1,BLACK,angle)
+        else:
+            if self.shape == 'circle':
+                pygame.draw.circle(screen,BLACK,pos,PASSENGERSIZE)
+            elif self.shape == 'triangle':
+                draw_triangle(pos,PASSENGERSIZE+1,BLACK,angle)
+            elif self.shape == 'square':
+                draw_square(pos,PASSENGERSIZE-1,BLACK,angle)
+            
 
     def enter(self,car):
         """returns True if this passenger wants to enter this car"""
