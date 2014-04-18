@@ -15,7 +15,7 @@ import random
 
 DEBUG = False
 
-ANIMALS = False
+ANIMALS = False # an alternate animals graphic set from erlehmann
 
 BLACK =   (  0,   0,   0)
 WHITE =   (255, 255, 255)
@@ -53,7 +53,7 @@ STATIONTRACKDIST = 0 # TODO: minimal distance between tracks and center of stati
 PROBABILITY_START = .001
 #PROBABILITY_DIFF = .000001
 PROBABILITY_DIFF = 0
-MAXWAITING = 5
+MAXWAITING = 10
 
 DOUBLE_TRACKS = False # more than one track between same stations allowed?
 CROSSING = False # crossing tracks allowed?
@@ -597,9 +597,11 @@ class Line(object):
                     # p enters the car
                     station.passengers.remove(p) # TODO: PERFORMANCE
                     car.passengers.append(p)
-                    p.car = car 
+                    p.car = car
+                    p.station = None
             for p in platform:
                 station.passengers.append(p)
+                p.station = station
     
             # which is next track?
             pil = self.tracks.index(track)
@@ -695,6 +697,18 @@ class Passenger(object):
     def enter(self,car):
         """returns True if this passenger wants to enter this car"""
         
+        # enter if there is shape on the line of the car
+        line_of_car = car.track.line
+        if self.shape in line_of_car:
+            return True
+        # don't enter if there is another line here with shape on line
+        lines_here = list(self.station.get_lines())
+        lines_here.remove(line_of_car)
+        for l in lines_here:
+            if self.shape in l:
+                # print "do not enter"
+                return False
+        # otherwise: enter
         return True
 
 
