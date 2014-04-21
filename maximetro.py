@@ -13,9 +13,9 @@ import random
 # configuration section
 ##################################################################
 
-DEBUG = False
+DEBUG = True
 
-ANIMALS = False # an alternate animals graphic set from erlehmann
+ANIMALS = False # an alternative animals graphic set from erlehmann
 
 BLACK =   (  0,   0,   0)
 WHITE =   (255, 255, 255)
@@ -63,7 +63,7 @@ MIN_ANGLE = 0 # TODO: minimal angle between tracks
 
 RIGHT_OFFSET = int(MAXWAITING * STATIONSIZE) 
 #RIGHT_OFFSET = 200
-MAX_Y = 800
+MAX_Y = 500
 MAX_X = MAX_Y + RIGHT_OFFSET
 
 FPS = 30
@@ -417,8 +417,23 @@ class Car(object):
                                 ret.append(c)
             
         return ret
+
+    def next_stationpos(self):
+        """returns the next target of the car"""
+        
+        if self.direction > 0:
+            return self.track.endpos
+        else:
+            return self.track.startpos
+        
+    def last_stationpos(self):
+        """returns the last origin of the car"""
     
-    
+        if self.direction < 0:
+            return self.track.endpos
+        else:
+            return self.track.startpos
+        
     def want_move(self):
         """collision detection is handled here"""
         
@@ -427,12 +442,14 @@ class Car(object):
             return True
         else:
             #calculate distance from start
-            if self.direction > 0:
-                start = self.track.startpos
-                end = self.track.endpos
-            else:
-                start = self.track.endpos
-                end = self.track.startpos
+            start = self.last_stationpos()
+            end = self.next_stationpos()
+            #if self.direction > 0:
+            #    start = self.track.startpos
+            #    end = self.track.endpos
+            #else:
+            #    start = self.track.endpos
+            #    end = self.track.startpos
             dist = ( (start[0]-self.pos[0])**2 + (start[1]-self.pos[1])**2 ) ** .5
             # stay at center of track unless we have a free station
             if dist < self.track.length() / 2:
@@ -457,8 +474,7 @@ class Car(object):
         #    pygame.draw.polygon(screen,BLACK,moved,0)
         #else:
         pygame.draw.polygon(screen,self.track.color,moved,0)
-        if DEBUG:
-            None
+        # if DEBUG:
             #future_pos = self.track.get_newpos(self.pos,self.counter,self.direction,CARLENGTH/CARSPEED * 3)
             #pygame.draw.circle(screen,self.track.color,future_pos,CARLENGTH*3,2)
             #if self in semaphore:
@@ -478,7 +494,8 @@ class Track(object):
     
     def __init__(self,start,end,color,line,withcar=1):
         """constructor should only be called, if LINES[] is not empty"""
-        # self.pos_in_line = pil
+        # TODO: assert LINES
+
         self.line = line
         self.color = color
         self.startpos = start
@@ -652,7 +669,14 @@ class Line(object):
         else:
             # TODO: if car is deleted, we should do something
             #       with the passengers...
-            self.tracks.pop()
+            track = self.tracks.pop()
+            # delete semaphores for deleted cars
+            # TODO: can we use some kind of destructor here instead?
+            for c in track.cars:
+                if c.has_semaphore:
+                    station = get_station(c.next_stationpos())
+                    station.sem.free()
+                    
             if l == 1:
                 LINES.append(track.color)
         
