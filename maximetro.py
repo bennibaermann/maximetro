@@ -13,7 +13,7 @@ import random
 # configuration section
 ##################################################################
 
-DEBUG = True
+DEBUG = False
 
 ANIMALS = False # an alternative animals graphic set from erlehmann
 
@@ -46,7 +46,7 @@ CARSPEED = 3
 
 STATIONSIZE = 17
 STATIONTHICKNESS = 5
-STATIONDISTANCE = CARLENGTH * 4
+STATIONDISTANCE = CARLENGTH * 3
 MAXSTATIONTRACKS = 5
 STATIONTRACKDIST = 0 # TODO: minimal distance between tracks and center of station
 
@@ -66,6 +66,8 @@ RIGHT_OFFSET = int(MAXWAITING * STATIONSIZE)
 MAX_Y = 500
 MAX_X = MAX_Y + RIGHT_OFFSET
 
+MAX_DEPTH = 99999 # max distance for path finding (means no path)
+
 FPS = 30
 
 ################################################################
@@ -75,6 +77,7 @@ FPS = 30
 score = 0
 count = 0
 gameover = False
+pause = False
 
 screen = pygame.display.set_mode((MAX_X, MAX_Y))
 
@@ -96,7 +99,8 @@ def init_game():
     LINES = list(COLORS)
     init_city()
     score = 0
-
+    pause = False
+    
 def intersect( track,start,end ):
     """Calculates the intersection of line P1-P2 with P3-P4."""
 
@@ -215,6 +219,7 @@ def init_city():
     print ("Setting main station...")
     stations.append(Station((int((MAX_X-RIGHT_OFFSET)/2), int (MAX_Y/2)),\
                             "square"))
+    # TODO: make sure that every shape exists
     print ("Setting stations...")
     for i in range(0,MAXSTATIONS):
         # TODO: make sure that any shape can be reached
@@ -225,15 +230,15 @@ def init_city():
                                    MAX_X - 2 * STATIONSIZE - RIGHT_OFFSET),
                     random.randint(0 + 2 * STATIONSIZE, 
                                    MAX_Y - 2 * STATIONSIZE))
-            print ("trying position ", newstationpos)
+            if DEBUG: print ("trying position ", newstationpos)
             foundpos = True
             for s in stations:
                 if is_in_range(newstationpos,s.pos,STATIONDISTANCE):
                     foundpos = False
-                    print ("... is to near to ", s.pos)
+                    if DEBUG: print ("... is to near to ", s.pos)
                     
             if foundpos:
-                print( "position ok!")
+                if DEBUG: print( "position ok!")
                 s = Station(newstationpos)
                 stations.append(s)
             else:
@@ -342,21 +347,18 @@ class Semaphore(object):
     def __init__(self):
         self.used = False
         self.queue = []
+
         
     def block(self,car):
-        if DEBUG:
-            print("block Semaphore")
             
         self.queue.append(car)
         self.used = True
         
+        
     def free(self):
-        if DEBUG:
-            print("free Semaphore")
             
         l = len(self.queue)
         if l:
-            # print l
             self.queue.pop()
         if not self.queue:
             self.used = False
@@ -375,7 +377,6 @@ class Car(object):
         self.passengers = []
         self.angle = 0
         self.has_semaphore = False
-        # self.waiting = False
             
             
     def move(self):
@@ -385,7 +386,7 @@ class Car(object):
         pol = self.poly
 
         # determine angle of track 
-        # TODO: should calculated only once
+        # TODO PERFORMANCE: should be calculated only once
         start = self.track.startpos
         end = self.track.endpos
         v = Vec2d(start[0]-end[0],start[1]-end[1])
@@ -423,16 +424,22 @@ class Car(object):
         
         if self.direction > 0:
             return self.track.endpos
-        else:
+        elif self.direction < 0:
             return self.track.startpos
+        else:
+            assert 0, "impossible direction: 0"
+            
         
     def last_stationpos(self):
         """returns the last origin of the car"""
     
         if self.direction < 0:
             return self.track.endpos
-        else:
+        elif self.direction > 0:
             return self.track.startpos
+        else:
+            assert 0, "impossible direction: 0"
+            
         
     def want_move(self):
         """collision detection is handled here"""
@@ -444,12 +451,6 @@ class Car(object):
             #calculate distance from start
             start = self.last_stationpos()
             end = self.next_stationpos()
-            #if self.direction > 0:
-            #    start = self.track.startpos
-            #    end = self.track.endpos
-            #else:
-            #    start = self.track.endpos
-            #    end = self.track.startpos
             dist = ( (start[0]-self.pos[0])**2 + (start[1]-self.pos[1])**2 ) ** .5
             # stay at center of track unless we have a free station
             if dist < self.track.length() / 2:
@@ -494,7 +495,7 @@ class Track(object):
     
     def __init__(self,start,end,color,line,withcar=1):
         """constructor should only be called, if LINES[] is not empty"""
-        # TODO: assert LINES
+        assert LINES, "no more lines available"
 
         self.line = line
         self.color = color
@@ -514,7 +515,7 @@ class Track(object):
     def length(self):
         """returns the length of the track"""
         
-        #TODO: calculate only once if track changes
+        #TODO PERFORMANCE: calculate only once if track changes
         start = self.startpos
         end = self.endpos
         return ( (start[0]-end[0])**2 + (start[1]-end[1])**2 ) ** .5
@@ -558,8 +559,42 @@ class Track(object):
         car.track = self
         self.cars.append(car)
     
+    def next_station(self,direction):
+        """returns the station at this track in direction"""
         
+        if direction > 0:
+            return get_station(self.endpos)
+        elif direction < 0:
+            return get_station(self.startpos)
+        else:
+            assert 0, "impossible direction: 0"
+            
 
+    def distance(self,passenger,direction):
+        """calculates recursivly the distance (in tracks) to the
+        nearest station with shape in direction"""
+        
+        shape = passenger.shape
+        visited = passenger.visited
+        
+        if DEBUG: print "distance(",shape,",",direction,")"
+        next = self.next_station(direction)
+        if next in visited:
+                if DEBUG: print "we where here allready"
+                return MAX_DEPTH
+            
+        if shape == next.shape:
+            if DEBUG: print "found shape ", shape
+            return 1
+        else:
+            if DEBUG: print "not found shape ", shape, ". going recursive"
+            dist = next.min_distance(passenger,[self]) # recursion
+            if DEBUG: print "dist (in distance): ", dist
+            # return minimal distance + 1
+            #if dist >= MAX_DEPTH:
+            return dist + 1
+
+        
 class Line(object):
     """A line contains multiple tracks between stations"""
     
@@ -593,9 +628,30 @@ class Line(object):
         car.pos = track.get_newpos(car.pos,car.counter,car.direction)
 
         if track.is_end(car.pos):
+            station = get_station(car.pos)
+
+            # which is next track?
+            pil = self.tracks.index(track)
+            next_pil = pil + car.direction
+            if next_pil < 0 or next_pil > len(self.tracks)-1:
+                if self.is_circle():
+                    # this transforms from direction -1/1 to index -1/0
+                    next_pil = (car.direction - 1) / 2
+                else:
+                    car.direction *= -1
+                    next_pil = pil
+                
+            next_track = self.tracks[next_pil]
+            
+            # move car to next track
+            # TODO: should be in Car-class
+            track.cars.remove(car)
+            next_track.add_car(car)
+            car.counter = 0
+            car.has_semaphore = False
+            station.sem.free()
             
             # moving passengers
-            station = get_station(car.pos)
             platform = [] # just for intermediate memory
             copy = list(car.passengers)
             for p in copy:
@@ -620,26 +676,6 @@ class Line(object):
                 station.passengers.append(p)
                 p.station = station
     
-            # which is next track?
-            pil = self.tracks.index(track)
-            next_pil = pil + car.direction
-            if next_pil < 0 or next_pil > len(self.tracks)-1:
-                if self.is_circle():
-                    # this transforms from direction -1/1 to index -1/0
-                    next_pil = (car.direction - 1) / 2
-                else:
-                    car.direction *= -1
-                    next_pil = pil
-                
-            next_track = self.tracks[next_pil]
-            
-            # move car to next track
-            track.cars.remove(car)
-            next_track.add_car(car)
-            car.counter = 0
-            car.has_semaphore = False
-            station.sem.free()
-
         car.counter += 1
         
         
@@ -661,7 +697,7 @@ class Line(object):
     def delete_track(self):
         """deletes the last track from the line"""
         
-        print ("delete track from line color: ", self.color)
+        if DEBUG: print ("delete track from line with color: ", self.color)
         track = self.tracks[-1]
         l = len(self.tracks)
         if track.cars and not l == 1:
@@ -691,7 +727,7 @@ class Passenger(object):
         shapes.remove(station.shape)
         self.shape = random.choice(shapes)
         self.car = None
-
+        self.visited = [] # visited stations in pathfinding
 
     def draw(self,pos,offset=0,angle=0):
         # generate vector in angle and length PASSENGERSIZE
@@ -718,27 +754,46 @@ class Passenger(object):
                 draw_square(pos,PASSENGERSIZE-1,BLACK,angle)
             
 
-    def enter(self,car):
+    def enter(self,car,station=None):
         """returns True if this passenger wants to enter this car"""
+        assert get_station(car.pos) == self.station or isinstance(station,Station), "no station at enter()"
         
-        # enter if there is shape on the line of the car
-        line_of_car = car.track.line
-        if self.shape in line_of_car:
+        if not station:
+            station = self.station
+        
+        if DEBUG:
+            print
+            print "entering enter()"
+        # dont look at tracks in line of car, except
+        # track with car        
+        tracks_in_line = list(car.track.line.tracks)
+        
+        tracks_in_line.remove(car.track)
+        self.visited = []
+        dist = station.min_distance(self,tracks_in_line)
+        # self.visited.append(self.station)
+        if dist >= MAX_DEPTH:
+            if DEBUG: print "no path here (self)"
+            # return False
+        next_station = get_station(car.next_stationpos())
+        self.visited = []
+        next_dist = next_station.min_distance(self,[car.track])
+        # self.visited.append(next_station)
+        if next_dist >= MAX_DEPTH:
+            if DEBUG: print "no path here (next)"
+            # return False
+        if DEBUG: print "dist: ", dist, ", next: ", next_dist
+        # enter car if distance of target is smaller
+        if dist > next_dist:
             return True
-        # don't enter if there is another line here with shape on line
-        lines_here = list(self.station.get_lines())
-        lines_here.remove(line_of_car)
-        for l in lines_here:
-            if self.shape in l:
-                # print "do not enter"
-                return False
-        # otherwise: enter
-        return True
-
-
+        else:
+            return False
+        
+        
     def leave_at(self,station):
         """returns True if this passenger wants to leave the car at the station"""
-        
+        assert isinstance(station,Station), "no station in leave_at()"
+
         if station.shape == self.shape:
             return True
         
@@ -746,13 +801,16 @@ class Passenger(object):
             # TODO: we need some kind of recursive path finding here instead
             
             # stupid passenger: sits in car if shape is on line
-            if self.shape in self.car.track.line:
-                return False
+            #if self.shape in self.car.track.line:
+            #    return False
             
             # stupid passenger: leaves if another line here
-            if len(station.get_lines()) > 1:                    
-                return True
+            #if len(station.get_lines()) > 1:                    
+            #    return True
 
+            if not self.enter(self.car,station):
+                return True
+            
         return False
 
 
@@ -778,7 +836,7 @@ class Station(object):
         pos = self.pos
 
         # TODO: calculate area of shapes to make it same size optical 
-        #        dont use this ugly constants anymore
+        #       dont use this ugly constants anymore
         innercolor = WHITE
         if DEBUG and self.sem.used:
             innercolor = BLACK
@@ -811,6 +869,7 @@ class Station(object):
     def get_lines(self):
         """returns a list of lines connected to the station"""
         #TODO PERFORMANCE: should be stored not calculated
+        
         ret = []
         for l in lines:
             for t in l.tracks:
@@ -832,14 +891,51 @@ class Station(object):
                 if start == self or end == self:
                         ret.append(t)
         return ret
+
+
+    def min_distance(self,passenger,bad_tracks=[]):
+        '''recursivly calculation of distance for shape of passenger. 
+        bad_tracks, if any given, will be ignored'''
+    
+        shape = passenger.shape
         
+        if DEBUG: print "min_distance(", shape,") at ", self.shape
+        if self.shape == shape:
+            if DEBUG: print "found", shape
+            return 0
+
+        passenger.visited.append(self)
+        
+        # for all tracks at station
+        tracks = self.get_tracks()
+        min = MAX_DEPTH
+        for t in tracks:
+            # ignore bad tracks
+            if t in bad_tracks:
+                continue
+                
+            # determine direction going away from next
+            stationpos = t.startpos
+            dir = 0
+            if stationpos  == self.pos:
+                dir = 1
+            else:
+                dir = -1
+            # get distance (recursive)
+            dist = t.distance(passenger,dir)
+            if DEBUG: print "dist: ", dist
+            if dist < min:
+                min = dist
+        if DEBUG: print "min: ", min
+        return min
+    
 
 ########################################################################
 # main programm
 ########################################################################
                         
 def main():
-    global count
+    global count, pause
     # Initialise stuff
     init_game()
     pygame.init()
@@ -857,7 +953,13 @@ def main():
         for event in pygame.event.get():
             if event.type == QUIT:
                 return
-            elif event.type == MOUSEBUTTONDOWN:
+            elif event.type == KEYDOWN:
+                if pause:
+                    pause = False
+                else:
+                    pause = True
+                
+            elif event.type == MOUSEBUTTONDOWN and not pause:
                 if gameover:
                     init_game()
                     pos = startpos = (0,0)
@@ -874,7 +976,7 @@ def main():
                         if spos and not draw_status:
                             startpos = spos
                             if len(get_station(startpos).get_tracks()) < MAXSTATIONTRACKS:
-                                print ("start drawing from " ,pos, " moving to ", startpos)
+                                if DEBUG: print ("start drawing from " ,pos, " moving to ", startpos)
                                 draw_status = True
                             else:
                                 print("no more tracks avaiable at this station")
@@ -892,13 +994,13 @@ def main():
                                 if not line.tracks:
                                     del lines[color]
                             else:
-                                print ("add track to line with color ", color)
+                                if DEBUG: print ("add track to line with color ", color)
                                 draw_status = have_line = True
                                 line = lines[color]
                                 LINES.append(line.color)
                                 startpos = line.tracks[-1].endpos
                                 
-            elif event.type == MOUSEMOTION and not gameover:
+            elif event.type == MOUSEMOTION and not gameover and not pause:
                 if not CROSSING and not intersect_any(startpos,event.pos):
                     # TODO: there is stil a bug in CROSSING = False in seldom cases
                     pos = event.pos
@@ -912,15 +1014,15 @@ def main():
                             if (MAXSTATIONTRACKS and
                                 len(get_station(spos).get_tracks()) < MAXSTATIONTRACKS and 
                                 len(get_station(startpos).get_tracks()) < MAXSTATIONTRACKS):
-                                print ("stop drawing at " , pos , " moving to " , spos)
+                                if DEBUG: print ("stop drawing at " , pos , " moving to " , spos)
                                 if have_line:
-                                    print ("appending track to line...")
+                                    if DEBUG: print ("appending track to line...")
                                     # startpos = spos
             
                                     line.tracks.append(Track(startpos,spos,line.color,line,0))
                                     line.stations.append(spos) # TODO: should not be double if circle
                                 else:
-                                    print ("creating new line...")
+                                    if DEBUG: print ("creating new line...")
                                     line = Line(startpos, spos)
                                     lines.append(line)
                                     have_line = True
@@ -929,6 +1031,10 @@ def main():
                                 print("to many tracks at station!")
                         else:
                             print("no doubletracks allowed!")
+                            
+        if pause:
+            continue
+        
         screen.fill(WHITE)
 
         draw_interface()
