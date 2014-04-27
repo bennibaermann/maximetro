@@ -25,13 +25,13 @@ You need python and pygame. Under Debian/Ubuntu and similar systems the
 following should work:
 
 	apt-get install python python-pygame 
-	git git clone https://github.com/bennibaermann/maximetro.git 
+	git clone https://github.com/bennibaermann/maximetro.git 
 	maximetro/maximetro.py 
 
 I have no idea how to install under other systems. But in general you need
-python and pygame and than clone the git repository. The underlying technologies
-(SDL, Pygame, Python) are all very portable, so it should be possible to run it
-more or less on any system.
+python and pygame and than clone the git repository (or download the
+zip from github). The underlying technologies (SDL, Pygame, Python) are all 
+very portable, so it should be possible to run it more or less on any system.
 
 Have fun.
 
