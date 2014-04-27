@@ -283,6 +283,8 @@ def draw_interface():
     pygame.draw.line(screen,BLACK,(int(MAX_X-RIGHT_OFFSET/2),0),
                                       (int(MAX_X-RIGHT_OFFSET/2),count*50-1))
     
+    if pause:
+        text((MAX_X-RIGHT_OFFSET+10,MAX_Y-40),"PAUSED")
     text((MAX_X-RIGHT_OFFSET+10,MAX_Y-20),"SCORE: " + str(score))
 
         
@@ -968,7 +970,7 @@ def main():
                 else:
                     pause = True
                 
-            elif event.type == MOUSEBUTTONDOWN and not pause:
+            elif event.type == MOUSEBUTTONDOWN:
                 if gameover:
                     init_game()
                     pos = startpos = (0,0)
@@ -1009,7 +1011,7 @@ def main():
                                 LINES.append(line.color)
                                 startpos = line.tracks[-1].endpos
                                 
-            elif event.type == MOUSEMOTION and not gameover and not pause:
+            elif event.type == MOUSEMOTION and not gameover:
                 if not CROSSING and not intersect_any(startpos,event.pos):
                     # TODO: there is stil a bug in CROSSING = False in seldom cases
                     pos = event.pos
@@ -1041,12 +1043,8 @@ def main():
                         else:
                             print("no doubletracks allowed!")
                             
-        if pause:
-            continue
-        
         screen.fill(WHITE)
-
-        draw_interface()
+        draw_interface()        
         
         if not gameover:
             if draw_status:
@@ -1054,7 +1052,8 @@ def main():
                     pygame.draw.line(screen,LINES[-1],startpos,pos,5)
                 else:
                     draw_status = False
-            update()
+            if not pause:
+                update()
         for l in lines:
             l.draw()        
               
@@ -1063,8 +1062,7 @@ def main():
         if gameover:    
             center_text((int(MAX_X/2),int(MAX_Y/2)),"GAME OVER!",BLACK,52)
             center_text((int(MAX_X/2),int(MAX_Y/2)),"GAME OVER!",RED,50)
-            center_text((int(MAX_X/2),int(MAX_Y/2)+100),"click to restart",BLACK,20)
-            
+            center_text((int(MAX_X/2),int(MAX_Y/2)+100),"click to restart",BLACK,20)            
         
         pygame.display.update()
         msElapsed = clock.tick(FPS) # TODO: Gamespeed should be FPS-independent
