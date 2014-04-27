@@ -493,7 +493,7 @@ class Car(object):
 class Track(object):
     """A railtrack between stations."""
     
-    def __init__(self,start,end,color,line,withcar=1):
+    def __init__(self,start,end,color,line,withcar=True):
         """constructor should only be called, if LINES[] is not empty"""
         assert LINES, "no more lines available"
 
@@ -574,6 +574,15 @@ class Track(object):
         """calculates recursivly the distance (in tracks) to the
         nearest station with shape in direction"""
         
+        # special handling of circles. return MAX_DEPTH
+        # if wrong direction and only one car at line
+        # TODO: what if more than one car but all same direction?
+        if self.line.is_circle():
+            cars = self.line.get_cars()
+            if len(cars) == 1:
+                if cars[0].direction != direction:
+                    return MAX_DEPTH                
+                
         shape = passenger.shape
         visited = passenger.visited
         
@@ -611,7 +620,17 @@ class Line(object):
             return True
         return False
         
+    
+    def get_cars(self):
+        '''returns cars on line'''
         
+        ret = []
+        for t in self.tracks:
+            for c in t.cars:
+                ret.append(c)
+        return ret
+
+    
     def update(self):
                 
         for t in self.tracks:
@@ -798,16 +817,6 @@ class Passenger(object):
             return True
         
         if self.car:
-            # TODO: we need some kind of recursive path finding here instead
-            
-            # stupid passenger: sits in car if shape is on line
-            #if self.shape in self.car.track.line:
-            #    return False
-            
-            # stupid passenger: leaves if another line here
-            #if len(station.get_lines()) > 1:                    
-            #    return True
-
             if not self.enter(self.car,station):
                 return True
             
