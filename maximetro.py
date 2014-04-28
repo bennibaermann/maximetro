@@ -17,6 +17,9 @@ DEBUG = False
 
 ANIMALS = False # an alternative animals graphic set from erlehmann
 
+FREE_PASSENGERS = True # new passengers not at stations
+STATION_PASSENGERS = False # new passengers at stations
+
 BLACK =   (  0,   0,   0)
 WHITE =   (255, 255, 255)
 BLUE =    (  0,   0, 255)
@@ -30,7 +33,7 @@ SHAPES = ('circle','triangle','square')
 OTHERSTATIONS = ('circle','triangle')
 MAINSTATION = 'square'
 
-MAXSTATIONS = 20
+MAXSTATIONS = 4
 
 COLORS = [YELLOW,MAGENTA,CYAN,GREEN,BLUE,RED]
 #COLORS = [CYAN,GREEN,BLUE,RED]
@@ -38,7 +41,8 @@ LINES = list(COLORS)
 COLORNAMES = ['red','blue','green','cyan','magenta','yellow']
 
 PASSENGERSIZE = 7
-CARCAPACITY = 3
+PASSENGERSPEED = 1 # speed of passengers by foot
+CARCAPACITY = 2
 
 CARWITH = PASSENGERSIZE + 3        # actually half of it
 CARLENGTH = 13 + PASSENGERSIZE * CARCAPACITY   # actually half of it
@@ -50,7 +54,7 @@ STATIONDISTANCE = CARLENGTH * 3
 MAXSTATIONTRACKS = 5
 STATIONTRACKDIST = 0 # TODO: minimal distance between tracks and center of station
 
-PROBABILITY_START = .001
+PROBABILITY_START = .01
 #PROBABILITY_DIFF = .000001
 PROBABILITY_DIFF = 0
 MAXWAITING = 10
@@ -84,6 +88,7 @@ screen = pygame.display.set_mode((MAX_X, MAX_Y))
 # semaphore = [] # sorage for cars with possible COLLISION
 stations = []
 lines = []
+passengers = [] # only free passengers, which are not in a car or at a station
 
 ################################################################
 # global functions
@@ -95,7 +100,7 @@ def init_game():
     gameover = False
     stations = []
     lines = []
-    # semaphore = []
+    passengers = []
     LINES = list(COLORS)
     init_city()
     score = 0
@@ -213,6 +218,32 @@ def draw_square(pos,size,color,angle=0):
     pygame.draw.polygon(screen,color,rect,0)
 
 
+def random_pos(distance = STATIONDISTANCE):
+    """returns a random position not in range to an existing station.
+    returns None if no position found after some iterations"""
+    
+    foundpos = False
+    failed = 0
+    while not foundpos and failed < 10:
+        newpos = [random.randint(0 + 2 * STATIONSIZE, 
+                                 MAX_X - 2 * STATIONSIZE - RIGHT_OFFSET),
+                  random.randint(0 + 2 * STATIONSIZE, 
+                                 MAX_Y - 2 * STATIONSIZE)]
+        if DEBUG: print ("trying position ", newpos)
+        foundpos = True
+        for s in stations:
+            if is_in_range(newpos,s.pos,distance):
+                foundpos = False
+                if DEBUG: print ("... is to near to ", s.pos)
+                    
+        if foundpos:
+            if DEBUG: print( "position ok!")
+            return newpos
+        else:
+            failed += 1
+    return None
+
+
 def init_city():
     """we set some Stations in place."""
     
@@ -222,28 +253,10 @@ def init_city():
     # TODO: make sure that every shape exists
     print ("Setting stations...")
     for i in range(0,MAXSTATIONS):
-        # TODO: make sure that any shape can be reached
-        foundpos = False
-        failed = 0
-        while not foundpos and failed < 10:
-            newstationpos = (random.randint(0 + 2 * STATIONSIZE, 
-                                   MAX_X - 2 * STATIONSIZE - RIGHT_OFFSET),
-                    random.randint(0 + 2 * STATIONSIZE, 
-                                   MAX_Y - 2 * STATIONSIZE))
-            if DEBUG: print ("trying position ", newstationpos)
-            foundpos = True
-            for s in stations:
-                if is_in_range(newstationpos,s.pos,STATIONDISTANCE):
-                    foundpos = False
-                    if DEBUG: print ("... is to near to ", s.pos)
-                    
-            if foundpos:
-                if DEBUG: print( "position ok!")
-                s = Station(newstationpos)
-                stations.append(s)
-            else:
-                failed += 1
-                
+        pos = random_pos()
+        if pos:
+            s = Station(pos)
+            stations.append(s)
 
  
 def center_text(pos,string,color=BLACK,size=12):
@@ -288,19 +301,24 @@ def draw_interface():
     text((MAX_X-RIGHT_OFFSET+10,MAX_Y-20),"SCORE: " + str(score))
 
         
-def is_in_range(pos1,pos2,dist=STATIONSIZE):
-    """returns true if pos1 and pos2 are not more than dist pixels apart"""
+def dist(pos1,pos2):
+    """return distance between two positions"""
     
-    if pos1[0] < pos2[0] - dist:
-        return False
-    if pos1[0] > pos2[0] + dist:
-        return False        
-    if pos1[1] < pos2[1] - dist:
-        return False 
-    if pos1[1] > pos2[1] + dist:
-        return False 
-    return True
+    v1 = Vec2d(pos1)
+    v2 = Vec2d(pos2)
+    v = v1-v2
+    l = v.get_length()
+    return l
 
+
+def is_in_range(pos1,pos2,maxdist=STATIONSIZE):
+    """returns true if pos1 and pos2 are not more than dist pixels apart"""
+
+    d = dist(pos1,pos2)
+    if d <= maxdist:
+        return True
+    return False
+    
 
 def is_station_pos(pos):
     """returns center of station if at pos is a station."""
@@ -324,8 +342,14 @@ def update():
         l.update()
     for s in stations:
         s.update()
-
-
+    if FREE_PASSENGERS:
+        for p in passengers:
+            p.update()
+        if random.random() < PROBABILITY_START + count * PROBABILITY_DIFF:
+            newp = Passenger()
+            passengers.append(newp)
+            
+        
 def is_track(start,end):
     """returns True if there is any track betwen start and end"""
 
@@ -335,9 +359,11 @@ def is_track(start,end):
                 return True
     return False
 
-def for_all_cars(function):
-    None
 
+def for_all_cars(function):
+    pass
+
+    
 
 ################################################################
 # classes
@@ -518,10 +544,7 @@ class Track(object):
         """returns the length of the track"""
         
         #TODO PERFORMANCE: calculate only once if track changes
-        start = self.startpos
-        end = self.endpos
-        return ( (start[0]-end[0])**2 + (start[1]-end[1])**2 ) ** .5
-      
+        return dist(self.startpos,self.endpos)
         
     def get_newpos(self,pos,count,direction=1,i=1):
         """ calculates new position of a car in i iterations"""
@@ -611,7 +634,6 @@ class Line(object):
     
     def __init__(self,start,end):
         self.color = LINES[-1]
-        # self.colorname = COLORNAMES[-1]
         self.tracks = []
         self.tracks.append(Track(start,end,self.color,self))
         self.stations = [start,end]
@@ -742,14 +764,19 @@ class Line(object):
 class Passenger(object):
     """they want to travel to a station with shape self.shape!"""
     
-    def __init__(self,station):
-        self.station = station
+    def __init__(self,station = None):
         shapes = list(SHAPES) # copy list
-        shapes.remove(station.shape)
+        if station:
+            self.station = station
+            shapes.remove(station.shape)
+        else:
+            self.pos = random_pos(STATIONSIZE)
+            self.station = None
         self.shape = random.choice(shapes)
         self.car = None
         self.visited = [] # visited stations in pathfinding
 
+        
     def draw(self,pos,offset=0,angle=0):
         # generate vector in angle and length PASSENGERSIZE
         v = Vec2d(PASSENGERSIZE*3,0)
@@ -792,19 +819,15 @@ class Passenger(object):
         tracks_in_line.remove(car.track)
         self.visited = []
         dist = station.min_distance(self,tracks_in_line)
-        # self.visited.append(self.station)
         if dist >= MAX_DEPTH:
             if DEBUG: print "no path here (self)"
-            # return False
         next_station = get_station(car.next_stationpos())
         self.visited = []
         next_dist = next_station.min_distance(self,[car.track])
-        # self.visited.append(next_station)
         if next_dist >= MAX_DEPTH:
             if DEBUG: print "no path here (next)"
-            # return False
         if DEBUG: print "dist: ", dist, ", next: ", next_dist
-        # enter car if distance of target is smaller
+        # enter car if distance of next station is smaller
         if dist > next_dist:
             return True
         else:
@@ -825,7 +848,50 @@ class Passenger(object):
         return False
 
 
+    def update(self):
+        """moves to the next station in STATIONDISTANCE if not at station or at car"""
+        assert FREE_PASSENGERS, "passenger.update() should only be called with FREEPASSENGERS = True"
+        global score
+        
+        if self.car or self.station:
+            return
+        
+        # find nearest station
+        min_dist = 99999
+        nearest = None
+        for s in stations:
+            d = dist(s.pos,self.pos)
+            if d < min_dist:
+                min_dist = d
+                nearest = s
+            
+        if not nearest:
+            return
 
+        # print "found nearest station at: ", nearest.pos
+        
+        if min_dist > STATIONDISTANCE:
+            return
+        
+        # move to nearest station
+        start = Vec2d(self.pos)
+        end = Vec2d(nearest.pos)
+        diff = start - end
+        norm = diff.normalized()
+        new = start + norm * PASSENGERSPEED * -1
+        self.pos = [new.x,new.y]
+        
+        # go to station if at station.pos
+        if is_in_range(self.pos,nearest.pos):
+            if DEBUG: print "found station!"
+            passengers.remove(self)
+            if not self.shape == nearest.shape:
+                self.station = nearest
+                nearest.passengers.append(self)
+            else:
+                score += 1
+                
+                
 class Station(object):
     """a station"""
 
@@ -870,11 +936,13 @@ class Station(object):
     def update(self):
         global gameover
         global count
-        if random.random() < PROBABILITY_START + count * PROBABILITY_DIFF:
-            if len(self.passengers) < MAXWAITING:
+        
+        if STATION_PASSENGERS:
+            if random.random() < PROBABILITY_START + count * PROBABILITY_DIFF:
                 self.passengers.append(Passenger(self))
-            else:
-                gameover = True
+        
+        if len(self.passengers) > MAXWAITING:
+            gameover = True
               
                 
     def get_lines(self):
@@ -1056,9 +1124,13 @@ def main():
                 update()
         for l in lines:
             l.draw()        
-              
+            
         for s in stations:
             s.draw()
+            
+        for p in passengers:
+            p.draw(p.pos)
+            
         if gameover:    
             center_text((int(MAX_X/2),int(MAX_Y/2)),"GAME OVER!",BLACK,52)
             center_text((int(MAX_X/2),int(MAX_Y/2)),"GAME OVER!",RED,50)
