@@ -13,7 +13,7 @@ import random
 # configuration section
 ##################################################################
 
-DEBUG = False
+DEBUG = True
 
 # these basic gamemodes change the gameplay drastical
 ANIMALS = False # an alternative animals graphic set from erlehmann
@@ -58,7 +58,7 @@ STATIONDISTANCE = CARLENGTH * 3
 MAXSTATIONTRACKS = 5
 STATIONTRACKDIST = 0 # TODO: minimal distance between tracks and center of station
 
-PROBABILITY_START = .01
+PROBABILITY_START = .1
 #PROBABILITY_DIFF = .000001
 PROBABILITY_DIFF = 0
 MAXWAITING = 10
@@ -95,7 +95,7 @@ passengers = [] # only free passengers, which are not in a car or at a station
 
 def init_game():
     """ should be called at game (re)start """
-    global lines, stations, gameover, LINES, score #, semaphores
+    global lines, stations, gameover, LINES, score, passengers
     gameover = False
     stations = []
     lines = []
@@ -109,8 +109,17 @@ def init_game():
 def build_station(pos):
     """builds a random station at position pos"""
     
+    if (in_city_range(pos) or
+        pos[0] < 2 * STATIONSIZE or
+        pos[0] > MAX_X - RIGHT_OFFSET - 2 * STATIONSIZE or
+        pos[1] < 2 * STATIONSIZE or
+        pos[1] > MAX_Y - 2 * STATIONSIZE
+        ):
+        print "can't build at ", pos
+        return
     station = Station(pos)
     stations.append(station)
+    print "build station at ", pos
     
     
 def intersect( track,start,end ):
@@ -225,6 +234,16 @@ def draw_square(pos,size,color,angle=0):
     pygame.draw.polygon(screen,color,rect,0)
 
 
+def in_city_range(pos, distance = STATIONDISTANCE):
+    """returns True if pos is in distance of any station"""
+    
+    for s in stations:
+        if is_in_range(pos,s.pos,distance):
+            if DEBUG: print ("... is to near to ", s.pos)
+            return True       
+    return False
+
+
 def random_pos(distance = STATIONDISTANCE):
     """returns a random position not in range to an existing station.
     returns None if no position found after some iterations"""
@@ -237,11 +256,11 @@ def random_pos(distance = STATIONDISTANCE):
                   random.randint(0 + 2 * STATIONSIZE, 
                                  MAX_Y - 2 * STATIONSIZE)]
         if DEBUG: print ("trying position ", newpos)
-        foundpos = True
-        for s in stations:
-            if is_in_range(newpos,s.pos,distance):
-                foundpos = False
-                if DEBUG: print ("... is to near to ", s.pos)
+        foundpos = not in_city_range(newpos)
+        #for s in stations:
+        #    if is_in_range(newpos,s.pos,distance):
+        #        foundpos = False
+        #        if DEBUG: print ("... is to near to ", s.pos)
                     
         if foundpos:
             if DEBUG: print( "position ok!")
@@ -353,8 +372,15 @@ def update():
         for p in passengers:
             p.update()
         if random.random() < PROBABILITY_START + count * PROBABILITY_DIFF:
-            newp = Passenger()
-            passengers.append(newp)
+            try:
+                newp = Passenger()
+            except Exception as e:
+                if str(e) == "nopos":
+                    print "found no pos, exception: ", str(e)
+                else:
+                    raise e
+            else:
+                passengers.append(newp)
             
         
 def is_track(start,end):
@@ -772,13 +798,17 @@ class Passenger(object):
     """they want to travel to a station with shape self.shape!"""
     
     def __init__(self,station = None):
-        shapes = list(SHAPES) # copy list
         if station:
             self.station = station
             shapes.remove(station.shape)
         else:
-            self.pos = random_pos(STATIONSIZE)
+            pos = random_pos(STATIONSIZE)
+            if pos:
+                self.pos = pos
+            else:
+                raise Exception("nopos")
             self.station = None
+        shapes = list(SHAPES) # copy list
         self.shape = random.choice(shapes)
         self.car = None
         self.visited = [] # visited stations in pathfinding
@@ -909,11 +939,7 @@ class Station(object):
         self.pos = pos
         self.passengers = []
         self.sem = Semaphore()
-        
-        
-    def add_passenger(self):
-        passengers.append(Passenger(self))
-        
+             
         
     def draw(self):
         size = 20
@@ -1052,28 +1078,6 @@ def main():
                     have_line = draw_status = False
                     line = None
                 else:
-                    pos = event.pos
-                    spos = is_station_pos(pos)
-                    if not draw_status and not spos and BUILD_STATIONS:
-                        build_station(pos)
-                    else:
-                        draw_status = False
-                        if have_line:
-                            LINES.pop()
-                        have_line = False
-                        if LINES:
-                            #pos = event.pos
-                            #spos = is_station_pos(pos)
-                            if spos and not draw_status:
-                                startpos = spos
-                                if len(get_station(startpos).get_tracks()) < MAXSTATIONTRACKS:
-                                    if DEBUG: print ("start drawing from " ,pos, " moving to ", startpos)
-                                    draw_status = True
-                                else:
-                                    print("no more tracks avaiable at this station")
-                        else:
-                            print ("NO MORE LINES AVAIABLE!")
-                        
                     # handling of clicks at the right side
                     if event.pos[0] >= MAX_X - RIGHT_OFFSET:
                         color = int (event.pos[1] / 50)
@@ -1090,6 +1094,29 @@ def main():
                                 line = lines[color]
                                 LINES.append(line.color)
                                 startpos = line.tracks[-1].endpos
+                    else:
+                        pos = event.pos
+                        spos = is_station_pos(pos)
+                        if not draw_status and not spos and BUILD_STATIONS:
+                            build_station(pos)
+                        else:
+                            draw_status = False
+                            if have_line:
+                                LINES.pop()
+                            have_line = False
+                            if LINES:
+                                #pos = event.pos
+                                #spos = is_station_pos(pos)
+                                if spos and not draw_status:
+                                    startpos = spos
+                                    if len(get_station(startpos).get_tracks()) < MAXSTATIONTRACKS:
+                                        if DEBUG: print ("start drawing from " ,pos, " moving to ", startpos)
+                                        draw_status = True
+                                    else:
+                                        print("no more tracks avaiable at this station")
+                            else:
+                                print ("NO MORE LINES AVAIABLE!")
+                            
                                 
             elif event.type == MOUSEMOTION and not gameover:
                 if not CROSSING and not intersect_any(startpos,event.pos):
@@ -1134,6 +1161,7 @@ def main():
                     draw_status = False
             if not pause:
                 update()
+        
         for l in lines:
             l.draw()        
             
