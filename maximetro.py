@@ -15,10 +15,14 @@ import random
 
 DEBUG = False
 
+# these basic gamemodes change the gameplay drastical
 ANIMALS = False # an alternative animals graphic set from erlehmann
-
 FREE_PASSENGERS = True # new passengers not at stations
 STATION_PASSENGERS = False # new passengers at stations
+BUILD_STATIONS = True # player can build new stations
+DOUBLE_TRACKS = False # more than one track between same stations allowed?
+CROSSING = False # crossing tracks allowed?
+COLLISION = False # set False if Cars should stop if other car is in the way
 
 BLACK =   (  0,   0,   0)
 WHITE =   (255, 255, 255)
@@ -29,16 +33,16 @@ MAGENTA = (255,   0, 255)
 CYAN =    (  0, 255, 255)
 YELLOW =  (255, 255,   0)
 
-SHAPES = ('circle','triangle','square')
-OTHERSTATIONS = ('circle','triangle')
-MAINSTATION = 'square'
-
-MAXSTATIONS = 4
-
 COLORS = [YELLOW,MAGENTA,CYAN,GREEN,BLUE,RED]
 #COLORS = [CYAN,GREEN,BLUE,RED]
 LINES = list(COLORS)
 COLORNAMES = ['red','blue','green','cyan','magenta','yellow']
+
+SHAPES = ('circle','triangle','square')
+OTHERSTATIONS = ('circle','triangle')
+MAINSTATION = 'square'
+
+MAXSTATIONS = 0
 
 PASSENGERSIZE = 7
 PASSENGERSPEED = 1 # speed of passengers by foot
@@ -59,11 +63,6 @@ PROBABILITY_START = .01
 PROBABILITY_DIFF = 0
 MAXWAITING = 10
 
-DOUBLE_TRACKS = False # more than one track between same stations allowed?
-CROSSING = False # crossing tracks allowed?
-COLLISION = False # set False if Cars should stop if other car is in range
-
-MIN_ANGLE = 0 # TODO: minimal angle between tracks
 
 RIGHT_OFFSET = int(MAXWAITING * STATIONSIZE) 
 #RIGHT_OFFSET = 200
@@ -105,6 +104,14 @@ def init_game():
     init_city()
     score = 0
     pause = False
+    
+    
+def build_station(pos):
+    """builds a random station at position pos"""
+    
+    station = Station(pos)
+    stations.append(station)
+    
     
 def intersect( track,start,end ):
     """Calculates the intersection of line P1-P2 with P3-P4."""
@@ -1045,22 +1052,27 @@ def main():
                     have_line = draw_status = False
                     line = None
                 else:
-                    draw_status = False
-                    if have_line:
-                        LINES.pop()
-                    have_line = False
-                    if LINES:
-                        pos = event.pos
-                        spos = is_station_pos(pos)
-                        if spos and not draw_status:
-                            startpos = spos
-                            if len(get_station(startpos).get_tracks()) < MAXSTATIONTRACKS:
-                                if DEBUG: print ("start drawing from " ,pos, " moving to ", startpos)
-                                draw_status = True
-                            else:
-                                print("no more tracks avaiable at this station")
+                    pos = event.pos
+                    spos = is_station_pos(pos)
+                    if not draw_status and not spos and BUILD_STATIONS:
+                        build_station(pos)
                     else:
-                        print ("NO MORE LINES AVAIABLE!")
+                        draw_status = False
+                        if have_line:
+                            LINES.pop()
+                        have_line = False
+                        if LINES:
+                            #pos = event.pos
+                            #spos = is_station_pos(pos)
+                            if spos and not draw_status:
+                                startpos = spos
+                                if len(get_station(startpos).get_tracks()) < MAXSTATIONTRACKS:
+                                    if DEBUG: print ("start drawing from " ,pos, " moving to ", startpos)
+                                    draw_status = True
+                                else:
+                                    print("no more tracks avaiable at this station")
+                        else:
+                            print ("NO MORE LINES AVAIABLE!")
                         
                     # handling of clicks at the right side
                     if event.pos[0] >= MAX_X - RIGHT_OFFSET:
