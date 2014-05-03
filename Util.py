@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 from Vec2D import *
-import pygame
-from pygame.locals import *
 
 from config import *
 
@@ -61,14 +59,6 @@ def intersect( track,start,end ):
         return False
        
         
-def intersect_any(start,end):
-    """returns True if any intersection with existing tracks"""
-    for l in lines:
-        for t in l.tracks:
-            if intersect(t,start,end):
-                return True
-    return False
-
 
 def rotate_poly(pol,angle):
     """rotate polygon pol around (0,0) with angle and returns turned one"""
@@ -87,3 +77,23 @@ def move_poly(poly,pos):
     for p in poly:
         ret.append([p[0] + pos[0], p[1] + pos[1]])
     return ret
+
+
+def dist(pos1,pos2):
+    """return distance between two positions"""
+    
+    v1 = Vec2d(pos1)
+    v2 = Vec2d(pos2)
+    v = v1-v2
+    l = v.get_length()
+    return l
+
+
+def is_in_range(pos1,pos2,maxdist=STATIONSIZE):
+    """returns true if pos1 and pos2 are not more than dist pixels apart"""
+
+    d = dist(pos1,pos2)
+    if d <= maxdist:
+        return True
+    return False
+    

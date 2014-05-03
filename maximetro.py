@@ -201,24 +201,6 @@ def draw_interface():
     text((MAX_X-RIGHT_OFFSET+10,MAX_Y-20),"SCORE: " + str(score))
 
         
-def dist(pos1,pos2):
-    """return distance between two positions"""
-    
-    v1 = Vec2d(pos1)
-    v2 = Vec2d(pos2)
-    v = v1-v2
-    l = v.get_length()
-    return l
-
-
-def is_in_range(pos1,pos2,maxdist=STATIONSIZE):
-    """returns true if pos1 and pos2 are not more than dist pixels apart"""
-
-    d = dist(pos1,pos2)
-    if d <= maxdist:
-        return True
-    return False
-    
 # use global
 def is_station_pos(pos):
     """returns center of station if at pos is a station."""
