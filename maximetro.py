@@ -13,6 +13,7 @@ import random
 from Semaphore import Semaphore
 from config import *
 from Util import *
+import Screen
 
 ################################################################
 # global variables
@@ -23,7 +24,7 @@ count = 0
 gameover = False
 pause = False
 
-screen = pygame.display.set_mode((MAX_X, MAX_Y))
+# screen = pygame.display.set_mode((MAX_X, MAX_Y))
 
 # semaphore = [] # sorage for cars with possible COLLISION
 stations = []
@@ -34,7 +35,7 @@ passengers = [] # only free passengers, which are not in a car or at a station
 # global functions
 ################################################################
 
-# use global
+# use global (lines)
 def intersect_any(start,end):
     """returns True if any intersection with existing tracks"""
     for l in lines:
@@ -44,7 +45,7 @@ def intersect_any(start,end):
     return False
 
 
-#use globals
+#use globals (all)
 def init_game():
     """ should be called at game (re)start """
     global lines, stations, gameover, LINES, score, passengers
@@ -57,7 +58,7 @@ def init_game():
     score = 0
     pause = False
     
-# use Station    
+# use Station, use global (stations)
 def build_station(pos):
     """builds a random station at position pos"""
     
@@ -74,39 +75,8 @@ def build_station(pos):
     print "build station at ", pos
     
     
-# use global
-def draw_image(image,pos,size,color,angle=0):
-    image = pygame.image.load(image)
-    image = pygame.transform.rotate(image,360-angle)
-    w,h = image.get_size()
-    pos = (pos[0]-w/2,pos[1]-h/2)
-    screen.blit(image,pos)
 
-# use global
-def draw_triangle(pos,size,color,angle=0):
-    """draws an equilateral triangle in the outer circle at pos with size in color"""
-    b = size / 2
-    x = (size*size - b*b) ** .5
-    
-    triangle = ((0,-size),(x,b),(-x,b))
-    if angle:
-        triangle = rotate_poly(triangle,angle)
-    poly = move_poly(triangle,pos)
-    pygame.draw.polygon(screen,color,poly,0)
-        
-
-# use global
-def draw_square(pos,size,color,angle=0):
-    """draw square at pos with size in color"""
-
-    square = ((-size,-size),(-size,size),(size,size),(size,-size))
-    if angle:
-        square = rotate_poly(square,angle)
-    rect = move_poly(square,pos)
-    
-    pygame.draw.polygon(screen,color,rect,0)
-
-#use global
+#use global (stations)
 def in_city_range(pos, distance = STATIONDISTANCE):
     """returns True if pos is in distance of any station"""
     
@@ -116,7 +86,7 @@ def in_city_range(pos, distance = STATIONDISTANCE):
             return True       
     return False
 
-# use global (via in_city_range)
+# use global (stations via in_city_range)
 def random_pos(distance = STATIONDISTANCE):
     """returns a random position not in range to an existing station.
     returns None if no position found after some iterations"""
@@ -142,7 +112,7 @@ def random_pos(distance = STATIONDISTANCE):
             failed += 1
     return None
 
-# use Station, use global
+# use Station, use global (stations)
 def init_city():
     """we set some Stations in place."""
     
@@ -158,50 +128,8 @@ def init_city():
             stations.append(s)
 
 
-# use global
-def center_text(pos,string,color=BLACK,size=12):
-    """TODO BUGGY: prints string centered at pos"""
-
-    font = pygame.font.Font(pygame.font.get_default_font(),size)
-    text = font.render(string, False, color)
-    rect = text.get_rect()
-    pos = list(pos)
-    pos[0] -= int(rect.width/2)
-    pos[1] -= int(rect.height/2)
-    screen.blit(text, pos)
-
-# use global
-def text(pos,string,color=BLACK,size=12):
-    """prints string in default font at pos"""
-    
-    font = pygame.font.Font(pygame.font.get_default_font(),size)
-    text = font.render(string, False, color)
-    screen.blit(text, pos)
-
-# use global
-def draw_interface():
-    """draw the user interface"""
-
-    count = 0
-    for l in lines:
-        rect = pygame.Rect(MAX_X-RIGHT_OFFSET,count*50,RIGHT_OFFSET,50)
-        pygame.draw.rect(screen,l.color,rect)
-        pygame.draw.rect(screen,BLACK,rect,1)
-        center_text((MAX_X-int(RIGHT_OFFSET*.75),count*50+25),"-",BLACK,30)
-        center_text((MAX_X-int(RIGHT_OFFSET*.25),count*50+25),"+",BLACK,30)        
-        count += 1
-
-    pygame.draw.line(screen,BLACK,(MAX_X-RIGHT_OFFSET,0),
-                                      (MAX_X-RIGHT_OFFSET,MAX_Y))
-    pygame.draw.line(screen,BLACK,(int(MAX_X-RIGHT_OFFSET/2),0),
-                                      (int(MAX_X-RIGHT_OFFSET/2),count*50-1))
-    
-    if pause:
-        text((MAX_X-RIGHT_OFFSET+10,MAX_Y-40),"PAUSED")
-    text((MAX_X-RIGHT_OFFSET+10,MAX_Y-20),"SCORE: " + str(score))
-
         
-# use global
+# use global (stations)
 def is_station_pos(pos):
     """returns center of station if at pos is a station."""
     
@@ -210,13 +138,13 @@ def is_station_pos(pos):
             return s.pos
     return False
 
-# use global
+# use global (stations)
 def get_station(pos):
     """returns station at position"""
     
     return next(s for s in stations if s.pos == is_station_pos(pos))
 
-# use global
+# use global (lines,stations,passengers) use Passenger
 def update():
     """updates (position of) all user independent objects"""
     
@@ -232,13 +160,13 @@ def update():
                 newp = Passenger()
             except Exception as e:
                 if str(e) == "nopos":
-                    print "found no pos, exception: ", str(e)
+                    if DEBUG: print "found no pos, exception: ", str(e)
                 else:
                     raise e
             else:
                 passengers.append(newp)
             
-# use global
+# use global (lines)
 def is_track(start,end):
     """returns True if there is any track betwen start and end"""
 
@@ -247,10 +175,6 @@ def is_track(start,end):
             if t.startpos == start and t.endpos == end:
                 return True
     return False
-
-
-def for_all_cars(function):
-    pass
 
     
 
@@ -361,14 +285,14 @@ class Car(object):
                     return True
  
    
-    def draw(self):
+    def draw(self,scr):
         """draw the car."""
 
         moved = self.move()
         #if self.waiting and DEBUG:
         #    pygame.draw.polygon(screen,BLACK,moved,0)
         #else:
-        pygame.draw.polygon(screen,self.track.color,moved,0)
+        pygame.draw.polygon(scr.screen,self.track.color,moved,0)
         # if DEBUG:
             #future_pos = self.track.get_newpos(self.pos,self.counter,self.direction,CARLENGTH/CARSPEED * 3)
             #pygame.draw.circle(screen,self.track.color,future_pos,CARLENGTH*3,2)
@@ -380,7 +304,7 @@ class Car(object):
         offset = CARCAPACITY/2 + 1
         for p in self.passengers:
             offset -= 1
-            p.draw(self.pos,offset,self.angle)
+            p.draw(scr,self.pos,offset,self.angle)
 
 
 
@@ -400,10 +324,10 @@ class Track(object):
             self.cars.append(Car(self))
             
         
-    def draw(self):
-        pygame.draw.line(screen,self.color,self.startpos,self.endpos,5)
+    def draw(self,scr):
+        pygame.draw.line(scr.screen,self.color,self.startpos,self.endpos,5)
         for c in self.cars:
-            c.draw()
+            c.draw(scr)
           
 
     def length(self):
@@ -588,9 +512,9 @@ class Line(object):
         car.counter += 1
         
         
-    def draw(self):
+    def draw(self,scr):
         for t in self.tracks:
-            t.draw()
+            t.draw(scr)
             
 
     def __contains__(self,shape):
@@ -647,7 +571,7 @@ class Passenger(object):
         self.visited = [] # visited stations in pathfinding
 
         
-    def draw(self,pos,offset=0,angle=0):
+    def draw(self,scr,pos,offset=0,angle=0):
         # generate vector in angle and length PASSENGERSIZE
         v = Vec2d(PASSENGERSIZE*3,0)
         v.rotate(angle+90)
@@ -658,18 +582,18 @@ class Passenger(object):
         pos = (int(v_new.x),int(v_new.y))
         if ANIMALS:
             if self.shape == 'circle':
-                draw_image('ladybeetle.png',pos,PASSENGERSIZE-1,BLACK,angle)
+                scr.draw_image('ladybeetle.png',pos,PASSENGERSIZE-1,BLACK,angle)
             elif self.shape == 'triangle':
-                draw_image('ant.png',pos,PASSENGERSIZE-1,BLACK,angle)
+                scr.draw_image('ant.png',pos,PASSENGERSIZE-1,BLACK,angle)
             elif self.shape == 'square':
-                draw_image('blowfish.png',pos,PASSENGERSIZE-1,BLACK,angle)
+                scr.draw_image('blowfish.png',pos,PASSENGERSIZE-1,BLACK,angle)
         else:
             if self.shape == 'circle':
-                pygame.draw.circle(screen,BLACK,pos,PASSENGERSIZE)
+                pygame.draw.circle(scr.screen,BLACK,pos,PASSENGERSIZE)
             elif self.shape == 'triangle':
-                draw_triangle(pos,PASSENGERSIZE+1,BLACK,angle)
+                scr.draw_triangle(pos,PASSENGERSIZE+1,BLACK,angle)
             elif self.shape == 'square':
-                draw_square(pos,PASSENGERSIZE-1,BLACK,angle)
+                scr.draw_square(pos,PASSENGERSIZE-1,BLACK,angle)
             
 
     def enter(self,car,station=None):
@@ -774,7 +698,7 @@ class Station(object):
         self.sem = Semaphore()
              
         
-    def draw(self):
+    def draw(self,scr):
         size = 20
         pos = self.pos
 
@@ -784,18 +708,18 @@ class Station(object):
         if DEBUG and self.sem.used:
             innercolor = BLACK
         if self.shape == 'circle':
-            pygame.draw.circle(screen,BLACK,pos,STATIONSIZE)
-            pygame.draw.circle(screen,innercolor,pos,STATIONSIZE-STATIONTHICKNESS)
+            pygame.draw.circle(scr.screen,BLACK,pos,STATIONSIZE)
+            pygame.draw.circle(scr.screen,innercolor,pos,STATIONSIZE-STATIONTHICKNESS)
         if self.shape == 'triangle':
-            draw_triangle(pos,STATIONSIZE+4,BLACK)
-            draw_triangle(pos,STATIONSIZE+4-STATIONTHICKNESS*2,innercolor)
+            scr.draw_triangle(pos,STATIONSIZE+4,BLACK)
+            scr.draw_triangle(pos,STATIONSIZE+4-STATIONTHICKNESS*2,innercolor)
         if self.shape == 'square':
-            draw_square(pos,STATIONSIZE-3,BLACK)
-            draw_square(pos,STATIONSIZE-STATIONTHICKNESS-3,innercolor)
+            scr.draw_square(pos,STATIONSIZE-3,BLACK)
+            scr.draw_square(pos,STATIONSIZE-STATIONTHICKNESS-3,innercolor)
 
         count = 0
         for p in self.passengers:
-            p.draw((pos[0]+int(STATIONSIZE*1.5)+STATIONSIZE*count,pos[1]))
+            p.draw(scr,(pos[0]+int(STATIONSIZE*1.5)+STATIONSIZE*count,pos[1]))
             count += 1
                
                 
@@ -884,6 +808,8 @@ def main():
     # Initialise stuff
     init_game()
     pygame.init()
+    scr = Screen.Screen(lines)
+    screen = scr.screen
     pygame.display.set_caption('Maxi Metro')
     clock = pygame.time.Clock()
     
@@ -984,7 +910,10 @@ def main():
                             print("no doubletracks allowed!")
                             
         screen.fill(WHITE)
-        draw_interface()        
+        scr.draw_interface()
+        if pause:
+            scr.pause()
+        scr.score(score)
         
         if not gameover:
             if draw_status:
@@ -996,18 +925,18 @@ def main():
                 update()
         
         for l in lines:
-            l.draw()        
+            l.draw(scr)        
             
         for s in stations:
-            s.draw()
+            s.draw(scr)
             
         for p in passengers:
-            p.draw(p.pos)
+            p.draw(scr,p.pos)
             
         if gameover:    
-            center_text((int(MAX_X/2),int(MAX_Y/2)),"GAME OVER!",BLACK,52)
-            center_text((int(MAX_X/2),int(MAX_Y/2)),"GAME OVER!",RED,50)
-            center_text((int(MAX_X/2),int(MAX_Y/2)+100),"click to restart",BLACK,20)            
+            scr.center_text((int(MAX_X/2),int(MAX_Y/2)),"GAME OVER!",BLACK,52)
+            scr.center_text((int(MAX_X/2),int(MAX_Y/2)),"GAME OVER!",RED,50)
+            scr.center_text((int(MAX_X/2),int(MAX_Y/2)+100),"click to restart",BLACK,20)            
         
         pygame.display.update()
         msElapsed = clock.tick(FPS) # TODO: Gamespeed should be FPS-independent
