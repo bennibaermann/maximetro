@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-
 DEBUG = True
 
 # these basic gamemodes change the gameplay drastical

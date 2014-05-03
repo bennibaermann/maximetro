@@ -12,6 +12,7 @@ import random
 # own files
 from Semaphore import Semaphore
 from config import *
+from Util import *
 
 ################################################################
 # global variables
@@ -33,6 +34,17 @@ passengers = [] # only free passengers, which are not in a car or at a station
 # global functions
 ################################################################
 
+# use global
+def intersect_any(start,end):
+    """returns True if any intersection with existing tracks"""
+    for l in lines:
+        for t in l.tracks:
+            if intersect(t,start,end):
+                return True
+    return False
+
+
+#use globals
 def init_game():
     """ should be called at game (re)start """
     global lines, stations, gameover, LINES, score, passengers
@@ -45,7 +57,7 @@ def init_game():
     score = 0
     pause = False
     
-    
+# use Station    
 def build_station(pos):
     """builds a random station at position pos"""
     
@@ -62,88 +74,7 @@ def build_station(pos):
     print "build station at ", pos
     
     
-def intersect( track,start,end ):
-    """Calculates the intersection of line P1-P2 with P3-P4."""
-
-    x1, y1 = track.startpos
-    x2, y2 = track.endpos
-    x3, y3 = start
-    x4, y4 = end
-    
-    try:
-        # code from https://twitter.com/mekkablue
-        try:
-            slope12 = ( float(y2) - float(y1) ) / ( float(x2) - float(x1) )
-        except:
-            slope12 = None
-        try:
-            slope34 = ( float(y4) - float(y3) ) / ( float(x4) - float(x3) )
-        except:
-            slope34 = None
-            
-        if slope12 == slope34:
-            return False
-        elif slope12 is None:
-            # first line is vertical
-            x = x1
-            y = slope34 * ( x - x3 ) + y3
-        elif slope34 is None:
-            # second line is vertical
-            x = x3
-            y = slope12 * ( x - x1 ) + y1
-        else:
-            x = ( slope12 * x1 - y1 - slope34 * x3 + y3 ) / ( slope12 - slope34 )
-            y = slope12 * ( x - x1 ) + y1
-        
-        # only true if intersection is between track.startpos and track.endpos
-        x12_range = [x1,x2]
-        y12_range = [y1,y2]
-        x34_range = [x3,x4]
-        y34_range = [y3,y4]
-        x12_range.sort()
-        y12_range.sort()    
-        x34_range.sort()
-        y34_range.sort()
-        if x12_range[0] < x < x12_range[1] and \
-           y12_range[0] < y < y12_range[1] and \
-           x34_range[0] < x < x34_range[1] and \
-           y34_range[0] < y < y34_range[1]:
-            return True
-        else:
-            return False
-        
-    except Exception as e:
-        print (str(e))
-        return False
-       
-        
-def intersect_any(start,end):
-    """returns True if any intersection with existing tracks"""
-    for l in lines:
-        for t in l.tracks:
-            if intersect(t,start,end):
-                return True
-    return False
-
-
-def rotate_poly(pol,angle):
-    """rotate polygon pol around (0,0) with angle and returns turned one"""
-
-    # rotate car
-    turnedpol = []
-    for p in pol:
-        v = Vec2d(p)
-        turnedpol.append(v.rotated(angle))
-    return turnedpol
-
-
-def move_poly(poly,pos):
-    """return a moved polygon shiftet with pos"""
-    ret = []
-    for p in poly:
-        ret.append([p[0] + pos[0], p[1] + pos[1]])
-    return ret
-
+# use global
 def draw_image(image,pos,size,color,angle=0):
     image = pygame.image.load(image)
     image = pygame.transform.rotate(image,360-angle)
@@ -151,6 +82,7 @@ def draw_image(image,pos,size,color,angle=0):
     pos = (pos[0]-w/2,pos[1]-h/2)
     screen.blit(image,pos)
 
+# use global
 def draw_triangle(pos,size,color,angle=0):
     """draws an equilateral triangle in the outer circle at pos with size in color"""
     b = size / 2
@@ -162,7 +94,8 @@ def draw_triangle(pos,size,color,angle=0):
     poly = move_poly(triangle,pos)
     pygame.draw.polygon(screen,color,poly,0)
         
-        
+
+# use global
 def draw_square(pos,size,color,angle=0):
     """draw square at pos with size in color"""
 
@@ -173,7 +106,7 @@ def draw_square(pos,size,color,angle=0):
     
     pygame.draw.polygon(screen,color,rect,0)
 
-
+#use global
 def in_city_range(pos, distance = STATIONDISTANCE):
     """returns True if pos is in distance of any station"""
     
@@ -183,7 +116,7 @@ def in_city_range(pos, distance = STATIONDISTANCE):
             return True       
     return False
 
-
+# use global (via in_city_range)
 def random_pos(distance = STATIONDISTANCE):
     """returns a random position not in range to an existing station.
     returns None if no position found after some iterations"""
@@ -209,7 +142,7 @@ def random_pos(distance = STATIONDISTANCE):
             failed += 1
     return None
 
-
+# use Station, use global
 def init_city():
     """we set some Stations in place."""
     
@@ -224,7 +157,8 @@ def init_city():
             s = Station(pos)
             stations.append(s)
 
- 
+
+# use global
 def center_text(pos,string,color=BLACK,size=12):
     """TODO BUGGY: prints string centered at pos"""
 
@@ -236,7 +170,7 @@ def center_text(pos,string,color=BLACK,size=12):
     pos[1] -= int(rect.height/2)
     screen.blit(text, pos)
 
-
+# use global
 def text(pos,string,color=BLACK,size=12):
     """prints string in default font at pos"""
     
@@ -244,7 +178,7 @@ def text(pos,string,color=BLACK,size=12):
     text = font.render(string, False, color)
     screen.blit(text, pos)
 
-
+# use global
 def draw_interface():
     """draw the user interface"""
 
@@ -285,7 +219,7 @@ def is_in_range(pos1,pos2,maxdist=STATIONSIZE):
         return True
     return False
     
-
+# use global
 def is_station_pos(pos):
     """returns center of station if at pos is a station."""
     
@@ -294,13 +228,13 @@ def is_station_pos(pos):
             return s.pos
     return False
 
-
+# use global
 def get_station(pos):
     """returns station at position"""
     
     return next(s for s in stations if s.pos == is_station_pos(pos))
 
-
+# use global
 def update():
     """updates (position of) all user independent objects"""
     
@@ -322,7 +256,7 @@ def update():
             else:
                 passengers.append(newp)
             
-        
+# use global
 def is_track(start,end):
     """returns True if there is any track betwen start and end"""
 
