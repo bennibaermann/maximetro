@@ -20,7 +20,6 @@ import Screen
 ################################################################
 
 score = 0
-gameover = False
 stations = []
 lines = []
 passengers = [] # only free passengers, which are not in a car or at a station
@@ -42,8 +41,7 @@ def intersect_any(start,end):
 #use globals (all)
 def init_game():
     """ should be called at game (re)start """
-    global lines, stations, gameover, LINES, score, passengers
-    gameover = False
+    global lines, stations, LINES, score, passengers
     stations = []
     lines = []
     passengers = []
@@ -174,6 +172,9 @@ def is_track(start,end):
 ################################################################
 # classes
 ################################################################
+
+# exceptions
+class GameOver(Exception): pass
 
 class Car(object):
     """A railcar. Each Line holds at least one"""
@@ -717,15 +718,13 @@ class Station(object):
                
                 
     def update(self,counter):
-        global gameover
-        # global count
         
         if STATION_PASSENGERS:
             if random.random() < PROBABILITY_START + counter * PROBABILITY_DIFF:
                 self.passengers.append(Passenger(self))
         
         if len(self.passengers) > MAXWAITING:
-            gameover = True
+            raise GameOver("to many passengers waiting")
               
                 
     def get_lines(self):
@@ -799,7 +798,7 @@ class Station(object):
 def main():
     # Initialise stuff
     init_game()
-    pause = False
+    pause = gameover = False
     count = 0
     pygame.init()
     scr = Screen.Screen(lines)
@@ -812,6 +811,7 @@ def main():
     line = None
     # Event loop
     while 1:
+      #try:
         count += 1
             
         # TODO: ugly code. we have to wrote some functions here
@@ -831,7 +831,8 @@ def main():
                     have_line = draw_status = False
                     line = None
                     count = 0
-                    pause = False
+                    pause = gameover = False
+                    
                 else:
                     # handling of clicks at the right side
                     if event.pos[0] >= MAX_X - RIGHT_OFFSET:
@@ -907,19 +908,22 @@ def main():
                             
         screen.fill(WHITE)
         scr.draw_interface()
-        if pause:
+        if pause and not gameover:
             scr.pause()
         scr.score(score)
         
-        if not gameover:
-            if draw_status:
-                if (MAXSTATIONTRACKS and len(get_station(startpos).get_tracks()) < MAXSTATIONTRACKS):
-                    pygame.draw.line(screen,LINES[-1],startpos,pos,5)
-                else:
-                    draw_status = False
-            if not pause:
-                update(count)
-        
+        try:
+            if not gameover:
+                if draw_status:
+                    if (MAXSTATIONTRACKS and len(get_station(startpos).get_tracks()) < MAXSTATIONTRACKS):
+                        pygame.draw.line(screen,LINES[-1],startpos,pos,5)
+                    else:
+                        draw_status = False
+                if not pause:
+                    update(count)
+        except GameOver:
+            gameover = True
+            
         for l in lines:
             l.draw(scr)        
             
@@ -928,12 +932,13 @@ def main():
             
         for p in passengers:
             p.draw(scr,p.pos)
-            
-        if gameover:    
+    
+        if gameover:
             scr.center_text((int(MAX_X/2),int(MAX_Y/2)),"GAME OVER!",BLACK,52)
             scr.center_text((int(MAX_X/2),int(MAX_Y/2)),"GAME OVER!",RED,50)
-            scr.center_text((int(MAX_X/2),int(MAX_Y/2)+100),"click to restart",BLACK,20)            
-        
+            scr.center_text((int(MAX_X/2),int(MAX_Y/2)+100),"click to restart",BLACK,20)
+            gameover = True
+ 
         pygame.display.update()
         msElapsed = clock.tick(FPS) # TODO: Gamespeed should be FPS-independent
     
