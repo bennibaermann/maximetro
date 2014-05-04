@@ -21,7 +21,6 @@ import Screen
 
 score = 0
 gameover = False
-pause = False
 stations = []
 lines = []
 passengers = [] # only free passengers, which are not in a car or at a station
@@ -51,11 +50,11 @@ def init_game():
     LINES = list(COLORS)
     init_city()
     score = 0
-    pause = False
-    
+   
 # use Station, use global (stations)
 def build_station(pos):
     """builds a random station at position pos"""
+    # TODO: don't build at tracks
     
     if (in_city_range(pos) or
         pos[0] < 2 * STATIONSIZE or
@@ -798,9 +797,9 @@ class Station(object):
 ########################################################################
                         
 def main():
-    global pause
     # Initialise stuff
     init_game()
+    pause = False
     count = 0
     pygame.init()
     scr = Screen.Screen(lines)
@@ -832,6 +831,7 @@ def main():
                     have_line = draw_status = False
                     line = None
                     count = 0
+                    pause = False
                 else:
                     # handling of clicks at the right side
                     if event.pos[0] >= MAX_X - RIGHT_OFFSET:
