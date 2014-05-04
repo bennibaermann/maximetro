@@ -20,13 +20,8 @@ import Screen
 ################################################################
 
 score = 0
-count = 0
 gameover = False
 pause = False
-
-# screen = pygame.display.set_mode((MAX_X, MAX_Y))
-
-# semaphore = [] # sorage for cars with possible COLLISION
 stations = []
 lines = []
 passengers = [] # only free passengers, which are not in a car or at a station
@@ -73,7 +68,6 @@ def build_station(pos):
     station = Station(pos)
     stations.append(station)
     print "build station at ", pos
-    
     
 
 #use global (stations)
@@ -145,17 +139,17 @@ def get_station(pos):
     return next(s for s in stations if s.pos == is_station_pos(pos))
 
 # use global (lines,stations,passengers) use Passenger
-def update():
+def update(counter):
     """updates (position of) all user independent objects"""
     
     for l in lines:
         l.update()
     for s in stations:
-        s.update()
+        s.update(counter)
     if FREE_PASSENGERS:
         for p in passengers:
             p.update()
-        if random.random() < PROBABILITY_START + count * PROBABILITY_DIFF:
+        if random.random() < PROBABILITY_START + counter * PROBABILITY_DIFF:
             try:
                 newp = Passenger()
             except Exception as e:
@@ -723,12 +717,12 @@ class Station(object):
             count += 1
                
                 
-    def update(self):
+    def update(self,counter):
         global gameover
-        global count
+        # global count
         
         if STATION_PASSENGERS:
-            if random.random() < PROBABILITY_START + count * PROBABILITY_DIFF:
+            if random.random() < PROBABILITY_START + counter * PROBABILITY_DIFF:
                 self.passengers.append(Passenger(self))
         
         if len(self.passengers) > MAXWAITING:
@@ -804,9 +798,10 @@ class Station(object):
 ########################################################################
                         
 def main():
-    global count, pause
+    global pause
     # Initialise stuff
     init_game()
+    count = 0
     pygame.init()
     scr = Screen.Screen(lines)
     screen = scr.screen
@@ -836,6 +831,7 @@ def main():
                     pos = startpos = (0,0)
                     have_line = draw_status = False
                     line = None
+                    count = 0
                 else:
                     # handling of clicks at the right side
                     if event.pos[0] >= MAX_X - RIGHT_OFFSET:
@@ -922,7 +918,7 @@ def main():
                 else:
                     draw_status = False
             if not pause:
-                update()
+                update(count)
         
         for l in lines:
             l.draw(scr)        
