@@ -14,172 +14,28 @@ from Semaphore import Semaphore
 from config import *
 from Util import *
 import Screen
+import Game
 
 ################################################################
 # global variables
 ################################################################
+#
+#score = 0
+#stations = []
+#lines = []
+#passengers = [] # only free passengers, which are not in a car or at a station
 
-score = 0
-stations = []
-lines = []
-passengers = [] # only free passengers, which are not in a car or at a station
-
-################################################################
-# global functions
-################################################################
-
-# use global (lines)
-def intersect_any(start,end):
-    """returns True if any intersection with existing tracks"""
-    for l in lines:
-        for t in l.tracks:
-            if intersect(t,start,end):
-                return True
-    return False
-
-
-#use globals (all)
-def init_game():
-    """ should be called at game (re)start """
-    global lines, stations, LINES, score, passengers
-    stations = []
-    lines = []
-    passengers = []
-    LINES = list(COLORS)
-    init_city()
-    score = 0
-   
-# use Station, use global (stations)
-def build_station(pos):
-    """builds a random station at position pos"""
-    # TODO: don't build at tracks
-    
-    if (in_city_range(pos) or
-        pos[0] < 2 * STATIONSIZE or
-        pos[0] > MAX_X - RIGHT_OFFSET - 2 * STATIONSIZE or
-        pos[1] < 2 * STATIONSIZE or
-        pos[1] > MAX_Y - 2 * STATIONSIZE
-        ):
-        print "can't build at ", pos
-        return
-    station = Station(pos)
-    stations.append(station)
-    print "build station at ", pos
-    
-
-#use global (stations)
-def in_city_range(pos, distance = STATIONDISTANCE):
-    """returns True if pos is in distance of any station"""
-    
-    for s in stations:
-        if is_in_range(pos,s.pos,distance):
-            if DEBUG: print ("... is to near to ", s.pos)
-            return True       
-    return False
-
-# use global (stations via in_city_range)
-def random_pos(distance = STATIONDISTANCE):
-    """returns a random position not in range to an existing station.
-    returns None if no position found after some iterations"""
-    
-    foundpos = False
-    failed = 0
-    while not foundpos and failed < 10:
-        newpos = [random.randint(0 + 2 * STATIONSIZE, 
-                                 MAX_X - 2 * STATIONSIZE - RIGHT_OFFSET),
-                  random.randint(0 + 2 * STATIONSIZE, 
-                                 MAX_Y - 2 * STATIONSIZE)]
-        if DEBUG: print ("trying position ", newpos)
-        foundpos = not in_city_range(newpos)
-        #for s in stations:
-        #    if is_in_range(newpos,s.pos,distance):
-        #        foundpos = False
-        #        if DEBUG: print ("... is to near to ", s.pos)
-                    
-        if foundpos:
-            if DEBUG: print( "position ok!")
-            return newpos
-        else:
-            failed += 1
-    return None
-
-# use Station, use global (stations)
-def init_city():
-    """we set some Stations in place."""
-    
-    print ("Setting main station...")
-    stations.append(Station((int((MAX_X-RIGHT_OFFSET)/2), int (MAX_Y/2)),\
-                            "square"))
-    # TODO: make sure that every shape exists
-    print ("Setting stations...")
-    for i in range(0,MAXSTATIONS):
-        pos = random_pos()
-        if pos:
-            s = Station(pos)
-            stations.append(s)
-
-
-        
-# use global (stations)
-def is_station_pos(pos):
-    """returns center of station if at pos is a station."""
-    
-    for s in stations:
-        if is_in_range(pos,s.pos):
-            return s.pos
-    return False
-
-# use global (stations)
-def get_station(pos):
-    """returns station at position"""
-    
-    return next(s for s in stations if s.pos == is_station_pos(pos))
-
-# use global (lines,stations,passengers) use Passenger
-def update(counter):
-    """updates (position of) all user independent objects"""
-    
-    for l in lines:
-        l.update()
-    for s in stations:
-        s.update(counter)
-    if FREE_PASSENGERS:
-        for p in passengers:
-            p.update()
-        if random.random() < PROBABILITY_START + counter * PROBABILITY_DIFF:
-            try:
-                newp = Passenger()
-            except Exception as e:
-                if str(e) == "nopos":
-                    if DEBUG: print "found no pos, exception: ", str(e)
-                else:
-                    raise e
-            else:
-                passengers.append(newp)
-            
-# use global (lines)
-def is_track(start,end):
-    """returns True if there is any track betwen start and end"""
-
-    for l in lines:
-        for t in l.tracks:
-            if t.startpos == start and t.endpos == end:
-                return True
-    return False
-
-    
 
 ################################################################
 # classes
 ################################################################
 
-# exceptions
-class GameOver(Exception): pass
 
 class Car(object):
     """A railcar. Each Line holds at least one"""
     
-    def __init__(self,track):
+    def __init__(self,game,track):
+        self.game = game
         self.track = track
         self.pos = track.startpos
         self.direction = 1
@@ -217,7 +73,7 @@ class Car(object):
         """returns a list with cars in range CARLENGTH * 3 from pos"""
         
         ret = []
-        for l in lines:
+        for l in self.game.lines:
             for t in l.tracks:
                 for c in t.cars:
                     if c != self:
@@ -268,7 +124,7 @@ class Car(object):
             if dist < self.track.length() / 2:
                 return True
             else:
-                sema = get_station(end).sem
+                sema = self.game.get_station(end).sem
                 if sema.used and not self.has_semaphore:
                     return False
                 elif not self.has_semaphore:                    
@@ -305,17 +161,18 @@ class Car(object):
 class Track(object):
     """A railtrack between stations."""
     
-    def __init__(self,start,end,color,line,withcar=True):
+    def __init__(self,game,start,end,color,line,withcar=True):
         """constructor should only be called, if LINES[] is not empty"""
-        assert LINES, "no more lines available"
+        assert game.LINES, "no more lines available"
 
+        self.game = game
         self.line = line
         self.color = color
         self.startpos = start
         self.endpos = end
         self.cars = []
         if withcar:
-            self.cars.append(Car(self))
+            self.cars.append(Car(self.game,self))
             
         
     def draw(self,scr):
@@ -372,9 +229,9 @@ class Track(object):
         """returns the station at this track in direction"""
         
         if direction > 0:
-            return get_station(self.endpos)
+            return self.game.get_station(self.endpos)
         elif direction < 0:
-            return get_station(self.startpos)
+            return self.game.get_station(self.startpos)
         else:
             assert 0, "impossible direction: 0"
             
@@ -416,10 +273,11 @@ class Track(object):
 class Line(object):
     """A line contains multiple tracks between stations"""
     
-    def __init__(self,start,end):
-        self.color = LINES[-1]
+    def __init__(self,game,start,end):
+        self.game = game
+        self.color = game.LINES[-1]
         self.tracks = []
-        self.tracks.append(Track(start,end,self.color,self))
+        self.tracks.append(Track(self.game,start,end,self.color,self))
         self.stations = [start,end]
         
         
@@ -455,7 +313,7 @@ class Line(object):
         car.pos = track.get_newpos(car.pos,car.counter,car.direction)
 
         if track.is_end(car.pos):
-            station = get_station(car.pos)
+            station = self.game.get_station(car.pos)
 
             # which is next track?
             pil = self.tracks.index(track)
@@ -487,7 +345,7 @@ class Line(object):
                     car.passengers.remove(p) # TODO: PERFORMANCE
                     p.car = None
                     if p.shape == station.shape:
-                        score += 1
+                        self.game.score += 1
                     else:
                         # transition
                         platform.append(p) 
@@ -515,7 +373,7 @@ class Line(object):
         """returns True if Line contains stations with shape"""
 
         for pos in self.stations:
-            station = get_station(pos)
+            station = self.game.get_station(pos)
             if shape == station.shape:
                 return True
         return False
@@ -537,259 +395,12 @@ class Line(object):
             # TODO: can we use some kind of destructor here instead?
             for c in track.cars:
                 if c.has_semaphore:
-                    station = get_station(c.next_stationpos())
+                    station = self.game.get_station(c.next_stationpos())
                     station.sem.free()
                     
             if l == 1:
-                LINES.append(track.color)
-        
-        
+                self.game.LINES.append(track.color)
 
-class Passenger(object):
-    """they want to travel to a station with shape self.shape!"""
-    
-    def __init__(self,station = None):
-        if station:
-            self.station = station
-            shapes.remove(station.shape)
-        else:
-            pos = random_pos(STATIONSIZE)
-            if pos:
-                self.pos = pos
-            else:
-                raise Exception("nopos")
-            self.station = None
-        shapes = list(SHAPES) # copy list
-        self.shape = random.choice(shapes)
-        self.car = None
-        self.visited = [] # visited stations in pathfinding
-
-        
-    def draw(self,scr,pos,offset=0,angle=0):
-        # generate vector in angle and length PASSENGERSIZE
-        v = Vec2d(PASSENGERSIZE*3,0)
-        v.rotate(angle+90)
-        
-        # add vector for every offset to pos
-        v_pos = Vec2d(pos)
-        v_new = v_pos + v * offset
-        pos = (int(v_new.x),int(v_new.y))
-        if ANIMALS:
-            if self.shape == 'circle':
-                scr.draw_image('ladybeetle.png',pos,PASSENGERSIZE-1,BLACK,angle)
-            elif self.shape == 'triangle':
-                scr.draw_image('ant.png',pos,PASSENGERSIZE-1,BLACK,angle)
-            elif self.shape == 'square':
-                scr.draw_image('blowfish.png',pos,PASSENGERSIZE-1,BLACK,angle)
-        else:
-            if self.shape == 'circle':
-                pygame.draw.circle(scr.screen,BLACK,pos,PASSENGERSIZE)
-            elif self.shape == 'triangle':
-                scr.draw_triangle(pos,PASSENGERSIZE+1,BLACK,angle)
-            elif self.shape == 'square':
-                scr.draw_square(pos,PASSENGERSIZE-1,BLACK,angle)
-            
-
-    def enter(self,car,station=None):
-        """returns True if this passenger wants to enter this car"""
-        assert get_station(car.pos) == self.station or isinstance(station,Station), "no station at enter()"
-        
-        if not station:
-            station = self.station
-        
-        if DEBUG:
-            print
-            print "entering enter()"
-        # dont look at tracks in line of car, except
-        # track with car        
-        tracks_in_line = list(car.track.line.tracks)
-        
-        tracks_in_line.remove(car.track)
-        self.visited = []
-        dist = station.min_distance(self,tracks_in_line)
-        if dist >= MAX_DEPTH:
-            if DEBUG: print "no path here (self)"
-        next_station = get_station(car.next_stationpos())
-        self.visited = []
-        next_dist = next_station.min_distance(self,[car.track])
-        if next_dist >= MAX_DEPTH:
-            if DEBUG: print "no path here (next)"
-        if DEBUG: print "dist: ", dist, ", next: ", next_dist
-        # enter car if distance of next station is smaller
-        if dist > next_dist:
-            return True
-        else:
-            return False
-        
-        
-    def leave_at(self,station):
-        """returns True if this passenger wants to leave the car at the station"""
-        assert isinstance(station,Station), "no station in leave_at()"
-
-        if station.shape == self.shape:
-            return True
-        
-        if self.car:
-            if not self.enter(self.car,station):
-                return True
-            
-        return False
-
-
-    def update(self):
-        """moves to the next station in STATIONDISTANCE if not at station or at car"""
-        assert FREE_PASSENGERS, "passenger.update() should only be called with FREEPASSENGERS = True"
-        global score
-        
-        if self.car or self.station:
-            return
-        
-        # find nearest station
-        min_dist = 99999
-        nearest = None
-        for s in stations:
-            d = dist(s.pos,self.pos)
-            if d < min_dist:
-                min_dist = d
-                nearest = s
-            
-        if not nearest:
-            return
-
-        # print "found nearest station at: ", nearest.pos
-        
-        if min_dist > STATIONDISTANCE:
-            return
-        
-        # move to nearest station
-        start = Vec2d(self.pos)
-        end = Vec2d(nearest.pos)
-        diff = start - end
-        norm = diff.normalized()
-        new = start + norm * PASSENGERSPEED * -1
-        self.pos = [new.x,new.y]
-        
-        # go to station if at station.pos
-        if is_in_range(self.pos,nearest.pos):
-            if DEBUG: print "found station!"
-            passengers.remove(self)
-            if not self.shape == nearest.shape:
-                self.station = nearest
-                nearest.passengers.append(self)
-            else:
-                score += 1
-                
-                
-class Station(object):
-    """a station"""
-
-    def __init__(self,pos,shape=''):
-        if not shape:
-            shape = random.choice(OTHERSTATIONS)
-        self.shape = shape
-        self.pos = pos
-        self.passengers = []
-        self.sem = Semaphore()
-             
-        
-    def draw(self,scr):
-        size = 20
-        pos = self.pos
-
-        # TODO: calculate area of shapes to make it same size optical 
-        #       dont use this ugly constants anymore
-        innercolor = WHITE
-        if DEBUG and self.sem.used:
-            innercolor = BLACK
-        if self.shape == 'circle':
-            pygame.draw.circle(scr.screen,BLACK,pos,STATIONSIZE)
-            pygame.draw.circle(scr.screen,innercolor,pos,STATIONSIZE-STATIONTHICKNESS)
-        if self.shape == 'triangle':
-            scr.draw_triangle(pos,STATIONSIZE+4,BLACK)
-            scr.draw_triangle(pos,STATIONSIZE+4-STATIONTHICKNESS*2,innercolor)
-        if self.shape == 'square':
-            scr.draw_square(pos,STATIONSIZE-3,BLACK)
-            scr.draw_square(pos,STATIONSIZE-STATIONTHICKNESS-3,innercolor)
-
-        count = 0
-        for p in self.passengers:
-            p.draw(scr,(pos[0]+int(STATIONSIZE*1.5)+STATIONSIZE*count,pos[1]))
-            count += 1
-               
-                
-    def update(self,counter):
-        
-        if STATION_PASSENGERS:
-            if random.random() < PROBABILITY_START + counter * PROBABILITY_DIFF:
-                self.passengers.append(Passenger(self))
-        
-        if len(self.passengers) > MAXWAITING:
-            raise GameOver("to many passengers waiting")
-              
-                
-    def get_lines(self):
-        """returns a list of lines connected to the station"""
-        #TODO PERFORMANCE: should be stored not calculated
-        
-        ret = []
-        for l in lines:
-            for t in l.tracks:
-                start = get_station(t.startpos)
-                end = get_station(t.endpos)
-                if start == self or end == self:
-                    if l not in ret:
-                        ret.append(l)
-        return ret
-    
-    def get_tracks(self):
-        """returns a list of tracks connected to the station"""
-        #TODO PERFORMANCE: should be stored, not calculated
-        ret = []
-        for l in lines:
-            for t in l.tracks:
-                start = get_station(t.startpos)
-                end = get_station(t.endpos)
-                if start == self or end == self:
-                        ret.append(t)
-        return ret
-
-
-    def min_distance(self,passenger,bad_tracks=[]):
-        '''recursivly calculation of distance for shape of passenger. 
-        bad_tracks, if any given, will be ignored'''
-    
-        shape = passenger.shape
-        
-        if DEBUG: print "min_distance(", shape,") at ", self.shape
-        if self.shape == shape:
-            if DEBUG: print "found", shape
-            return 0
-
-        passenger.visited.append(self)
-        
-        # for all tracks at station
-        tracks = self.get_tracks()
-        min = MAX_DEPTH
-        for t in tracks:
-            # ignore bad tracks
-            if t in bad_tracks:
-                continue
-                
-            # determine direction going away from next
-            stationpos = t.startpos
-            dir = 0
-            if stationpos  == self.pos:
-                dir = 1
-            else:
-                dir = -1
-            # get distance (recursive)
-            dist = t.distance(passenger,dir)
-            if DEBUG: print "dist: ", dist
-            if dist < min:
-                min = dist
-        if DEBUG: print "min: ", min
-        return min
-    
 
 ########################################################################
 # main programm
@@ -797,11 +408,11 @@ class Station(object):
                         
 def main():
     # Initialise stuff
-    init_game()
+    g = Game.Game()
     pause = gameover = False
     count = 0
     pygame.init()
-    scr = Screen.Screen(lines)
+    scr = Screen.Screen(g.lines)
     screen = scr.screen
     pygame.display.set_caption('Maxi Metro')
     clock = pygame.time.Clock()
@@ -826,7 +437,8 @@ def main():
                 
             elif event.type == MOUSEBUTTONDOWN:
                 if gameover:
-                    init_game()
+                    g.init_game()
+                    scr.lines = g.lines
                     pos = startpos = (0,0)
                     have_line = draw_status = False
                     line = None
@@ -837,35 +449,35 @@ def main():
                     # handling of clicks at the right side
                     if event.pos[0] >= MAX_X - RIGHT_OFFSET:
                         color = int (event.pos[1] / 50)
-                        in_use = len(COLORS) - len(LINES)
+                        in_use = len(COLORS) - len(g.LINES)
                         if color < in_use:
                             if event.pos[0] < MAX_X - RIGHT_OFFSET / 2:
-                                line = lines[color]
+                                line = g.lines[color]
                                 line.delete_track()
                                 if not line.tracks:
-                                    del lines[color]
+                                    del g.lines[color]
                             else:
                                 if DEBUG: print ("add track to line with color ", color)
                                 draw_status = have_line = True
-                                line = lines[color]
-                                LINES.append(line.color)
+                                line = g.lines[color]
+                                g.LINES.append(line.color)
                                 startpos = line.tracks[-1].endpos
                     else:
                         pos = event.pos
-                        spos = is_station_pos(pos)
+                        spos = g.is_station_pos(pos)
                         if not draw_status and not spos and BUILD_STATIONS:
-                            build_station(pos)
+                            g.build_station(pos)
                         else:
                             draw_status = False
                             if have_line:
-                                LINES.pop()
+                                g.LINES.pop()
                             have_line = False
-                            if LINES:
+                            if g.LINES:
                                 #pos = event.pos
                                 #spos = is_station_pos(pos)
                                 if spos and not draw_status:
                                     startpos = spos
-                                    if len(get_station(startpos).get_tracks()) < MAXSTATIONTRACKS:
+                                    if len(g.get_station(startpos).get_tracks()) < MAXSTATIONTRACKS:
                                         if DEBUG: print ("start drawing from " ,pos, " moving to ", startpos)
                                         draw_status = True
                                     else:
@@ -875,30 +487,30 @@ def main():
                             
                                 
             elif event.type == MOUSEMOTION and not gameover:
-                if not CROSSING and not intersect_any(startpos,event.pos):
+                if not CROSSING and not g.intersect_any(startpos,event.pos):
                     # TODO: there is stil a bug in CROSSING = False in seldom cases
                     pos = event.pos
-                    spos = is_station_pos(pos)
+                    spos = g.is_station_pos(pos)
                     # TODO: there should be no station in the way 
                     #       (plus a little extrasize)
                     #       or: minimum angle between tracks
                     if draw_status and spos and not is_in_range(pos,startpos):
-                        if (not DOUBLE_TRACKS and not is_track(startpos,spos) and
-                           not is_track(spos,startpos)):
+                        if (not DOUBLE_TRACKS and not g.is_track(startpos,spos) and
+                           not g.is_track(spos,startpos)):
                             if (MAXSTATIONTRACKS and
-                                len(get_station(spos).get_tracks()) < MAXSTATIONTRACKS and 
-                                len(get_station(startpos).get_tracks()) < MAXSTATIONTRACKS):
+                                len(g.get_station(spos).get_tracks()) < MAXSTATIONTRACKS and 
+                                len(g.get_station(startpos).get_tracks()) < MAXSTATIONTRACKS):
                                 if DEBUG: print ("stop drawing at " , pos , " moving to " , spos)
                                 if have_line:
                                     if DEBUG: print ("appending track to line...")
                                     # startpos = spos
             
-                                    line.tracks.append(Track(startpos,spos,line.color,line,0))
+                                    line.tracks.append(Track(g,startpos,spos,line.color,line,0))
                                     line.stations.append(spos) # TODO: should not be double if circle
                                 else:
                                     if DEBUG: print ("creating new line...")
-                                    line = Line(startpos, spos)
-                                    lines.append(line)
+                                    line = Line(g,startpos, spos)
+                                    g.lines.append(line)
                                     have_line = True
                                 startpos = spos
                             else:
@@ -910,27 +522,27 @@ def main():
         scr.draw_interface()
         if pause and not gameover:
             scr.pause()
-        scr.score(score)
+        scr.score(g.score)
         
         try:
             if not gameover:
                 if draw_status:
-                    if (MAXSTATIONTRACKS and len(get_station(startpos).get_tracks()) < MAXSTATIONTRACKS):
-                        pygame.draw.line(screen,LINES[-1],startpos,pos,5)
+                    if (MAXSTATIONTRACKS and len(g.get_station(startpos).get_tracks()) < MAXSTATIONTRACKS):
+                        pygame.draw.line(screen,g.LINES[-1],startpos,pos,5)
                     else:
                         draw_status = False
                 if not pause:
-                    update(count)
+                    g.update(count)
         except GameOver:
             gameover = True
             
-        for l in lines:
+        for l in g.lines:
             l.draw(scr)        
             
-        for s in stations:
+        for s in g.stations:
             s.draw(scr)
             
-        for p in passengers:
+        for p in g.passengers:
             p.draw(scr,p.pos)
     
         if gameover:

@@ -4,6 +4,13 @@ from Vec2D import *
 from config import *
 
 
+# exceptions
+class GameOver(Exception): pass
+
+#
+# global functions
+#
+
 def intersect( track,start,end ):
     """Calculates the intersection of line P1-P2 with P3-P4."""
 

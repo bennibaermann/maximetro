@@ -22,7 +22,7 @@ YELLOW =  (255, 255,   0)
 
 COLORS = [YELLOW,MAGENTA,CYAN,GREEN,BLUE,RED]
 #COLORS = [CYAN,GREEN,BLUE,RED]
-LINES = list(COLORS)
+# LINES = list(COLORS)
 COLORNAMES = ['red','blue','green','cyan','magenta','yellow']
 
 SHAPES = ('circle','triangle','square')
