@@ -90,7 +90,7 @@ class Game(object):
                       random.randint(0 + 2 * STATIONSIZE, 
                                      MAX_Y - 2 * STATIONSIZE)]
             if DEBUG: print ("trying position ", newpos)
-            foundpos = not self.in_city_range(newpos)
+            foundpos = not self.in_city_range(newpos, distance)
                          
             if foundpos:
                 if DEBUG: print( "position ok!")
