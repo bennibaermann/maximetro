@@ -72,6 +72,11 @@ class Screen(object):
         
     
     def waiting(self,waiting):
+        #a = float(waiting)/float(MAXWAITING)
+        #print a
+        part = float(waiting)/float(MAXWAITING+1) * RIGHT_OFFSET
+        rect = pygame.Rect(MAX_X-RIGHT_OFFSET,MAX_Y-40,int(part),20)
+        pygame.draw.rect(self.screen,RED,rect)
         self.text((MAX_X-RIGHT_OFFSET+10,MAX_Y-40),"WAITING: " + str(waiting))
         
     def score(self,score):
