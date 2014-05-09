@@ -11,6 +11,8 @@ DOUBLE_TRACKS = False # more than one track between same stations allowed?
 CROSSING = False # crossing tracks allowed?
 COLLISION = False # set False if Cars should stop if other car is in the way
 
+MAXWAITING = 10
+
 BLACK =   (  0,   0,   0)
 WHITE =   (255, 255, 255)
 BLUE =    (  0,   0, 255)
@@ -29,7 +31,7 @@ SHAPES = ('circle','triangle','square')
 OTHERSTATIONS = ('circle','triangle')
 MAINSTATION = 'square'
 
-MAXSTATIONS = 0
+MAXSTATIONS = 0 # maximal stations (without mainstation) during game init
 
 PASSENGERSIZE = 7
 PASSENGERSPEED = 1 # speed of passengers by foot
@@ -48,10 +50,10 @@ STATIONTRACKDIST = 0 # TODO: minimal distance between tracks and center of stati
 PROBABILITY_START = .01
 #PROBABILITY_DIFF = .000001
 PROBABILITY_DIFF = 0
-MAXWAITING = 10
+MAXWAITING_STATION = 9999
 
 
-RIGHT_OFFSET = int(MAXWAITING * STATIONSIZE) 
+RIGHT_OFFSET = 100 # int(MAXWAITING_STATION * STATIONSIZE) 
 #RIGHT_OFFSET = 200
 MAX_Y = 500
 MAX_X = MAX_Y + RIGHT_OFFSET

@@ -140,7 +140,9 @@ class Game(object):
                     self.passengers.append(newp)
 
         self.waiting += len(self.passengers)
-
+        if self.waiting > MAXWAITING:
+            raise GameOver("to many passengers waiting")
+        
         
     def is_track(self,start,end):
         """returns True if there is any track betwen start and end"""

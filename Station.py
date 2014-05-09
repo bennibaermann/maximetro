@@ -52,8 +52,8 @@ class Station(object):
             if random.random() < PROBABILITY_START + counter * PROBABILITY_DIFF:
                 self.passengers.append(Passenger(self))
         
-        if len(self.passengers) > MAXWAITING:
-            raise GameOver("to many passengers waiting")
+        if len(self.passengers) > MAXWAITING_STATION:
+            raise GameOver("to many passengers waiting at station")
               
                 
     def get_lines(self):
