@@ -383,6 +383,7 @@ def main():
         scr.draw_interface()
         if pause and not gameover:
             scr.pause()
+        scr.waiting(g.waiting)
         scr.score(g.score)
         
         try:

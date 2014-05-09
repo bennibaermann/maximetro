@@ -21,6 +21,7 @@ class Game(object):
         """ should be called at game (re)start """
         self.stations = []
         self.passengers = []
+        self.waiting = 0
         self.LINES = list(COLORS) # avaiable lines
         self.lines = [] # existing lines
         self.init_city()
@@ -118,10 +119,12 @@ class Game(object):
     def update(self,counter):
         """updates (position of) all user independent objects"""
         
+        self.waiting = 0
         for l in self.lines:
             l.update()
         for s in self.stations:
             s.update(counter)
+            self.waiting += len(s.passengers)
         if FREE_PASSENGERS:
             for p in self.passengers:
                 p.update()
@@ -136,7 +139,9 @@ class Game(object):
                 else:
                     self.passengers.append(newp)
 
+        self.waiting += len(self.passengers)
 
+        
     def is_track(self,start,end):
         """returns True if there is any track betwen start and end"""
     

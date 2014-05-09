@@ -68,7 +68,11 @@ class Screen(object):
     
     
     def pause(self):
-        self.text((MAX_X-RIGHT_OFFSET+10,MAX_Y-40),"PAUSED")
+        self.text((MAX_X-RIGHT_OFFSET+10,MAX_Y-60),"PAUSED")
+        
+    
+    def waiting(self,waiting):
+        self.text((MAX_X-RIGHT_OFFSET+10,MAX_Y-40),"WAITING: " + str(waiting))
         
     def score(self,score):
         self.text((MAX_X-RIGHT_OFFSET+10,MAX_Y-20),"SCORE: " + str(score))
