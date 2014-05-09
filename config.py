@@ -11,7 +11,7 @@ DOUBLE_TRACKS = False # more than one track between same stations allowed?
 CROSSING = False # crossing tracks allowed?
 COLLISION = False # set False if Cars should stop if other car is in the way
 
-MAXWAITING = 10
+MAXWAITING = 40
 
 BLACK =   (  0,   0,   0)
 WHITE =   (255, 255, 255)
@@ -47,13 +47,13 @@ STATIONDISTANCE = CARLENGTH * 3
 MAXSTATIONTRACKS = 5
 STATIONTRACKDIST = 0 # TODO: minimal distance between tracks and center of station
 
-PROBABILITY_START = .01
+PROBABILITY_START = .1
 #PROBABILITY_DIFF = .000001
 PROBABILITY_DIFF = 0
 MAXWAITING_STATION = 9999
 
 
-RIGHT_OFFSET = 100 # int(MAXWAITING_STATION * STATIONSIZE) 
+RIGHT_OFFSET = 120 # int(MAXWAITING_STATION * STATIONSIZE) 
 #RIGHT_OFFSET = 200
 MAX_Y = 500
 MAX_X = MAX_Y + RIGHT_OFFSET
