@@ -18,6 +18,7 @@ class Station(object):
         self.shape = shape
         self.pos = pos
         self.passengers = []
+        self.tracks = []
         self.sem = Semaphore()
              
         
@@ -61,26 +62,29 @@ class Station(object):
         #TODO PERFORMANCE: should be stored not calculated
         
         ret = []
-        for l in self.game.lines:
-            for t in l.tracks:
+        #for l in self.game.lines:
+        for t in self.tracks:
                 start = self.game.get_station(t.startpos)
                 end = self.get.get_station(t.endpos)
                 if start == self or end == self:
+                    l = t.line
                     if l not in ret:
                         ret.append(l)
         return ret
     
     def get_tracks(self):
         """returns a list of tracks connected to the station"""
-        #TODO PERFORMANCE: should be stored, not calculated
-        ret = []
-        for l in self.game.lines:
-            for t in l.tracks:
-                start = self.game.get_station(t.startpos)
-                end = self.game.get_station(t.endpos)
-                if start == self or end == self:
-                        ret.append(t)
-        return ret
+
+        return self.tracks
+        
+#        ret = []
+#        for l in self.game.lines:
+#            for t in l.tracks:
+#                start = self.game.get_station(t.startpos)
+#                end = self.game.get_station(t.endpos)
+#                if start == self or end == self:
+#                        ret.append(t)
+#        return ret
 
 
     def min_distance(self,passenger,bad_tracks=[]):

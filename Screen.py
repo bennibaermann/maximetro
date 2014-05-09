@@ -76,13 +76,14 @@ class Screen(object):
         red = min(div * float(512),255)
         green = min(255,512 - div * float(512)) 
         color = (red,green,0)
+        #print color
         part = div * RIGHT_OFFSET
-        rect = pygame.Rect(MAX_X-RIGHT_OFFSET,MAX_Y-40,int(part),20)
+        rect = pygame.Rect(MAX_X-RIGHT_OFFSET,MAX_Y-20,int(part),20)
         pygame.draw.rect(self.screen,color,rect)
-        self.text((MAX_X-RIGHT_OFFSET+10,MAX_Y-40),"WAITING: " + str(waiting))
+        self.text((MAX_X-RIGHT_OFFSET+10,MAX_Y-20),"WAITING: " + str(waiting))
         
     def score(self,score):
-        self.text((MAX_X-RIGHT_OFFSET+10,MAX_Y-20),"SCORE: " + str(score))
+        self.text((MAX_X-RIGHT_OFFSET+10,MAX_Y-40),"SCORE: " + str(score))
         
     def draw_interface(self):
         """draw the user interface"""

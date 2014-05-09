@@ -102,7 +102,7 @@ class Track(object):
     def distance(self,passenger,direction):
         """calculates recursivly the distance (in tracks) to the
         nearest station with shape in direction"""
-        
+        print "*",
         # special handling of circles. return MAX_DEPTH
         # if wrong direction and only one car at line
         # TODO: what if more than one car but all same direction?
@@ -138,7 +138,10 @@ class Line(object):
         self.game = game
         self.color = game.LINES[-1]
         self.tracks = []
-        self.tracks.append(Track(self.game,start,end,self.color,self))
+        newtrack = Track(self.game,start,end,self.color,self)
+        self.tracks.append(newtrack)
+        game.get_station(end).tracks.append(newtrack)
+        game.get_station(start).tracks.append(newtrack)
         self.stations = [start,end]
         
         
@@ -365,9 +368,10 @@ def main():
                                 if have_line:
                                     if DEBUG: print ("appending track to line...")
                                     # startpos = spos
-            
-                                    line.tracks.append(Track(g,startpos,spos,line.color,line,0))
+                                    newtrack = Track(g,startpos,spos,line.color,line,0)
+                                    line.tracks.append(newtrack)
                                     line.stations.append(spos) # TODO: should not be double if circle
+                                    g.get_station(spos).tracks.append(newtrack)
                                 else:
                                     if DEBUG: print ("creating new line...")
                                     line = Line(g,startpos, spos)
@@ -379,6 +383,7 @@ def main():
                         else:
                             print("no doubletracks allowed!")
                             
+        print
         screen.fill(WHITE)
         scr.draw_interface()
         if pause and not gameover:
