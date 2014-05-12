@@ -1,0 +1,20 @@
+BUGS:
+
+- in some situation pathfinding does not work and passengers don't
+enter any car
+
+- add track to existing line can overwrite MAXSTATIONTRACKS
+
+- deleting track during track drawing leave garbage graphics behind
+
+FEATURES:
+
+- building stations, tracks, cars, lines should cost ressources (score)
+
+- 3 types of ressources (square, triangle, circle) instead of just one
+score. different things to build need different ressources.
+
+- fiddling with constants to reach a good game experience
+
+- a release structure
+
