@@ -3,9 +3,17 @@ BUGS:
 - in some situation pathfinding does not work and passengers don't
 enter any car
 
-- add track to existing line can overwrite MAXSTATIONTRACKS
+- add track to existing line can overwrite MAXSTATIONTRACKS. sure?
 
-- deleting track during track drawing leave garbage graphics behind
+- starting new line at station can overwrite MAXSTATIONTRACKS. sure?
+
+- line object is not deleted correctly, maybe this causes:
+
+  - deleting track during track drawing leave garbage graphics behind
+  (sometimes)
+
+  - deleting lines lets crash line.is_circle() called by pathfinding 
+  sometimes 
 
 FEATURES:
 

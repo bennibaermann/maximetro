@@ -102,7 +102,7 @@ class Track(object):
     def distance(self,passenger,direction):
         """calculates recursivly the distance (in tracks) to the
         nearest station with shape in direction"""
-        print "*",
+        
         # special handling of circles. return MAX_DEPTH
         # if wrong direction and only one car at line
         # TODO: what if more than one car but all same direction?
@@ -146,6 +146,8 @@ class Line(object):
         
         
     def is_circle(self):
+        """ returns True if line is a ring"""
+        print self, "anzahl tracks: ", len(self.tracks)
         if self.tracks[0].startpos == self.tracks[-1].endpos:
             return True
         return False
@@ -252,11 +254,15 @@ class Line(object):
         if track.cars and not l == 1:
             print ("we can't delete tracks with cars (unless last one)")
         else:
+            # TODO: can we use some kind of destructor here instead?
+            # delete track at stations
+            starttracks = self.game.get_station(track.startpos).tracks
+            endtracks =  self.game.get_station(track.endpos).tracks
+            print starttracks, endtracks
             # TODO: if car is deleted, we should do something
             #       with the passengers...
             track = self.tracks.pop()
             # delete semaphores for deleted cars
-            # TODO: can we use some kind of destructor here instead?
             for c in track.cars:
                 if c.has_semaphore:
                     station = self.game.get_station(c.next_stationpos())
@@ -310,7 +316,7 @@ def main():
                     pause = gameover = False
                     
                 else:
-                    # handling of clicks at the right side
+                    # handling of clicks at the right side (line controlling interface)
                     if event.pos[0] >= MAX_X - RIGHT_OFFSET:
                         color = int (event.pos[1] / 50)
                         in_use = len(COLORS) - len(g.LINES)
@@ -319,7 +325,8 @@ def main():
                                 line = g.lines[color]
                                 line.delete_track()
                                 if not line.tracks:
-                                    del g.lines[color]
+                                    g.lines.remove(line)
+                                    # del g.lines[color]
                             else:
                                 if DEBUG: print ("add track to line with color ", color)
                                 draw_status = have_line = True
@@ -327,6 +334,7 @@ def main():
                                 g.LINES.append(line.color)
                                 startpos = line.tracks[-1].endpos
                     else:
+                    # handling of clicks at the left side (main area)
                         pos = event.pos
                         spos = g.is_station_pos(pos)
                         if not draw_status and not spos and BUILD_STATIONS:
@@ -342,8 +350,9 @@ def main():
                                 if spos and not draw_status:
                                     startpos = spos
                                     if len(g.get_station(startpos).get_tracks()) < MAXSTATIONTRACKS:
-                                        if DEBUG: print ("start drawing from " ,pos, " moving to ", startpos)
+                                        print ("start drawing from " ,pos, " moving to ", startpos)
                                         draw_status = True
+
                                     else:
                                         print("no more tracks avaiable at this station")
                             else:
@@ -361,8 +370,7 @@ def main():
                     if draw_status and spos and not is_in_range(pos,startpos):
                         if (not DOUBLE_TRACKS and not g.is_track(startpos,spos) and
                            not g.is_track(spos,startpos)):
-                            if (MAXSTATIONTRACKS and
-                                len(g.get_station(spos).get_tracks()) < MAXSTATIONTRACKS and 
+                            if (len(g.get_station(spos).get_tracks()) < MAXSTATIONTRACKS and 
                                 len(g.get_station(startpos).get_tracks()) < MAXSTATIONTRACKS):
                                 if DEBUG: print ("stop drawing at " , pos , " moving to " , spos)
                                 if have_line:
@@ -383,7 +391,7 @@ def main():
                         else:
                             print("no doubletracks allowed!")
                             
-        print
+
         screen.fill(WHITE)
         scr.draw_interface()
         if pause and not gameover:
@@ -394,7 +402,7 @@ def main():
         try:
             if not gameover:
                 if draw_status:
-                    if (MAXSTATIONTRACKS and len(g.get_station(startpos).get_tracks()) < MAXSTATIONTRACKS):
+                    if (len(g.get_station(startpos).get_tracks()) < MAXSTATIONTRACKS):
                         pygame.draw.line(screen,g.LINES[-1],startpos,pos,5)
                     else:
                         draw_status = False
