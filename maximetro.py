@@ -147,7 +147,13 @@ class Line(object):
         
     def is_circle(self):
         """ returns True if line is a ring"""
-        print self, "anzahl tracks: ", len(self.tracks)
+        # assert len(self.tracks), "empty line"
+        #print self, "anzahl tracks: ", len(self.tracks)
+
+        # ugly workaround. this case should not apear
+        if not len(self.tracks):
+            return False
+        
         if self.tracks[0].startpos == self.tracks[-1].endpos:
             return True
         return False
@@ -174,7 +180,7 @@ class Line(object):
 
     def update_car(self,track,car):
         """calculate new position of cars"""
-        global score # TODO: ugly
+        # global score # TODO: ugly
         
         car.pos = track.get_newpos(car.pos,car.counter,car.direction)
 
@@ -271,6 +277,7 @@ class Line(object):
             if l == 1:
                 self.game.LINES.append(track.color)
 
+            del track
 
 ########################################################################
 # main programm

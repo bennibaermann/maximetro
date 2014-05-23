@@ -7,13 +7,12 @@ enter any car
 
 - starting new line at station can overwrite MAXSTATIONTRACKS. sure?
 
-- line object is not deleted correctly, maybe this causes:
+- line object is possibly not deleted correctly, maybe this causes:
 
   - deleting track during track drawing leave garbage graphics behind
   (sometimes)
 
-  - deleting lines lets crash line.is_circle() called by pathfinding 
-  sometimes 
+- sometimes lines can have colors already taken
 
 FEATURES:
 
