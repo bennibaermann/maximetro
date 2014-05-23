@@ -151,8 +151,8 @@ class Line(object):
         #print self, "anzahl tracks: ", len(self.tracks)
 
         # ugly workaround. this case should not apear
-        if not len(self.tracks):
-            return False
+        #if not len(self.tracks):
+        #    return False
         
         if self.tracks[0].startpos == self.tracks[-1].endpos:
             return True
@@ -264,7 +264,7 @@ class Line(object):
             # delete track at stations
             starttracks = self.game.get_station(track.startpos).tracks
             endtracks =  self.game.get_station(track.endpos).tracks
-            print starttracks, endtracks
+            # print starttracks, endtracks
             # TODO: if car is deleted, we should do something
             #       with the passengers...
             track = self.tracks.pop()
@@ -273,6 +273,10 @@ class Line(object):
                 if c.has_semaphore:
                     station = self.game.get_station(c.next_stationpos())
                     station.sem.free()
+
+            # delete tracks at stations
+            starttracks.remove(track)
+            endtracks.remove(track)
                     
             if l == 1:
                 self.game.LINES.append(track.color)
