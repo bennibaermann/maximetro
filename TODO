@@ -3,15 +3,6 @@ BUGS:
 - in some situation pathfinding does not work and passengers don't
 enter any car
 
-- add track to existing line can overwrite MAXSTATIONTRACKS. sure?
-
-- starting new line at station can overwrite MAXSTATIONTRACKS. sure?
-
-- line object is possibly not deleted correctly, maybe this causes:
-
-  - deleting track during track drawing leave garbage graphics behind
-  (sometimes)
-
 - sometimes lines can have colors already taken
 
 FEATURES:
@@ -25,3 +16,4 @@ score. different things to build need different ressources.
 
 - a release structure
 
+- in game error messages 

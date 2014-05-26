@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-DEBUG = False
+# DEBUG = False
+DEBUG = True
 
 # these basic gamemodes change the gameplay drastical
 ANIMALS = False # an alternative animals graphic set from erlehmann

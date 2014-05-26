@@ -390,8 +390,10 @@ def main():
                                     if DEBUG: print ("appending track to line...")
                                     # startpos = spos
                                     newtrack = Track(g,startpos,spos,line.color,line,0)
+                                    # TODO: the following should be moved to Track-constructor
                                     line.tracks.append(newtrack)
                                     line.stations.append(spos) # TODO: should not be double if circle
+                                    g.get_station(startpos).tracks.append(newtrack)
                                     g.get_station(spos).tracks.append(newtrack)
                                 else:
                                     if DEBUG: print ("creating new line...")
@@ -429,6 +431,7 @@ def main():
             
         for s in g.stations:
             s.draw(scr)
+            if DEBUG: scr.center_text(s.pos,str(len(s.tracks)),RED)
             
         for p in g.passengers:
             p.draw(scr,p.pos)
