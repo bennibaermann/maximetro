@@ -36,7 +36,12 @@ class Track(object):
         self.cars = []
         if withcar:
             self.cars.append(Car.Car(self.game,self))
-            
+
+        # lines ans stations connected with us should know of our existence
+        self.line.tracks.append(self)
+        self.line.stations.append(end) # TODO: should not be double if circle
+        self.game.get_station(start).tracks.append(self)
+        self.game.get_station(end).tracks.append(self)            
         
     def draw(self,scr):
         pygame.draw.line(scr.screen,self.color,self.startpos,self.endpos,5)
@@ -138,11 +143,8 @@ class Line(object):
         self.game = game
         self.color = game.LINES[-1]
         self.tracks = []
-        newtrack = Track(self.game,start,end,self.color,self)
-        self.tracks.append(newtrack)
-        game.get_station(end).tracks.append(newtrack)
-        game.get_station(start).tracks.append(newtrack)
         self.stations = [start,end]
+        newtrack = Track(self.game,start,end,self.color,self)
         
         
     def is_circle(self):
@@ -390,11 +392,6 @@ def main():
                                     if DEBUG: print ("appending track to line...")
                                     # startpos = spos
                                     newtrack = Track(g,startpos,spos,line.color,line,0)
-                                    # TODO: the following should be moved to Track-constructor
-                                    line.tracks.append(newtrack)
-                                    line.stations.append(spos) # TODO: should not be double if circle
-                                    g.get_station(startpos).tracks.append(newtrack)
-                                    g.get_station(spos).tracks.append(newtrack)
                                 else:
                                     if DEBUG: print ("creating new line...")
                                     line = Line(g,startpos, spos)
