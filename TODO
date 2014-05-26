@@ -5,7 +5,15 @@ enter any car
 
 - sometimes lines can have colors already taken
 
-FEATURES:
+FEATURES until first alpha:
+
+- no known bugs
+
+- passangers in deleted cars should be handled
+
+- deletion of last or first track should be possible (interface needed)
+
+- append new track at start or begin (interface needed)
 
 - building stations, tracks, cars, lines should cost ressources (score)
 
