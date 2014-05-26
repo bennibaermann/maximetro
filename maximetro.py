@@ -275,8 +275,10 @@ class Line(object):
                     station.sem.free()
 
             # delete tracks at stations
-            starttracks.remove(track)
-            endtracks.remove(track)
+            if track in starttracks:
+                starttracks.remove(track)
+            if track in endtracks:
+                endtracks.remove(track)
                     
             if l == 1:
                 self.game.LINES.append(track.color)
