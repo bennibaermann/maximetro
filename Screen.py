@@ -10,7 +10,7 @@ class Screen(object):
     """here should happen all the drawing"""
     
     def __init__(self,lines):
-        self.screen = pygame.display.set_mode((MAX_X, MAX_Y))
+        self.screen = pygame.display.set_mode((MAX_X, MAX_Y + STATUSHEIGHT))
         self.lines = lines
         
 
@@ -34,7 +34,7 @@ class Screen(object):
         pygame.draw.polygon(self.screen,color,poly,0)
             
     
-
+    
     def draw_square(self,pos,size,color,angle=0):
         """draw square at pos with size in color"""
     
@@ -101,7 +101,8 @@ class Screen(object):
                                           (MAX_X-RIGHT_OFFSET,MAX_Y))
         pygame.draw.line(self.screen,BLACK,(int(MAX_X-RIGHT_OFFSET/2),0),
                                           (int(MAX_X-RIGHT_OFFSET/2),count*50-1))
-        
+        pygame.draw.line(self.screen,BLACK,(0,MAX_Y),(MAX_X,MAX_Y))
+                                          
         #if pause:
         #    text((MAX_X-RIGHT_OFFSET+10,MAX_Y-40),"PAUSED")
         #self.text((MAX_X-RIGHT_OFFSET+10,MAX_Y-20),"SCORE: " + str(score))

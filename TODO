@@ -1,13 +1,20 @@
 BUGS:
+=====
 
 - in some situation pathfinding does not work and passengers don't
 enter any car
 
 - sometimes lines can have colors already taken
 
+- sometimes deletion or adding tracks does not work. sometimes
+changing of colours for tracks to be deleted does not work 
+
 FEATURES until first alpha:
+===========================
 
 - no known bugs
+
+- statusline for in game error messages and basic in game help
 
 - deletion of tracks with cars should generally be possible
 (passangers in deleted cars should be handled)
@@ -25,6 +32,3 @@ score. different things to build need different ressources.
 
 - fiddling with constants to reach a good game experience
 
-- a release structure
-
-- in game error messages 

@@ -32,7 +32,7 @@ SHAPES = ('circle','triangle','square')
 OTHERSTATIONS = ('circle','triangle')
 MAINSTATION = 'square'
 
-MAXSTATIONS = 0 # maximal stations (without mainstation) during game init
+MAXSTATIONS = 0 # stations build (without mainstation) during game init
 
 PASSENGERSIZE = 7
 PASSENGERSPEED = 1 # speed of passengers by foot
@@ -58,6 +58,7 @@ RIGHT_OFFSET = 120 # int(MAXWAITING_STATION * STATIONSIZE)
 #RIGHT_OFFSET = 200
 MAX_Y = 500
 MAX_X = MAX_Y + RIGHT_OFFSET
+STATUSHEIGHT = 20 # height of status line at the bottom
 
 MAX_DEPTH = 99999 # max distance for path finding (means no path)
 
