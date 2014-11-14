@@ -321,7 +321,7 @@ def main():
     screen = scr.screen
     pygame.display.set_caption('Maxi Metro')
     clock = pygame.time.Clock()
-    
+
     pos = startpos = (0,0)
     have_line = draw_status = False
     line = None
@@ -330,7 +330,10 @@ def main():
     while 1:
       #try:
         count += 1
-            
+        screen.fill(WHITE)
+        scr.draw_interface()
+        scr.status(g.status)
+        
         # TODO: ugly code. we have to wrote some functions here
         for event in pygame.event.get():
             if event.type == QUIT:
@@ -391,9 +394,9 @@ def main():
                                         draw_status = True
 
                                     else:
-                                        print("no more tracks avaiable at this station")
+                                        g.status = "no more tracks avaiable at this station"
                             else:
-                                print ("NO MORE LINES AVAIABLE!")
+                                g.status = "NO MORE LINES AVAIABLE!"
                             
                                 
             elif event.type == MOUSEMOTION and not gameover:
@@ -455,8 +458,6 @@ def main():
                             print("no doubletracks allowed!")
                             
 
-        screen.fill(WHITE)
-        scr.draw_interface()
         if pause and not gameover:
             scr.pause()
         scr.waiting(g.waiting)

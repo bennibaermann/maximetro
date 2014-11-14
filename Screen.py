@@ -85,6 +85,11 @@ class Screen(object):
     def score(self,score):
         self.text((MAX_X-RIGHT_OFFSET+10,MAX_Y-40),"SCORE: " + str(score))
         
+    def status(self,text):
+        """draw a status text at the bottom line"""
+        
+        self.text((0,MAX_Y+4),text)
+        
     def draw_interface(self):
         """draw the user interface"""
     
