@@ -44,8 +44,14 @@ class Track(object):
         self.game.get_station(start).tracks.append(self)
         self.game.get_station(end).tracks.append(self)            
         
+        self.to_be_deleted = False
+        
     def draw(self,scr):
-        pygame.draw.line(scr.screen,self.color,self.startpos,self.endpos,5)
+        if self.to_be_deleted:
+            pygame.draw.line(scr.screen,BLACK,self.startpos,self.endpos,5)
+        else:
+            pygame.draw.line(scr.screen,self.color,self.startpos,self.endpos,5)
+        
         for c in self.cars:
             c.draw(scr)
           
@@ -260,6 +266,7 @@ class Line(object):
         if DEBUG: print ("delete track from line with color: ", self.color)
         track = self.tracks[-1]
         l = len(self.tracks)
+
         if track.cars and not l == 1:
             print ("we can't delete tracks with cars (unless last one)")
         else:
@@ -318,6 +325,7 @@ def main():
     pos = startpos = (0,0)
     have_line = draw_status = False
     line = None
+    track_to_be_deleted = None
     # Event loop
     while 1:
       #try:
@@ -355,6 +363,7 @@ def main():
                                 if not line.tracks:
                                     g.lines.remove(line)
                                     # del g.lines[color]
+                                track_to_be_deleted = None
                             else:
                                 if DEBUG: print ("add track to line with color ", color)
                                 draw_status = have_line = True
@@ -389,6 +398,35 @@ def main():
                                 
             elif event.type == MOUSEMOTION and not gameover:
                 if not CROSSING and not g.intersect_any(startpos,event.pos):
+
+                    # we are at the right side.
+                    if event.pos[0] >= MAX_X - RIGHT_OFFSET:
+                        color = int (event.pos[1] / 50)
+                        in_use = len(COLORS) - len(g.LINES)
+                        if color < in_use:
+                            if event.pos[0] < MAX_X - RIGHT_OFFSET / 2:
+                                line = g.lines[color]
+                                if track_to_be_deleted:
+                                    track_to_be_deleted.to_be_deleted = False
+                                track_to_be_deleted = line.tracks[-1]
+                                track_to_be_deleted.to_be_deleted = True
+                            
+                            else:
+                                if track_to_be_deleted:
+                                    track_to_be_deleted.to_be_deleted = False
+
+#                                if DEBUG: print ("add track to line with color ", color)
+#                                draw_status = have_line = True
+#                                line = g.lines[color]
+#                                g.LINES.append(line.color)
+#                                startpos = line.tracks[-1].endpos                    
+                    
+                    else:
+                        if track_to_be_deleted:
+                            track_to_be_deleted.to_be_deleted = False
+
+                        
+                    
                     # TODO: there is stil a bug in CROSSING = False in seldom cases
                     pos = event.pos
                     spos = g.is_station_pos(pos)
