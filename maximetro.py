@@ -16,6 +16,7 @@ from Util import *
 import Screen
 import Game
 import Car
+import Passenger
 
 ################################################################
 # classes
@@ -267,9 +268,21 @@ class Line(object):
             starttracks = self.game.get_station(track.startpos).tracks
             endtracks =  self.game.get_station(track.endpos).tracks
             # print starttracks, endtracks
-            # TODO: if car is deleted, we should do something
-            #       with the passengers...
             track = self.tracks.pop()
+
+            # if car is deleted, we handle passengers here
+            if l == 1 and track.cars:
+                if DEBUG: print ("special handling of passengers in last track activatet!")
+                for c in track.cars:
+                    for p in c.passengers:
+                        if FREE_PASSENGERS:
+                            if DEBUG: print ("passenger leaves car.")
+                            newpass = Passenger.Passenger(self.game,None,c.pos)
+                            self.game.passengers.append(newpass)
+                        #else: TODO without FREE_PASSENGERS they should go to next station
+                        
+                        if DEBUG: print ("passenger with shape " , p.shape, " handled.")
+                
             # delete semaphores for deleted cars
             for c in track.cars:
                 if c.has_semaphore:
