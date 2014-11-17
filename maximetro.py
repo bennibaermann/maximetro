@@ -268,7 +268,7 @@ class Line(object):
         l = len(self.tracks)
 
         if track.cars and not l == 1:
-            print ("we can't delete tracks with cars (unless last one)")
+            self.game.status = "we can't delete tracks with cars (unless last one)"
         else:
             # TODO: can we use some kind of destructor here instead?
             # delete track at stations
@@ -390,7 +390,7 @@ def main():
                                 if spos and not draw_status:
                                     startpos = spos
                                     if len(g.get_station(startpos).get_tracks()) < MAXSTATIONTRACKS:
-                                        print ("start drawing from " ,pos, " moving to ", startpos)
+                                        if DEBUG: print ("start drawing from " ,pos, " moving to ", startpos)
                                         draw_status = True
 
                                     else:
@@ -453,9 +453,9 @@ def main():
                                     have_line = True
                                 startpos = spos
                             else:
-                                print("to many tracks at station!")
+                                g.status = "to many tracks at station!"
                         else:
-                            print("no doubletracks allowed!")
+                            g.status = "no doubletracks allowed!"
                             
 
         if pause and not gameover:
@@ -489,10 +489,11 @@ def main():
             scr.center_text((int(MAX_X/2),int(MAX_Y/2)),"GAME OVER!",BLACK,52)
             scr.center_text((int(MAX_X/2),int(MAX_Y/2)),"GAME OVER!",RED,50)
             scr.center_text((int(MAX_X/2),int(MAX_Y/2)+100),"click to restart",BLACK,20)
+            g.status = "GAME OVER. click to restart."
             gameover = True
  
         pygame.display.update()
-        msElapsed = clock.tick(FPS) # TODO: Gamespeed should be FPS-independent
+        msElapsed = clock.tick(FPS) # TODO(?): Gamespeed should be FPS-independent
     
         
 if __name__ == '__main__': main()
