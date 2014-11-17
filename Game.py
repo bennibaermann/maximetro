@@ -26,7 +26,7 @@ class Game(object):
         self.lines = [] # existing lines
         self.init_city()
         self.score = STARTMONEY
-        self.status = "Welcome to Maxi Metro! Click to build stations. Click at stations to build tracks."
+        self.status = "Help passengers find theire home! Click to build stations. Click at stations to build tracks."
 
     def init_city(self):
         """we set some Stations in place."""

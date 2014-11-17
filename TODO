@@ -11,10 +11,17 @@ be build.
 changing of colours for tracks to be deleted does not work (or wrong
 color). this occurs only after first deletion (?)
 
+- cost of building tracks should be handled at first click at station, not if actual
+builded
+
+
 FEATURES until first alpha:
 ===========================
 
 - no known severe bugs
+
+- draw circles around stations for influence-region. draw slightly
+darker background if build
 
 - better use of statusline
 
@@ -26,13 +33,16 @@ FEATURES until first alpha:
 - deletion of last or first track should be possible (interface
 needed: maybe right click should change which will be deleted?)
 
-- append new track at start or begin (interface needed: maybe right
-click?)
+- append new track at start or begin (interface needed: second click
+changes side)
 
-- building stations, tracks, cars, lines should cost ressources (score)
+- fiddling with constants to reach a good game experience
+
+
+Ideas for later versions
+========================
 
 - maybe: 3 types of ressources (square, triangle, circle) instead of just one
 score. different things to build need different ressources.
 
-- fiddling with constants to reach a good game experience
 
