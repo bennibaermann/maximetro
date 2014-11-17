@@ -4,17 +4,21 @@ BUGS:
 - in some situation pathfinding does not work and passengers don't
 enter any car
 
-- sometimes lines can have colors already taken
+- sometimes lines can have colors already taken, and infinit lines can
+be build.
 
 - sometimes deletion or adding tracks does not work. sometimes
-changing of colours for tracks to be deleted does not work 
+changing of colours for tracks to be deleted does not work (or wrong
+color). this occurs only after first deletion (?)
 
 FEATURES until first alpha:
 ===========================
 
-- no known bugs
+- no known severe bugs
 
-- statusline for in game error messages and basic in game help
+- better use of statusline
+
+- error messages in red
 
 - deletion of tracks with cars should generally be possible
 (passangers in deleted cars should be handled)

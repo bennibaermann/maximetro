@@ -340,11 +340,14 @@ def main():
                 return
             elif event.type == KEYDOWN:
                 if pause:
+                    g.status = ""
                     pause = False
                 else:
+                    g.status = "Game paused. Press any key to resume game."
                     pause = True
                 
             elif event.type == MOUSEBUTTONDOWN:
+                g.status = ""
                 if gameover:
                     g.init_game()
                     scr.lines = g.lines

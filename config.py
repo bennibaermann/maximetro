@@ -35,7 +35,7 @@ MAINSTATION = 'square'
 MAXSTATIONS = 0 # stations build (without mainstation) during game init
 
 PASSENGERSIZE = 7
-PASSENGERSPEED = 1 # speed of passengers by foot
+PASSENGERSPEED = 0.3 # speed of passengers by foot
 CARCAPACITY = 2
 
 CARWITH = PASSENGERSIZE + 3        # actually half of it
