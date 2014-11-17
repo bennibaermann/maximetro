@@ -364,12 +364,17 @@ def main():
                         in_use = len(COLORS) - len(g.LINES)
                         if color < in_use:
                             if event.pos[0] < MAX_X - RIGHT_OFFSET / 2:
-                                line = g.lines[color]
-                                line.delete_track()
-                                if not line.tracks:
-                                    g.lines.remove(line)
-                                    # del g.lines[color]
-                                track_to_be_deleted = None
+                                if g.score >= DELETECOST:
+                                    g.status = "Delete Track for $" + str(DELETECOST)
+                                    g.score -= DELETECOST
+                                    line = g.lines[color]
+                                    line.delete_track()
+                                    if not line.tracks:
+                                        g.lines.remove(line)
+                                        # del g.lines[color]
+                                    track_to_be_deleted = None
+                                else:
+                                    g.status = "Not enough money left to delete track for $" + str(DELETECOST)
                             else:
                                 if DEBUG: print ("add track to line with color ", color)
                                 draw_status = have_line = True
@@ -445,24 +450,29 @@ def main():
                             if (len(g.get_station(spos).get_tracks()) < MAXSTATIONTRACKS and 
                                 len(g.get_station(startpos).get_tracks()) < MAXSTATIONTRACKS):
                                 if DEBUG: print ("stop drawing at " , pos , " moving to " , spos)
-                                if have_line:
-                                    if DEBUG: print ("appending track to line...")
-                                    # startpos = spos
-                                    newtrack = Track(g,startpos,spos,line.color,line,0)
+                                if g.score >= TRACKCOST:
+                                    g.status = "Build track for $" + str(TRACKCOST)
+                                    g.score -= TRACKCOST
+                                    if have_line:
+                                        if DEBUG: print ("appending track to line...")
+                                        # startpos = spos
+                                        newtrack = Track(g,startpos,spos,line.color,line,0)
+                                    else:
+                                        if DEBUG: print ("creating new line...")
+                                        line = Line(g,startpos, spos)
+                                        g.lines.append(line)
+                                        have_line = True
+                                    startpos = spos
                                 else:
-                                    if DEBUG: print ("creating new line...")
-                                    line = Line(g,startpos, spos)
-                                    g.lines.append(line)
-                                    have_line = True
-                                startpos = spos
+                                    g.status = "Not enough money left to build track for $" + str(TRACKCOST)
                             else:
                                 g.status = "to many tracks at station!"
                         else:
                             g.status = "no doubletracks allowed!"
                             
 
-        if pause and not gameover:
-            scr.pause()
+#        if pause and not gameover:
+#            scr.pause()
         scr.waiting(g.waiting)
         scr.score(g.score)
         

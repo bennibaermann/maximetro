@@ -83,7 +83,7 @@ class Screen(object):
         self.text((MAX_X-RIGHT_OFFSET+10,MAX_Y-20),"WAITING: " + str(waiting))
         
     def score(self,score):
-        self.text((MAX_X-RIGHT_OFFSET+10,MAX_Y-40),"SCORE: " + str(score))
+        self.text((MAX_X-RIGHT_OFFSET+10,MAX_Y-40),"$: " + str(score))
         
     def status(self,text):
         """draw a status text at the bottom line"""
@@ -108,7 +108,5 @@ class Screen(object):
                                           (int(MAX_X-RIGHT_OFFSET/2),count*50-1))
         pygame.draw.line(self.screen,BLACK,(0,MAX_Y),(MAX_X,MAX_Y))
                                           
-        #if pause:
-        #    text((MAX_X-RIGHT_OFFSET+10,MAX_Y-40),"PAUSED")
-        #self.text((MAX_X-RIGHT_OFFSET+10,MAX_Y-20),"SCORE: " + str(score))
+
 

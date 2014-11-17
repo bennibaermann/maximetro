@@ -25,7 +25,7 @@ class Game(object):
         self.LINES = list(COLORS) # avaiable lines
         self.lines = [] # existing lines
         self.init_city()
-        self.score = 0
+        self.score = STARTMONEY
         self.status = "Welcome to Maxi Metro! Click to build stations. Click at stations to build tracks."
 
     def init_city(self):
@@ -63,12 +63,18 @@ class Game(object):
             pos[1] > MAX_Y - 2 * STATIONSIZE
             ):
             if DEBUG: print "can't build at ", pos
+            self.status = "No place for station here."
             return
-        station = Station.Station(self,pos)
-        self.stations.append(station)
-        if DEBUG: print "build station at ", pos
-
-
+        if self.score >= STATIONCOST:
+            station = Station.Station(self,pos)
+            self.stations.append(station)
+            if DEBUG: print "build station at ", pos
+            self.status = "build station for $" + str(STATIONCOST)
+            self.score -= STATIONCOST
+        else:
+            self.status = "Not enough money left to build station. You need $" + str(STATIONCOST)
+            
+            
     def in_city_range(self,pos, distance = STATIONDISTANCE):
         """returns True if pos is in distance of any station"""
         

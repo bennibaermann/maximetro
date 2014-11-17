@@ -63,3 +63,10 @@ STATUSHEIGHT = 20 # height of status line at the bottom
 MAX_DEPTH = 99999 # max distance for path finding (means no path)
 
 FPS = 30
+
+# money and prices
+STARTMONEY = 30
+STATIONCOST = 10
+TRACKCOST = 4
+DELETECOST = 2
+# LINECOST = 5
