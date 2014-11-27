@@ -478,7 +478,7 @@ def main():
             try:
                 p = event.pos
                 if not g.is_station_pos(p) and g.building_place(p):
-                    pygame.draw.circle(screen,LIGHTGREY,p,STATIONDISTANCE)
+                    pygame.draw.circle(screen,VERYLIGHTGREY,p,STATIONDISTANCE)
             except:
                 g.status = "come back, little cursor, we need you!"
                 

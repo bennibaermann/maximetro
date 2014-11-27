@@ -15,7 +15,7 @@ COLLISION = False # set False if Cars should stop if other car is in the way
 MAXWAITING = 40
 
 BLACK =   (  0,   0,   0)
-DARKGREY= (150, 150, 150)
+VERYLIGHTGREY= (220, 220, 220)
 LIGHTGREY= (200, 200, 200)
 
 WHITE =   (255, 255, 255)
