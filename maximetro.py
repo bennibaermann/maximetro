@@ -442,6 +442,7 @@ def main():
                     #       (plus a little extrasize)
                     #       or: minimum angle between tracks
                     if draw_status and spos and not is_in_range(pos,startpos):
+                        # create a potential new track
                         if (not DOUBLE_TRACKS and not g.is_track(startpos,spos) and
                            not g.is_track(spos,startpos)):
                             if (len(g.get_station(spos).get_tracks()) < MAXSTATIONTRACKS and 
@@ -466,14 +467,19 @@ def main():
                                 g.status = "to many tracks at station!"
                         else:
                             g.status = "no doubletracks allowed!"
-                            
 
         screen.fill(WHITE)
 
         # draw influence aerea
         for s in g.stations:
             s.draw_aerea(scr)
-        
+        if not draw_status:
+            # draw a potential new station aerea
+            try:
+                pygame.draw.circle(screen,LIGHTGREY,event.pos,STATIONDISTANCE)
+            except:
+                g.status = "come back, little cursor, we need you!"
+                
         scr.draw_interface()
         scr.status(g.status)
         scr.waiting(g.waiting)
@@ -482,10 +488,12 @@ def main():
         try:
             if not gameover:
                 if draw_status:
+                    # draw a potential new track
                     if (len(g.get_station(startpos).get_tracks()) < MAXSTATIONTRACKS):
                         pygame.draw.line(screen,g.LINES[-1],startpos,pos,5)
                     else:
                         draw_status = False
+            
                 if not pause:
                     g.update(count)
         except GameOver:
