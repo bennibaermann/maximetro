@@ -18,10 +18,11 @@ builded
 FEATURES until first alpha:
 ===========================
 
+- clean up code in main()
+
 - no known severe bugs
 
-- decide next stationtype before clicking and show it and the region
-in interface
+- decide next stationtype before clicking and show it in interface
 
 - better use of statusline
 
@@ -37,6 +38,8 @@ needed: maybe right click should change which will be deleted?)
 changes side)
 
 - fiddling with constants to reach a good game experience
+
+- nice looking font
 
 
 Ideas for later versions
