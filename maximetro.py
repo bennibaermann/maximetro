@@ -330,9 +330,6 @@ def main():
     while 1:
       #try:
         count += 1
-        screen.fill(WHITE)
-        scr.draw_interface()
-        scr.status(g.status)
         
         # TODO: ugly code. we have to wrote some functions here
         for event in pygame.event.get():
@@ -471,11 +468,17 @@ def main():
                             g.status = "no doubletracks allowed!"
                             
 
-#        if pause and not gameover:
-#            scr.pause()
+        screen.fill(WHITE)
+
+        # draw influence aerea
+        for s in g.stations:
+            s.draw_aerea(scr)
+        
+        scr.draw_interface()
+        scr.status(g.status)
         scr.waiting(g.waiting)
         scr.score(g.score)
-        
+
         try:
             if not gameover:
                 if draw_status:
@@ -491,6 +494,7 @@ def main():
         for l in g.lines:
             l.draw(scr)        
             
+        # draw stations
         for s in g.stations:
             s.draw(scr)
             if DEBUG: scr.center_text(s.pos,str(len(s.tracks)),RED)

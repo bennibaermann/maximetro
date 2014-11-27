@@ -20,12 +20,19 @@ class Station(object):
         self.passengers = []
         self.tracks = []
         self.sem = Semaphore()
-             
+
+        
+    def draw_aerea(self, scr):
+        '''draw the influence aerea of the station to screen scr'''
+        
+        pygame.draw.circle(scr.screen,LIGHTGREY,self.pos,STATIONDISTANCE)
+        
         
     def draw(self,scr):
+        '''draw the station and waiting passengers to screen scr'''
         size = 20
         pos = self.pos
-
+        
         # TODO: calculate area of shapes to make it same size optical 
         #       dont use this ugly constants anymore
         innercolor = WHITE

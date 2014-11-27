@@ -93,6 +93,13 @@ class Screen(object):
     def draw_interface(self):
         """draw the user interface"""
     
+        # clear the interface aerea
+        rect = pygame.Rect(MAX_X-RIGHT_OFFSET,0,RIGHT_OFFSET,MAX_Y)
+        pygame.draw.rect(self.screen,WHITE,rect)
+        rect = pygame.Rect(0,MAX_Y,MAX_X,STATUSHEIGHT)
+        pygame.draw.rect(self.screen,WHITE,rect)
+        
+        # draw the +/- buttons
         count = 0
         for l in self.lines:
             rect = pygame.Rect(MAX_X-RIGHT_OFFSET,count*50,RIGHT_OFFSET,50)
@@ -102,6 +109,7 @@ class Screen(object):
             self.center_text((MAX_X-int(RIGHT_OFFSET*.25),count*50+25),"+",BLACK,30)        
             count += 1
     
+        # draw separating lines
         pygame.draw.line(self.screen,BLACK,(MAX_X-RIGHT_OFFSET,0),
                                           (MAX_X-RIGHT_OFFSET,MAX_Y))
         pygame.draw.line(self.screen,BLACK,(int(MAX_X-RIGHT_OFFSET/2),0),

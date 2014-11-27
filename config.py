@@ -15,6 +15,9 @@ COLLISION = False # set False if Cars should stop if other car is in the way
 MAXWAITING = 40
 
 BLACK =   (  0,   0,   0)
+DARKGREY= (150, 150, 150)
+LIGHTGREY= (200, 200, 200)
+
 WHITE =   (255, 255, 255)
 BLUE =    (  0,   0, 255)
 GREEN =   (  0, 255,   0)
@@ -67,6 +70,6 @@ FPS = 30
 # money and prices
 STARTMONEY = 30
 STATIONCOST = 5
-TRACKCOST = 4
+TRACKCOST = 1
 DELETECOST = 2
 # LINECOST = 5

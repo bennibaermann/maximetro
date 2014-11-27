@@ -20,8 +20,8 @@ FEATURES until first alpha:
 
 - no known severe bugs
 
-- draw circles around stations for influence-region. draw slightly
-darker background if build
+- decide next stationtype before clicking and show it and the region
+in interface
 
 - better use of statusline
 
