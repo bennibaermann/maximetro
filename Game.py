@@ -51,17 +51,25 @@ class Game(object):
                     return True
         return False
 
-
-    def build_station(self,pos):
-        """builds a random station at position pos"""
-        # TODO: don't build at tracks
+    
+    def building_place(self,pos):
+        """checks if we can build a station at pos"""
         
+        # TODO: don't build at tracks
         if (self.in_city_range(pos) or
             pos[0] < 2 * STATIONSIZE or
             pos[0] > MAX_X - RIGHT_OFFSET - 2 * STATIONSIZE or
             pos[1] < 2 * STATIONSIZE or
             pos[1] > MAX_Y - 2 * STATIONSIZE
             ):
+                return False
+        return True
+        
+    
+    def build_station(self,pos):
+        """builds a random station at position pos"""
+
+        if not self.building_place(pos):
             if DEBUG: print "can't build at ", pos
             self.status = "No place for station here."
             return

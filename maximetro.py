@@ -473,10 +473,12 @@ def main():
         # draw influence aerea
         for s in g.stations:
             s.draw_aerea(scr)
-        if not draw_status:
+        if not draw_status and BUILD_STATIONS:
             # draw a potential new station aerea
             try:
-                pygame.draw.circle(screen,LIGHTGREY,event.pos,STATIONDISTANCE)
+                p = event.pos
+                if not g.is_station_pos(p) and g.building_place(p):
+                    pygame.draw.circle(screen,LIGHTGREY,p,STATIONDISTANCE)
             except:
                 g.status = "come back, little cursor, we need you!"
                 
