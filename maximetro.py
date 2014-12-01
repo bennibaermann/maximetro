@@ -310,11 +310,11 @@ class Line(object):
 ########################################################################
 # main programm
 ########################################################################
-                        
+
 def main():
     # Initialise stuff
     g = Game.Game()
-    pause = gameover = False
+    gameover = False
     count = 0
     pygame.init()
     scr = Screen.Screen(g.lines)
@@ -336,12 +336,7 @@ def main():
             if event.type == QUIT:
                 return
             elif event.type == KEYDOWN:
-                if pause:
-                    g.status = ""
-                    pause = False
-                else:
-                    g.status = "Game paused. Press any key to resume game."
-                    pause = True
+                g.toggle_pause()
                 
             elif event.type == MOUSEBUTTONDOWN:
                 g.status = ""
@@ -352,7 +347,7 @@ def main():
                     have_line = draw_status = False
                     line = None
                     count = 0
-                    pause = gameover = False
+                    gameover = False
                     
                 else:
                     # handling of clicks at the right side (line controlling interface)
@@ -480,7 +475,9 @@ def main():
                 if not g.is_station_pos(p) and g.building_place(p):
                     pygame.draw.circle(screen,VERYLIGHTGREY,p,STATIONDISTANCE)
             except:
-                g.status = "come back, little cursor, we need you!"
+                # TODO: better ask for the correct exception here
+                if not g.pause:
+                    g.status = "come back, little cursor, we need you!"
                 
         scr.draw_interface()
         scr.status(g.status)
@@ -496,7 +493,7 @@ def main():
                     else:
                         draw_status = False
             
-                if not pause:
+                if not g.pause:
                     g.update(count)
         except GameOver:
             gameover = True

@@ -4,12 +4,15 @@ BUGS:
 - in some situation pathfinding does not work and passengers don't
 enter any car
 
-- sometimes lines can have colors already taken, and infinit lines can
+- sometimes lines can have colors already taken, and infinite lines can
 be build.
 
 - sometimes deletion or adding tracks does not work. sometimes
 changing of colours for tracks to be deleted does not work (or wrong
-color). this occurs only after first deletion (?)
+color). 
+
+- sometimes tracks change color during creation and the game creates
+dicontinued lines.
 
 - cost of building tracks should be handled at first click at station, not if actual
 builded
@@ -47,5 +50,7 @@ Ideas for later versions
 
 - maybe: 3 types of ressources (square, triangle, circle) instead of just one
 score. different things to build need different ressources.
+
+- cars turn at stations slowly to new direction.
 
 

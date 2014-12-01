@@ -19,6 +19,7 @@ class Game(object):
 
     def init_game(self):
         """ should be called at game (re)start """
+        self.pause = False
         self.stations = []
         self.passengers = []
         self.waiting = 0
@@ -167,3 +168,15 @@ class Game(object):
                     return True
         return False
 
+    
+    def toggle_pause(self):
+        '''toggle pause-status of the game'''
+            
+        if self.pause:
+            self.status = ""
+            self.pause = False
+        else:
+            self.status = "Game paused. Press any key to resume game."
+            self.pause = True
+                                                
+                                                
