@@ -346,31 +346,9 @@ def main():
                         # handling of clicks at the right side (line controlling interface)
                         g.click_controlling(event)
                     else:
-                    # handling of clicks at the left side (main area)
-                        g.pos = event.pos
-                        spos = g.is_station_pos(g.pos)
-                        if not g.draw_status and not spos and BUILD_STATIONS:
-                            g.build_station(g.pos)
-                        else:
-                            g.draw_status = False
-                            if g.have_line:
-                                g.LINES.pop()
-                            g.have_line = False
-                            if g.LINES:
-                                #pos = event.pos
-                                #spos = is_station_pos(pos)
-                                if spos and not g.draw_status:
-                                    g.startpos = spos
-                                    if len(g.get_station(g.startpos).get_tracks()) < MAXSTATIONTRACKS:
-                                        if DEBUG: print ("start drawing from " , g.pos, " moving to ", g.startpos)
-                                        g.draw_status = True
+                        # handling of clicks at the left side (main area)
+                        g.click_map(event)
 
-                                    else:
-                                        g.status = "no more tracks avaiable at this station"
-                            else:
-                                g.status = "NO MORE LINES AVAIABLE!"
-                            
-                                
             elif event.type == MOUSEMOTION and not gameover:
                 if not CROSSING and not g.intersect_any(g.startpos,event.pos):
 

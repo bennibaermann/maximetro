@@ -210,4 +210,31 @@ class Game(object):
                     self.line = self.lines[color]
                     self.LINES.append(self.line.color)
                     self.startpos = self.line.tracks[-1].endpos
+        
+                    
+    def click_map(self,event):
+        ''' handling of clicks at the map at left side (main area)'''
+        
+        self.pos = event.pos
+        spos = self.is_station_pos(self.pos)
+        if not self.draw_status and not spos and BUILD_STATIONS:
+            self.build_station(self.pos)
+        else:
+            self.draw_status = False
+            if self.have_line:
+                self.LINES.pop()
+            self.have_line = False
+            if self.LINES:
+                if spos and not self.draw_status:
+                    self.startpos = spos
+                    if len(self.get_station(self.startpos).get_tracks()) < MAXSTATIONTRACKS:
+                        if DEBUG: print ("start drawing from " , self.pos, " moving to ", self.startpos)
+                        self.draw_status = True
+                        
+                    else:
+                        self.status = "no more tracks avaiable at this station"
+                else:
+                    self.status = "NO MORE LINES AVAIABLE!"
+                    
+                    
                     
