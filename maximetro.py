@@ -356,45 +356,46 @@ def main():
                         # we are at the right side.
                         g.mousemoving_controlling(event)
                     
+                    
                     else:
                         # we are at the left side
                         if g.track_to_be_deleted:
                             g.track_to_be_deleted.to_be_deleted = False
 
-                        
-                    
-                    # TODO: there is stil a bug in CROSSING = False in seldom cases
-                    g.pos = event.pos
-                    spos = g.is_station_pos(g.pos)
-                    # TODO: there should be no station in the way 
-                    #       (plus a little extrasize)
-                    #       or: minimum angle between tracks
-                    if g.draw_status and spos and not is_in_range(g.pos,g.startpos):
-                        # create a potential new track
-                        if (not DOUBLE_TRACKS and not g.is_track(g.startpos,spos) and
-                           not g.is_track(spos,g.startpos)):
-                            if (len(g.get_station(spos).get_tracks()) < MAXSTATIONTRACKS and 
+                        # TODO: there is stil a bug in CROSSING = False in seldom cases
+                        g.pos = event.pos
+                        spos = g.is_station_pos(g.pos)
+                        # TODO: there should be no station in the way 
+                        #       (plus a little extrasize)
+                        #       or: minimum angle between tracks
+                        if g.draw_status and spos and not is_in_range(g.pos,g.startpos):
+                            # create a potential new track
+                            if (not DOUBLE_TRACKS and not g.is_track(g.startpos,spos) and
+                            not g.is_track(spos,g.startpos)):
+                                if (len(g.get_station(spos).get_tracks()) < MAXSTATIONTRACKS and 
                                 len(g.get_station(g.startpos).get_tracks()) < MAXSTATIONTRACKS):
-                                if DEBUG: print ("stop drawing at " , g.pos , " moving to " , spos)
-                                if g.score >= TRACKCOST:
-                                    g.status = "Build track for $" + str(TRACKCOST)
-                                    g.score -= TRACKCOST
-                                    if g.have_line:
-                                        if DEBUG: print ("appending track to line...")
-                                        # TODO: parameter in g should not be necessary
-                                        newtrack = Track(g,g.startpos,spos,g.line.color,g.line,0)
+                                    if DEBUG: print ("stop drawing at " , g.pos , " moving to " , spos)
+                                    if g.score >= TRACKCOST:
+                                        g.status = "Build track for $" + str(TRACKCOST)
+                                        g.score -= TRACKCOST
+                                        if g.have_line:
+                                            if DEBUG: print ("appending track to line...")
+                                            # TODO: parameter in g should not be necessary
+                                            newtrack = Track(g,g.startpos,spos,g.line.color,g.line,0)
+                                        else:
+                                            if DEBUG: print ("creating new line...")
+                                            g.line = Line(g,g.startpos, spos)
+                                            g.lines.append(g.line)
+                                            g.have_line = True
+                                        g.startpos = spos
                                     else:
-                                        if DEBUG: print ("creating new line...")
-                                        g.line = Line(g,g.startpos, spos)
-                                        g.lines.append(g.line)
-                                        g.have_line = True
-                                    g.startpos = spos
+                                        g.status = "Not enough money left to build track for $" + str(TRACKCOST)
                                 else:
-                                    g.status = "Not enough money left to build track for $" + str(TRACKCOST)
+                                    g.status = "to many tracks at station!"
                             else:
-                                g.status = "to many tracks at station!"
-                        else:
-                            g.status = "no doubletracks allowed!"
+                                g.status = "no doubletracks allowed!"
+
+                    
 
         screen.fill(WHITE)
 

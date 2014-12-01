@@ -17,6 +17,8 @@ dicontinued lines.
 - cost of building tracks should be handled at first click at station, not if actual
 builded
 
+- error status "NO MORE LINES AVAIABLE" is shown to often and not if
+really needed
 
 FEATURES until first alpha:
 ===========================
