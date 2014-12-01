@@ -352,23 +352,12 @@ def main():
             elif event.type == MOUSEMOTION and not gameover:
                 if not CROSSING and not g.intersect_any(g.startpos,event.pos):
 
-                    # we are at the right side.
                     if event.pos[0] >= MAX_X - RIGHT_OFFSET:
-                        color = int (event.pos[1] / 50)
-                        in_use = len(COLORS) - len(g.LINES)
-                        if color < in_use:
-                            if event.pos[0] < MAX_X - RIGHT_OFFSET / 2:
-                                g.line = g.lines[color]
-                                if g.track_to_be_deleted:
-                                    g.track_to_be_deleted.to_be_deleted = False
-                                g.track_to_be_deleted = g.line.tracks[-1]
-                                g.track_to_be_deleted.to_be_deleted = True
-                            
-                            else:
-                                if g.track_to_be_deleted:
-                                    g.track_to_be_deleted.to_be_deleted = False
+                        # we are at the right side.
+                        g.mousemoving_controlling(event)
                     
                     else:
+                        # we are at the left side
                         if g.track_to_be_deleted:
                             g.track_to_be_deleted.to_be_deleted = False
 
