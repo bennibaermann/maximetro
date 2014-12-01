@@ -28,7 +28,13 @@ class Game(object):
         self.init_city()
         self.score = STARTMONEY
         self.status = "Help passengers find theire home! Click to build stations. Click at stations to build tracks."
-
+        self.line = None # the line, which is actual handled in the interface
+        self.track_to_be_deleted = None
+        self.pos = (0,0) # last position of action
+        self.startpos = (0,0) # start position of actual handled track
+        self.draw_status = False
+        self.have_line = False
+        
     def init_city(self):
         """we set some Stations in place."""
         
@@ -179,4 +185,29 @@ class Game(object):
             self.status = "Game paused. Press any key to resume game."
             self.pause = True
                                                 
-                                                
+                    
+    def click_controlling(self,event):
+        """ handling of clicks at the right side (line controlling interface)"""
+        
+        if event.pos[0] >= MAX_X - RIGHT_OFFSET:
+            color = int (event.pos[1] / 50)
+            in_use = len(COLORS) - len(self.LINES)
+            if color < in_use:
+                if event.pos[0] < MAX_X - RIGHT_OFFSET / 2:
+                    if self.score >= DELETECOST:
+                        self.status = "Delete Track for $" + str(DELETECOST)
+                        self.score -= DELETECOST
+                        self.line = self.lines[color]
+                        self.line.delete_track()
+                        if not self.line.tracks:
+                            self.lines.remove(self.line)
+                        self.track_to_be_deleted = None
+                    else:
+                        self.status = "Not enough money left to delete track for $" + str(DELETECOST)
+                else:
+                    if DEBUG: print ("add track to line with color ", color)
+                    self.draw_status = self.have_line = True
+                    self.line = self.lines[color]
+                    self.LINES.append(self.line.color)
+                    self.startpos = self.line.tracks[-1].endpos
+                    

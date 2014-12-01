@@ -322,10 +322,6 @@ def main():
     pygame.display.set_caption('Maxi Metro')
     clock = pygame.time.Clock()
 
-    pos = startpos = (0,0)
-    have_line = draw_status = False
-    line = None
-    track_to_be_deleted = None
     # Event loop
     while 1:
       #try:
@@ -336,62 +332,38 @@ def main():
             if event.type == QUIT:
                 return
             elif event.type == KEYDOWN:
-                g.toggle_pause()
-                
+                g.toggle_pause()      
             elif event.type == MOUSEBUTTONDOWN:
                 g.status = ""
                 if gameover:
                     g.init_game()
                     scr.lines = g.lines
-                    pos = startpos = (0,0)
-                    have_line = draw_status = False
-                    line = None
                     count = 0
                     gameover = False
                     
                 else:
-                    # handling of clicks at the right side (line controlling interface)
                     if event.pos[0] >= MAX_X - RIGHT_OFFSET:
-                        color = int (event.pos[1] / 50)
-                        in_use = len(COLORS) - len(g.LINES)
-                        if color < in_use:
-                            if event.pos[0] < MAX_X - RIGHT_OFFSET / 2:
-                                if g.score >= DELETECOST:
-                                    g.status = "Delete Track for $" + str(DELETECOST)
-                                    g.score -= DELETECOST
-                                    line = g.lines[color]
-                                    line.delete_track()
-                                    if not line.tracks:
-                                        g.lines.remove(line)
-                                        # del g.lines[color]
-                                    track_to_be_deleted = None
-                                else:
-                                    g.status = "Not enough money left to delete track for $" + str(DELETECOST)
-                            else:
-                                if DEBUG: print ("add track to line with color ", color)
-                                draw_status = have_line = True
-                                line = g.lines[color]
-                                g.LINES.append(line.color)
-                                startpos = line.tracks[-1].endpos
+                        # handling of clicks at the right side (line controlling interface)
+                        g.click_controlling(event)
                     else:
                     # handling of clicks at the left side (main area)
-                        pos = event.pos
-                        spos = g.is_station_pos(pos)
-                        if not draw_status and not spos and BUILD_STATIONS:
-                            g.build_station(pos)
+                        g.pos = event.pos
+                        spos = g.is_station_pos(g.pos)
+                        if not g.draw_status and not spos and BUILD_STATIONS:
+                            g.build_station(g.pos)
                         else:
-                            draw_status = False
-                            if have_line:
+                            g.draw_status = False
+                            if g.have_line:
                                 g.LINES.pop()
-                            have_line = False
+                            g.have_line = False
                             if g.LINES:
                                 #pos = event.pos
                                 #spos = is_station_pos(pos)
-                                if spos and not draw_status:
-                                    startpos = spos
-                                    if len(g.get_station(startpos).get_tracks()) < MAXSTATIONTRACKS:
-                                        if DEBUG: print ("start drawing from " ,pos, " moving to ", startpos)
-                                        draw_status = True
+                                if spos and not g.draw_status:
+                                    g.startpos = spos
+                                    if len(g.get_station(g.startpos).get_tracks()) < MAXSTATIONTRACKS:
+                                        if DEBUG: print ("start drawing from " , g.pos, " moving to ", g.startpos)
+                                        g.draw_status = True
 
                                     else:
                                         g.status = "no more tracks avaiable at this station"
@@ -400,7 +372,7 @@ def main():
                             
                                 
             elif event.type == MOUSEMOTION and not gameover:
-                if not CROSSING and not g.intersect_any(startpos,event.pos):
+                if not CROSSING and not g.intersect_any(g.startpos,event.pos):
 
                     # we are at the right side.
                     if event.pos[0] >= MAX_X - RIGHT_OFFSET:
@@ -408,54 +380,48 @@ def main():
                         in_use = len(COLORS) - len(g.LINES)
                         if color < in_use:
                             if event.pos[0] < MAX_X - RIGHT_OFFSET / 2:
-                                line = g.lines[color]
-                                if track_to_be_deleted:
-                                    track_to_be_deleted.to_be_deleted = False
-                                track_to_be_deleted = line.tracks[-1]
-                                track_to_be_deleted.to_be_deleted = True
+                                g.line = g.lines[color]
+                                if g.track_to_be_deleted:
+                                    g.track_to_be_deleted.to_be_deleted = False
+                                g.track_to_be_deleted = g.line.tracks[-1]
+                                g.track_to_be_deleted.to_be_deleted = True
                             
                             else:
-                                if track_to_be_deleted:
-                                    track_to_be_deleted.to_be_deleted = False
-
-#                                if DEBUG: print ("add track to line with color ", color)
-#                                draw_status = have_line = True
-#                                line = g.lines[color]
-#                                g.LINES.append(line.color)
-#                                startpos = line.tracks[-1].endpos                    
+                                if g.track_to_be_deleted:
+                                    g.track_to_be_deleted.to_be_deleted = False
                     
                     else:
-                        if track_to_be_deleted:
-                            track_to_be_deleted.to_be_deleted = False
+                        if g.track_to_be_deleted:
+                            g.track_to_be_deleted.to_be_deleted = False
 
                         
                     
                     # TODO: there is stil a bug in CROSSING = False in seldom cases
-                    pos = event.pos
-                    spos = g.is_station_pos(pos)
+                    g.pos = event.pos
+                    spos = g.is_station_pos(g.pos)
                     # TODO: there should be no station in the way 
                     #       (plus a little extrasize)
                     #       or: minimum angle between tracks
-                    if draw_status and spos and not is_in_range(pos,startpos):
+                    if g.draw_status and spos and not is_in_range(g.pos,g.startpos):
                         # create a potential new track
-                        if (not DOUBLE_TRACKS and not g.is_track(startpos,spos) and
-                           not g.is_track(spos,startpos)):
+                        if (not DOUBLE_TRACKS and not g.is_track(g.startpos,spos) and
+                           not g.is_track(spos,g.startpos)):
                             if (len(g.get_station(spos).get_tracks()) < MAXSTATIONTRACKS and 
-                                len(g.get_station(startpos).get_tracks()) < MAXSTATIONTRACKS):
-                                if DEBUG: print ("stop drawing at " , pos , " moving to " , spos)
+                                len(g.get_station(g.startpos).get_tracks()) < MAXSTATIONTRACKS):
+                                if DEBUG: print ("stop drawing at " , g.pos , " moving to " , spos)
                                 if g.score >= TRACKCOST:
                                     g.status = "Build track for $" + str(TRACKCOST)
                                     g.score -= TRACKCOST
-                                    if have_line:
+                                    if g.have_line:
                                         if DEBUG: print ("appending track to line...")
-                                        # startpos = spos
-                                        newtrack = Track(g,startpos,spos,line.color,line,0)
+                                        # TODO: parameter in g should not be necessary
+                                        newtrack = Track(g,g.startpos,spos,g.line.color,g.line,0)
                                     else:
                                         if DEBUG: print ("creating new line...")
-                                        line = Line(g,startpos, spos)
-                                        g.lines.append(line)
-                                        have_line = True
-                                    startpos = spos
+                                        g.line = Line(g,g.startpos, spos)
+                                        g.lines.append(g.line)
+                                        g.have_line = True
+                                    g.startpos = spos
                                 else:
                                     g.status = "Not enough money left to build track for $" + str(TRACKCOST)
                             else:
@@ -468,7 +434,7 @@ def main():
         # draw influence aerea
         for s in g.stations:
             s.draw_aerea(scr)
-        if not draw_status and BUILD_STATIONS:
+        if not g.draw_status and BUILD_STATIONS:
             # draw a potential new station aerea
             try:
                 p = event.pos
@@ -486,12 +452,12 @@ def main():
 
         try:
             if not gameover:
-                if draw_status:
+                if g.draw_status:
                     # draw a potential new track
-                    if (len(g.get_station(startpos).get_tracks()) < MAXSTATIONTRACKS):
-                        pygame.draw.line(screen,g.LINES[-1],startpos,pos,5)
+                    if (len(g.get_station(g.startpos).get_tracks()) < MAXSTATIONTRACKS):
+                        pygame.draw.line(screen,g.LINES[-1],g.startpos,g.pos,5)
                     else:
-                        draw_status = False
+                        g.draw_status = False
             
                 if not g.pause:
                     g.update(count)
