@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# DEBUG = False
-DEBUG = True
+# set which part of the game you want to debug, set all for maximum output
+# DEBUG = ('init', 'track', 'path', 'station', 'passenger', 'random' )
+DEBUG = ('init','track' )
 
 # these basic gamemodes change the gameplay drastical
 ANIMALS = False # an alternative animals graphic set from erlehmann
@@ -68,7 +69,7 @@ MAX_DEPTH = 99999 # max distance for path finding (means no path)
 FPS = 30
 
 # money and prices
-STARTMONEY = 30
+STARTMONEY = 300 # 30
 STATIONCOST = 5
 TRACKCOST = 1
 DELETECOST = 2

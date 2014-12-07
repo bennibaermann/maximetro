@@ -66,7 +66,7 @@ class Passenger(object):
         if not station:
             station = self.station
         
-        if DEBUG:
+        if 'path' in DEBUG:
             print
             print "entering enter()"
         # dont look at tracks in line of car, except
@@ -77,13 +77,13 @@ class Passenger(object):
         self.visited = []
         dist = station.min_distance(self,tracks_in_line)
         if dist >= MAX_DEPTH:
-            if DEBUG: print "no path here (self)"
+            if 'path' in DEBUG: print "no path here (self)"
         next_station = self.game.get_station(car.next_stationpos())
         self.visited = []
         next_dist = next_station.min_distance(self,[car.track])
         if next_dist >= MAX_DEPTH:
-            if DEBUG: print "no path here (next)"
-        if DEBUG: print "dist: ", dist, ", next: ", next_dist
+            if 'path' in DEBUG: print "no path here (next)"
+        if 'path' in DEBUG: print "dist: ", dist, ", next: ", next_dist
         # enter car if distance of next station is smaller
         if dist > next_dist:
             return True
@@ -139,7 +139,7 @@ class Passenger(object):
         
         # go to station if at station.pos
         if is_in_range(self.pos,nearest.pos):
-            if DEBUG: print "found station!"
+            if 'passenger' in DEBUG: print "found station!"
             self.game.passengers.remove(self)
             if not self.shape == nearest.shape:
                 self.station = nearest

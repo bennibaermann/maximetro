@@ -38,11 +38,11 @@ class Game(object):
     def init_city(self):
         """we set some Stations in place."""
         
-        if DEBUG: print ("Setting main station...")
+        if 'init' in DEBUG: print ("Setting main station...")
         self.stations.append(Station.Station(self,(int((MAX_X-RIGHT_OFFSET)/2), int (MAX_Y/2)),\
                                 "square"))
         # TODO: make sure that every shape exists
-        if DEBUG: print ("Setting stations...")
+        if 'init' in DEBUG: print ("Setting stations...")
         for i in range(0,MAXSTATIONS):
             pos = self.random_pos()
             if pos:
@@ -77,13 +77,13 @@ class Game(object):
         """builds a random station at position pos"""
 
         if not self.building_place(pos):
-            if DEBUG: print "can't build at ", pos
+            if 'station' in DEBUG: print "can't build at ", pos
             self.status = "No place for station here."
             return
         if self.score >= STATIONCOST:
             station = Station.Station(self,pos)
             self.stations.append(station)
-            if DEBUG: print "build station at ", pos
+            if 'station' in DEBUG: print "build station at ", pos
             self.status = "build station for $" + str(STATIONCOST)
             self.score -= STATIONCOST
         else:
@@ -95,7 +95,7 @@ class Game(object):
         
         for s in self.stations:
             if is_in_range(pos,s.pos,distance):
-                if DEBUG: print ("... is to near to ", s.pos)
+                if 'station' in DEBUG: print ("... is to near to ", s.pos)
                 return True       
         return False
     
@@ -111,11 +111,11 @@ class Game(object):
                                      MAX_X - 2 * STATIONSIZE - RIGHT_OFFSET),
                       random.randint(0 + 2 * STATIONSIZE, 
                                      MAX_Y - 2 * STATIONSIZE)]
-            if DEBUG: print ("trying position ", newpos)
+            if 'random' in DEBUG: print ("trying position ", newpos)
             foundpos = not self.in_city_range(newpos, distance)
                          
             if foundpos:
-                if DEBUG: print( "position ok!")
+                if 'random' in DEBUG: print( "position ok!")
                 return newpos
             else:
                 failed += 1
@@ -154,7 +154,7 @@ class Game(object):
                     newp = Passenger.Passenger(self)
                 except Exception as e:
                     if str(e) == "nopos":
-                        if DEBUG: print "found no pos, exception: ", str(e)
+                        if 'passenger' in DEBUG: print "found no pos, exception: ", str(e)
                     else:
                         raise e
                 else:
@@ -205,7 +205,7 @@ class Game(object):
                     else:
                         self.status = "Not enough money left to delete track for $" + str(DELETECOST)
                 else:
-                    if DEBUG: print ("add track to line with color ", color)
+                    if 'track' in DEBUG: print ("add track to line with color ", color)
                     self.draw_status = self.have_line = True
                     self.line = self.lines[color]
                     self.LINES.append(self.line.color)
@@ -228,7 +228,7 @@ class Game(object):
                 if spos and not self.draw_status:
                     self.startpos = spos
                     if len(self.get_station(self.startpos).get_tracks()) < MAXSTATIONTRACKS:
-                        if DEBUG: print ("start drawing from " , self.pos, " moving to ", self.startpos)
+                        if 'track' in DEBUG: print ("start drawing from " , self.pos, " moving to ", self.startpos)
                         self.draw_status = True
                         
                     else:

@@ -1,6 +1,10 @@
 BUGS:
 =====
 
+- passengers in deleted cars change shape.
+
+- drawing of passengers in cars is stil not correct.
+
 - in some situation pathfinding does not work and passengers don't
 enter any car
 

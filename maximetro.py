@@ -127,19 +127,19 @@ class Track(object):
         shape = passenger.shape
         visited = passenger.visited
         
-        if DEBUG: print "distance(",shape,",",direction,")"
+        if 'path' in DEBUG: print "distance(",shape,",",direction,")"
         next = self.next_station(direction)
         if next in visited:
-                if DEBUG: print "we where here allready"
+                if 'path' in DEBUG: print "we where here allready"
                 return MAX_DEPTH
             
         if shape == next.shape:
-            if DEBUG: print "found shape ", shape
+            if 'path' in DEBUG: print "found shape ", shape
             return 1
         else:
-            if DEBUG: print "not found shape ", shape, ". going recursive"
+            if 'path' in DEBUG: print "not found shape ", shape, ". going recursive"
             dist = next.min_distance(passenger,[self]) # recursion
-            if DEBUG: print "dist (in distance): ", dist
+            if 'path' in DEBUG: print "dist (in distance): ", dist
             return dist + 1
 
         
@@ -263,7 +263,7 @@ class Line(object):
     def delete_track(self):
         """deletes the last track from the line"""
         
-        if DEBUG: print ("delete track from line with color: ", self.color)
+        if 'track' in DEBUG: print ("delete track from line with color: ", self.color)
         track = self.tracks[-1]
         l = len(self.tracks)
 
@@ -279,16 +279,16 @@ class Line(object):
 
             # if car is deleted, we handle passengers here
             if l == 1 and track.cars:
-                if DEBUG: print ("special handling of passengers in last track activatet!")
+                if 'track' in DEBUG: print ("special handling of passengers in last track activatet!")
                 for c in track.cars:
                     for p in c.passengers:
                         if FREE_PASSENGERS:
-                            if DEBUG: print ("passenger leaves car.")
+                            if 'track' in DEBUG: print ("passenger leaves car.")
                             newpass = Passenger.Passenger(self.game,None,c.pos)
                             self.game.passengers.append(newpass)
                         #else: TODO without FREE_PASSENGERS they should go to next station
                         
-                        if DEBUG: print ("passenger with shape " , p.shape, " handled.")
+                        if 'track' in DEBUG: print ("passenger with shape " , p.shape, " handled.")
                 
             # delete semaphores for deleted cars
             for c in track.cars:
@@ -374,16 +374,16 @@ def main():
                             not g.is_track(spos,g.startpos)):
                                 if (len(g.get_station(spos).get_tracks()) < MAXSTATIONTRACKS and 
                                 len(g.get_station(g.startpos).get_tracks()) < MAXSTATIONTRACKS):
-                                    if DEBUG: print ("stop drawing at " , g.pos , " moving to " , spos)
+                                    if 'track' in DEBUG: print ("stop drawing at " , g.pos , " moving to " , spos)
                                     if g.score >= TRACKCOST:
                                         g.status = "Build track for $" + str(TRACKCOST)
                                         g.score -= TRACKCOST
                                         if g.have_line:
-                                            if DEBUG: print ("appending track to line...")
+                                            if 'track' in DEBUG: print ("appending track to line...")
                                             # TODO: parameter in g should not be necessary
                                             newtrack = Track(g,g.startpos,spos,g.line.color,g.line,0)
                                         else:
-                                            if DEBUG: print ("creating new line...")
+                                            if 'track' in DEBUG: print ("creating new line...")
                                             g.line = Line(g,g.startpos, spos)
                                             g.lines.append(g.line)
                                             g.have_line = True
@@ -438,7 +438,7 @@ def main():
         # draw stations
         for s in g.stations:
             s.draw(scr)
-            if DEBUG: scr.center_text(s.pos,str(len(s.tracks)),RED)
+            if 'track' in DEBUG: scr.center_text(s.pos,str(len(s.tracks)),RED)
             
         for p in g.passengers:
             p.draw(scr,p.pos)

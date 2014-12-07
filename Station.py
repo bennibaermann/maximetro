@@ -36,7 +36,7 @@ class Station(object):
         # TODO: calculate area of shapes to make it same size optical 
         #       dont use this ugly constants anymore
         innercolor = WHITE
-        if DEBUG and self.sem.used:
+        if 'path' in DEBUG and self.sem.used:
             innercolor = BLACK
         if self.shape == 'circle':
             pygame.draw.circle(scr.screen,BLACK,pos,STATIONSIZE)
@@ -100,9 +100,9 @@ class Station(object):
     
         shape = passenger.shape
         
-        if DEBUG: print "min_distance(", shape,") at ", self.shape
+        if 'path' in DEBUG: print "min_distance(", shape,") at ", self.shape
         if self.shape == shape:
-            if DEBUG: print "found", shape
+            if 'path' in DEBUG: print "found", shape
             return 0
 
         passenger.visited.append(self)
@@ -124,9 +124,9 @@ class Station(object):
                 dir = -1
             # get distance (recursive)
             dist = t.distance(passenger,dir)
-            if DEBUG: print "dist: ", dist
+            if 'path' in DEBUG: print "dist: ", dist
             if dist < min:
                 min = dist
-        if DEBUG: print "min: ", min
+        if 'path' in DEBUG: print "min: ", min
         return min
     
