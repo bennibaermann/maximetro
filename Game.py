@@ -249,8 +249,7 @@ class Game(object):
                     self.track_to_be_deleted.to_be_deleted = False
                 self.track_to_be_deleted = self.line.tracks[-1]
                 self.track_to_be_deleted.to_be_deleted = True
-                
-            else:
-                if self.track_to_be_deleted:
-                    self.track_to_be_deleted.to_be_deleted = False
+                return
+        if self.track_to_be_deleted:
+            self.track_to_be_deleted.to_be_deleted = False
                     
