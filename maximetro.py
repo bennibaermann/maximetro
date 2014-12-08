@@ -314,6 +314,7 @@ class Line(object):
 def main():
     # Initialise stuff
     g = Game.Game()
+    status_mem = ""
     gameover = False
     count = 0
     pygame.init()
@@ -396,7 +397,6 @@ def main():
                                 g.status = "no doubletracks allowed!"
 
                     
-
         screen.fill(WHITE)
 
         # draw influence aerea
@@ -405,6 +405,8 @@ def main():
         if not g.draw_status and BUILD_STATIONS:
             # draw a potential new station aerea
             try:
+                # g.status = status_mem
+                # status_mem = g.status
                 p = event.pos
                 if not g.is_station_pos(p) and g.building_place(p):
                     pygame.draw.circle(screen,VERYLIGHTGREY,p,STATIONDISTANCE)
@@ -412,6 +414,10 @@ def main():
                 # TODO: better ask for the correct exception here
                 if not g.pause:
                     g.status = "come back, little cursor, we need you!"
+            else:
+                # TODO: do not use status as flag here.
+                if g.status == "come back, little cursor, we need you!":
+                    g.status = ""
                 
         scr.draw_interface()
         scr.status(g.status)

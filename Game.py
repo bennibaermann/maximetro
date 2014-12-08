@@ -233,8 +233,9 @@ class Game(object):
                         
                     else:
                         self.status = "no more tracks avaiable at this station"
-                else:
-                    self.status = "NO MORE LINES AVAIABLE!"
+            else:
+                if 'track' in DEBUG: print 'no more lines!'
+                self.status = "NO MORE LINES AVAIABLE!"
                     
                     
     def mousemoving_controlling(self,event):
