@@ -1,7 +1,8 @@
 BUGS:
 =====
 
-- passengers in deleted cars change shape.
+- passengers in deleted cars should leave at the exact position, not all
+at the same position.
 
 - drawing of passengers in cars is stil not correct.
 

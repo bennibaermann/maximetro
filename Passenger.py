@@ -11,7 +11,7 @@ from Station import Station
 class Passenger(object):
     """they want to travel to a station with shape self.shape!"""
     
-    def __init__(self,game,station = None,pos = None):
+    def __init__(self,game,station = None,pos = None, shape = None):
         self.game = game
         if station:
             self.station = station
@@ -27,9 +27,12 @@ class Passenger(object):
                 self.pos = pos
             else:
                 raise Exception("nopos")
+        if shape:
+            self.shape = shape
+        else:
+            shapes = list(SHAPES) # copy list
+            self.shape = random.choice(shapes)
         
-        shapes = list(SHAPES) # copy list
-        self.shape = random.choice(shapes)
         self.car = None
         self.visited = [] # visited stations in pathfinding
 

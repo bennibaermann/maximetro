@@ -284,7 +284,7 @@ class Line(object):
                     for p in c.passengers:
                         if FREE_PASSENGERS:
                             if 'track' in DEBUG: print ("passenger leaves car.")
-                            newpass = Passenger.Passenger(self.game,None,c.pos)
+                            newpass = Passenger.Passenger(self.game,None,c.pos,p.shape)
                             self.game.passengers.append(newpass)
                         #else: TODO without FREE_PASSENGERS they should go to next station
                         

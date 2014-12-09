@@ -189,31 +189,39 @@ class Game(object):
     def click_controlling(self,event):
         """ handling of clicks at the right side (line controlling interface)"""
         
-        if event.pos[0] >= MAX_X - RIGHT_OFFSET:
-            color = int (event.pos[1] / 50)
-            in_use = len(COLORS) - len(self.LINES)
-            if color < in_use:
-                if event.pos[0] < MAX_X - RIGHT_OFFSET / 2:
-                    if self.score >= DELETECOST:
-                        self.status = "Delete Track for $" + str(DELETECOST)
-                        self.score -= DELETECOST
-                        self.line = self.lines[color]
-                        self.line.delete_track()
-                        if not self.line.tracks:
-                            self.lines.remove(self.line)
-                        self.track_to_be_deleted = None
-                    else:
-                        self.status = "Not enough money left to delete track for $" + str(DELETECOST)
-                else:
-                    if 'track' in DEBUG: print ("add track to line with color ", color)
-                    self.draw_status = self.have_line = True
-                    self.line = self.lines[color]
-                    self.LINES.append(self.line.color)
-                    self.startpos = self.line.tracks[-1].endpos
+        assert event.pos[0] >= MAX_X - RIGHT_OFFSET
         
+        color = int (event.pos[1] / 50)
+        in_use = len(COLORS) - len(self.LINES)
+        if 'track' in DEBUG:
+            print ("click_controlling(): color ", color, ", in_use ", in_use)
+            print ("COLORS: ", COLORS, " LINES: ", self.LINES)
+        if color < in_use:
+            if event.pos[0] < MAX_X - RIGHT_OFFSET / 2:
+                # delete track
+                if self.score >= DELETECOST:
+                    self.status = "Delete Track for $" + str(DELETECOST)
+                    self.score -= DELETECOST
+                    self.line = self.lines[color]
+                    self.line.delete_track()
+                    if not self.line.tracks:
+                        self.lines.remove(self.line)
+                    self.track_to_be_deleted = None
+                else:
+                    self.status = "Not enough money left to delete track for $" + str(DELETECOST)
+            else:
+                # add track
+                if 'track' in DEBUG: print ("add track to line with color ", color)
+                self.draw_status = self.have_line = True
+                self.line = self.lines[color]
+                self.LINES.append(self.line.color)
+                self.startpos = self.line.tracks[-1].endpos
+    
                     
     def click_map(self,event):
         ''' handling of clicks at the map at left side (main area)'''
+        
+        assert event.pos[0] < MAX_X - RIGHT_OFFSET
         
         self.pos = event.pos
         spos = self.is_station_pos(self.pos)
