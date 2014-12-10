@@ -377,9 +377,9 @@ def main():
                                         g.status = "Build track for $" + str(TRACKCOST)
                                         g.score -= TRACKCOST
                                         if g.have_line:
-                                            if 'track' in DEBUG: print ("appending track to line with color", g.line.color)
+                                            if 'track' in DEBUG: print ("appending track to line with color", g.drawing_color)
                                             # TODO: parameter in g should not be necessary
-                                            newtrack = Track(g,g.startpos,spos,g.line.color,g.line,0)
+                                            newtrack = Track(g,g.startpos,spos,g.drawing_color,g.line,0)
                                         else:
                                             if 'track' in DEBUG: print ("creating new line...")
                                             g.line = Line(g,g.startpos, spos)

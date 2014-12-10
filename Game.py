@@ -20,22 +20,23 @@ class Game(object):
 
     def init_game(self):
         """ should be called at game (re)start """
-        self.pause = False
-        self.stations = []
-        self.passengers = []
-        self.waiting = 0
-        self.LINES = list(COLORS) # avaiable lines
-        self.lines = [] # existing lines
-        self.init_city()
-        self.score = STARTMONEY
+        self.pause = False      # True if game is paused
+        self.stations = []      # list of all stations
+        self.passengers = []    # list of all (free?) passengers
+        self.waiting = 0        # ?
+        self.LINES = list(COLORS)   # avaiable lines
+        self.lines = []             # existing lines
+        self.init_city()      
+        self.score = STARTMONEY     # available money
         self.status = "Help passengers find theire home! Click to build stations. Click at stations to build tracks."
-        self.line = None # the line, which is actual handled in the interface
-        self.track_to_be_deleted = None
-        self.pos = (0,0) # last position of action
-        self.startpos = (0,0) # start position of actual handled track
-        self.draw_status = False
-        self.have_line = False
-        self.drawing_color = BLACK
+        self.line = None        # the line, which is actual handled in the interface
+        self.track_to_be_deleted = None     # the track which will be deleted, if clicked now
+        self.pos = (0,0)        # last position of action
+        self.startpos = (0,0)   # start position of actual handled track
+        self.draw_status = False    # True if floating track drawn
+        self.have_line = False      # True if floating track is not first of line
+        self.drawing_color = BLACK  # color of actual floating track
+        
         
     def init_city(self):
         """we set some Stations in place."""
@@ -204,10 +205,10 @@ class Game(object):
                 if self.score >= DELETECOST:
                     self.status = "Delete Track for $" + str(DELETECOST)
                     self.score -= DELETECOST
-                    self.line = self.lines[color]
-                    self.line.delete_track()
-                    if not self.line.tracks:
-                        self.lines.remove(self.line)
+                    line = self.lines[color]
+                    line.delete_track()
+                    if not line.tracks:
+                        self.lines.remove(line)
                     self.track_to_be_deleted = None
                 else:
                     self.status = "Not enough money left to delete track for $" + str(DELETECOST)
@@ -216,8 +217,8 @@ class Game(object):
                 if 'track' in DEBUG: print ("add track to line with color ", color)
                 self.draw_status = self.have_line = True
                 self.line = self.lines[color]
-                self.LINES.append(self.line.color)
                 self.drawing_color = self.line.color
+                self.LINES.append(self.drawing_color)
                 self.startpos = self.line.tracks[-1].endpos
     
                     
@@ -263,10 +264,10 @@ class Game(object):
         if color < in_use:
             if event.pos[0] < MAX_X - RIGHT_OFFSET / 2:
                 # if 'track' in DEBUG: print '.'
-                self.line = self.lines[color]
+                line = self.lines[color]
                 if self.track_to_be_deleted:
                     self.track_to_be_deleted.to_be_deleted = False
-                self.track_to_be_deleted = self.line.tracks[-1]
+                self.track_to_be_deleted = line.tracks[-1]
                 self.track_to_be_deleted.to_be_deleted = True
                 return
         if self.track_to_be_deleted:

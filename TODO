@@ -9,23 +9,10 @@ at the same position.
 - in some situation pathfinding does not work and passengers don't
 enter any car
 
-- sometimes lines can have colors already taken, and infinite lines can
-be build.
-
-- sometimes deletion or adding tracks does not work.
-
-- not sure if allready activ: sometimes
-changing of colours for tracks to be deleted does not work (or wrong
-color). 
-
-- sometimes tracks change color during creation and the game creates
-dicontinued lines.
-
 - cost of building tracks should be handled at first click at station, not if actual
 builded
 
-- error status "NO MORE LINES AVAIABLE" is shown to often and not if
-really needed
+- if a circle in a line is constructed with deletion, there is no circle.
 
 FEATURES until first alpha:
 ===========================
