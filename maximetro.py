@@ -351,14 +351,11 @@ def main():
                         g.click_map(event)
 
             elif event.type == MOUSEMOTION and not gameover:
-                if not CROSSING and not g.intersect_any(g.startpos,event.pos):
-
-                    if event.pos[0] >= MAX_X - RIGHT_OFFSET:
+                if event.pos[0] >= MAX_X - RIGHT_OFFSET:
                         # we are at the right side.
                         g.mousemoving_controlling(event)
-                    
-                    
-                    else:
+                if not CROSSING and not g.intersect_any(g.startpos,event.pos):
+                    if event.pos[0] < MAX_X - RIGHT_OFFSET:
                         # we are at the left side
                         if g.track_to_be_deleted:
                             g.track_to_be_deleted.to_be_deleted = False

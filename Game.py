@@ -3,6 +3,7 @@ from Vec2D import *
 import pygame
 from pygame.locals import *
 import random
+import sys
 
 from config import *
 from Util import *
@@ -249,10 +250,17 @@ class Game(object):
     def mousemoving_controlling(self,event):
         '''handle mouse change coordinates in the controler-interface at the right side'''
         
+        assert event.pos[0] >= MAX_X - RIGHT_OFFSET
+        
         color = int (event.pos[1] / 50)
+        if 'track' in DEBUG:
+            print color,
+            sys.stdout.flush()
+        
         in_use = len(COLORS) - len(self.LINES)
         if color < in_use:
             if event.pos[0] < MAX_X - RIGHT_OFFSET / 2:
+                # if 'track' in DEBUG: print '.'
                 self.line = self.lines[color]
                 if self.track_to_be_deleted:
                     self.track_to_be_deleted.to_be_deleted = False

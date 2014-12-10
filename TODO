@@ -41,13 +41,14 @@ FEATURES until first alpha:
 - error messages in red
 
 - deletion of tracks with cars should generally be possible
-(passangers in deleted cars should be handled)
 
 - deletion of last or first track should be possible (interface
 needed: maybe right click should change which will be deleted?)
 
+- show append-station with colored station if mouse over add-button.
+
 - append new track at start or begin (interface needed: second click
-changes side)
+changes side) 
 
 - fiddling with constants to reach a good game experience
 
