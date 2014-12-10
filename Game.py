@@ -3,7 +3,7 @@ from Vec2D import *
 import pygame
 from pygame.locals import *
 import random
-import sys
+
 
 from config import *
 from Util import *
@@ -35,6 +35,7 @@ class Game(object):
         self.startpos = (0,0) # start position of actual handled track
         self.draw_status = False
         self.have_line = False
+        self.drawing_color = BLACK
         
     def init_city(self):
         """we set some Stations in place."""
@@ -216,6 +217,7 @@ class Game(object):
                 self.draw_status = self.have_line = True
                 self.line = self.lines[color]
                 self.LINES.append(self.line.color)
+                self.drawing_color = self.line.color
                 self.startpos = self.line.tracks[-1].endpos
     
                     
@@ -239,6 +241,8 @@ class Game(object):
                     if len(self.get_station(self.startpos).get_tracks()) < MAXSTATIONTRACKS:
                         if 'track' in DEBUG: print ("start drawing from " , self.pos, " moving to ", self.startpos)
                         self.draw_status = True
+                        self.drawing_color = self.LINES[-1]
+                        if 'track' in DEBUG: print ('color: ', self.drawing_color)
                         
                     else:
                         self.status = "no more tracks avaiable at this station"
@@ -253,9 +257,7 @@ class Game(object):
         assert event.pos[0] >= MAX_X - RIGHT_OFFSET
         
         color = int (event.pos[1] / 50)
-        if 'track' in DEBUG:
-            print color,
-            sys.stdout.flush()
+        if 'track' in DEBUG: flush_print(str(color))
         
         in_use = len(COLORS) - len(self.LINES)
         if color < in_use:

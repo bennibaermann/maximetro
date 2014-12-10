@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import sys
+
 from Vec2D import *
 
 from config import *
@@ -103,4 +105,9 @@ def is_in_range(pos1,pos2,maxdist=STATIONSIZE):
     if d <= maxdist:
         return True
     return False
+
+
+def flush_print(string):
+    print string,
+    sys.stdout.flush()
     

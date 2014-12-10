@@ -360,7 +360,7 @@ def main():
                         if g.track_to_be_deleted:
                             g.track_to_be_deleted.to_be_deleted = False
 
-                        # TODO: there is stil a bug in CROSSING = False in seldom cases
+                        # TODO: there is maybe stil a bug in CROSSING = False in seldom cases?
                         g.pos = event.pos
                         spos = g.is_station_pos(g.pos)
                         # TODO: there should be no station in the way 
@@ -377,7 +377,7 @@ def main():
                                         g.status = "Build track for $" + str(TRACKCOST)
                                         g.score -= TRACKCOST
                                         if g.have_line:
-                                            if 'track' in DEBUG: print ("appending track to line...")
+                                            if 'track' in DEBUG: print ("appending track to line with color", g.line.color)
                                             # TODO: parameter in g should not be necessary
                                             newtrack = Track(g,g.startpos,spos,g.line.color,g.line,0)
                                         else:
@@ -412,7 +412,7 @@ def main():
                 if not g.pause:
                     g.status = "come back, little cursor, we need you!"
             else:
-                # TODO: do not use status as flag here.
+                # TODO: do not use status as flag here, bad style.
                 if g.status == "come back, little cursor, we need you!":
                     g.status = ""
                 
@@ -426,7 +426,8 @@ def main():
                 if g.draw_status:
                     # draw a potential new track
                     if (len(g.get_station(g.startpos).get_tracks()) < MAXSTATIONTRACKS):
-                        pygame.draw.line(screen,g.LINES[-1],g.startpos,g.pos,5)
+                        flush_print(str(g.drawing_color))
+                        pygame.draw.line(screen,g.drawing_color,g.startpos,g.pos,5)
                     else:
                         g.draw_status = False
             
