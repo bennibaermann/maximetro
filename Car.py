@@ -128,7 +128,7 @@ class Car(object):
             #
         # drawing of passengers
         # TODO: stil buggy for some values of CARCAPACITY
-        offset = CARCAPACITY/2 + 1
+        offset = float(CARCAPACITY)/2 + 0.5
         for p in self.passengers:
             offset -= 1
             p.draw(scr,self.pos,offset,self.angle)
