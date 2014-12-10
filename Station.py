@@ -20,6 +20,7 @@ class Station(object):
         self.passengers = []
         self.tracks = []
         self.sem = Semaphore()
+        self.add_track_here = WHITE  # color of track which starts here potentially (WHITE = None)
 
         
     def draw_aerea(self, scr):
@@ -35,7 +36,8 @@ class Station(object):
         
         # TODO: calculate area of shapes to make it same size optical 
         #       dont use this ugly constants anymore
-        innercolor = WHITE
+        
+        innercolor = self.add_track_here
         if 'path' in DEBUG and self.sem.used:
             innercolor = BLACK
         if self.shape == 'circle':

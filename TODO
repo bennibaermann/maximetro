@@ -4,8 +4,7 @@ BUGS:
 - passengers in deleted cars should leave at the exact position, not all
 at the same position.
 
-- in some situation pathfinding does not work and passengers don't
-enter any car
+- pathfinding could be better some times.
 
 - cost of building tracks should be handled at first click at station, not if actual
 builded

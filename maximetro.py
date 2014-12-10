@@ -357,8 +357,8 @@ def main():
                 if not CROSSING and not g.intersect_any(g.startpos,event.pos):
                     if event.pos[0] < MAX_X - RIGHT_OFFSET:
                         # we are at the left side
-                        if g.track_to_be_deleted:
-                            g.track_to_be_deleted.to_be_deleted = False
+                        
+                        g.clean_markings()
 
                         # TODO: there is maybe stil a bug in CROSSING = False in seldom cases?
                         g.pos = event.pos

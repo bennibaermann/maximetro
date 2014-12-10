@@ -36,6 +36,7 @@ class Game(object):
         self.draw_status = False    # True if floating track drawn
         self.have_line = False      # True if floating track is not first of line
         self.drawing_color = BLACK  # color of actual floating track
+        self.add_track_here = None  # station at which new track starts
         
         
     def init_city(self):
@@ -262,14 +263,36 @@ class Game(object):
         
         in_use = len(COLORS) - len(self.LINES)
         if color < in_use:
+            line = self.lines[color]
             if event.pos[0] < MAX_X - RIGHT_OFFSET / 2:
-                # if 'track' in DEBUG: print '.'
-                line = self.lines[color]
+                # mark track to be deleted to draw it later differently
                 if self.track_to_be_deleted:
                     self.track_to_be_deleted.to_be_deleted = False
                 self.track_to_be_deleted = line.tracks[-1]
                 self.track_to_be_deleted.to_be_deleted = True
                 return
+            else:
+                # mark station at which new track will be build to be able to
+                # fill it with line color later
+                spos = line.tracks[-1].endpos
+                station = self.get_station(spos)
+                station.add_track_here = COLORS[-color-1]
+                self.add_track_here = station
+                return
+            
+        # code is only reached if cursor is not on buttons    
+        self.clean_markings()
+        
+            
+    def clean_markings(self):
+        ' clean all temporary markings from mousemotion-events'
+        
         if self.track_to_be_deleted:
             self.track_to_be_deleted.to_be_deleted = False
+        if self.add_track_here:
+            self.add_track_here.add_track_here = WHITE
+            self.add_track_here = None
+                   
+            
+            
                     
