@@ -52,6 +52,8 @@ class Track(object):
         else:
             pygame.draw.line(scr.screen,self.color,self.startpos,self.endpos,5)
         
+
+    def draw_cars(self,scr):
         for c in self.cars:
             c.draw(scr)
           
@@ -249,7 +251,12 @@ class Line(object):
         for t in self.tracks:
             t.draw(scr)
             
-
+    
+    def draw_cars(self,scr):
+        for t in self.tracks:
+            t.draw_cars(scr)
+            
+            
     def __contains__(self,shape):
         """returns True if Line contains stations with shape"""
 
@@ -441,11 +448,14 @@ def main():
             
         for l in g.lines:
             l.draw(scr)        
-            
+
         # draw stations
         for s in g.stations:
             s.draw(scr)
             if 'track' in DEBUG: scr.center_text(s.pos,str(len(s.tracks)),RED)
+            
+        for l in g.lines:
+            l.draw_cars(scr)        
             
         for p in g.passengers:
             p.draw(scr,p.pos)

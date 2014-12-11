@@ -1,6 +1,9 @@
 BUGS:
 =====
 
+- if line was deleted: +-markings have wrong color if color is
+higher than deleted line color
+
 - maybe problem with trackbuilding/deleting/marking after line could not be
 build further because of two many tracks at station...
 

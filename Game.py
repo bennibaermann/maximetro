@@ -288,6 +288,7 @@ class Game(object):
         
         if self.track_to_be_deleted:
             self.track_to_be_deleted.to_be_deleted = False
+            self.track_to_be_deleted = None
         if self.add_track_here:
             self.add_track_here.add_track_here = WHITE
             self.add_track_here = None
