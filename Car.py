@@ -133,3 +133,22 @@ class Car(object):
             offset -= 1
             p.draw(scr,self.pos,offset,self.angle)
 
+    
+    def shift_passenger(self, passenger, offset):
+        '''shift position of passenger to position in car.'''
+        
+        passenger.pos = self.get_shift_pos(passenger, offset)
+                  
+    
+    def get_shift_pos(self, passenger, offset):
+        '''calculate shifted position of passengers in car'''
+        
+        # generate vector in angle and length PASSENGERSIZE
+        v = Vec2d(PASSENGERSIZE*3,0)
+        v.rotate(self.angle+90)
+                               
+        # add vector for every offset to pos
+        v_pos = Vec2d(passenger.pos)
+        v_new = v_pos + v * offset
+        
+        return (int(v_new.x),int(v_new.y))

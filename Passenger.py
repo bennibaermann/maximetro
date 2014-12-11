@@ -38,6 +38,10 @@ class Passenger(object):
 
         
     def draw(self,scr,pos,offset=0,angle=0):
+
+        # TODO: duplicated code from Car.get_shift_pos, but we 
+        # have no Car object here.
+        
         # generate vector in angle and length PASSENGERSIZE
         v = Vec2d(PASSENGERSIZE*3,0)
         v.rotate(angle+90)

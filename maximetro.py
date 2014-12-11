@@ -279,12 +279,15 @@ class Line(object):
 
             # if car is deleted, we handle passengers here
             if l == 1 and track.cars:
-                if 'track' in DEBUG: print ("special handling of passengers in last track activatet!")
+                if 'track' in DEBUG: print ("special handling of passengers in last track activated!")
                 for c in track.cars:
+                    offset = float(CARCAPACITY)/2 + 0.5
                     for p in c.passengers:
+                        offset -= 1
                         if FREE_PASSENGERS:
                             if 'track' in DEBUG: print ("passenger leaves car.")
                             newpass = Passenger.Passenger(self.game,None,c.pos,p.shape)
+                            c.shift_passenger(newpass,offset)
                             self.game.passengers.append(newpass)
                         #else: TODO without FREE_PASSENGERS they should go to next station
                         
