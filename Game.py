@@ -257,6 +257,8 @@ class Game(object):
         '''handle mouse change coordinates in the controler-interface at the right side'''
         
         assert event.pos[0] >= MAX_X - RIGHT_OFFSET
+
+        self.clean_markings()
         
         color = int (event.pos[1] / 50)
         if 'track' in DEBUG: flush_print(str(color))
@@ -280,9 +282,6 @@ class Game(object):
                 self.add_track_here = station
                 return
             
-        # code is only reached if cursor is not on buttons    
-        self.clean_markings()
-        
             
     def clean_markings(self):
         ' clean all temporary markings from mousemotion-events'

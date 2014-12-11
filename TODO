@@ -1,6 +1,9 @@
 BUGS:
 =====
 
+- maybe problem with trackbuilding/deleting/marking after line could not be
+build further because of two many tracks at station...
+
 - pathfinding could be better some times.
 
 - cost of building tracks should be handled at first click at station, not if actual
