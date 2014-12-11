@@ -116,18 +116,10 @@ class Car(object):
         """draw the car."""
 
         moved = self.move()
-        #if self.waiting and DEBUG:
-        #    pygame.draw.polygon(screen,BLACK,moved,0)
-        #else:
+
         pygame.draw.polygon(scr.screen,self.track.color,moved,0)
-        # if DEBUG:
-            #future_pos = self.track.get_newpos(self.pos,self.counter,self.direction,CARLENGTH/CARSPEED * 3)
-            #pygame.draw.circle(screen,self.track.color,future_pos,CARLENGTH*3,2)
-            #if self in semaphore:
-            #    pygame.draw.circle(screen,WHITE,self.pos,10)
-            #
+
         # drawing of passengers
-        # TODO: stil buggy for some values of CARCAPACITY
         offset = float(CARCAPACITY)/2 + 0.5
         for p in self.passengers:
             offset -= 1
@@ -137,18 +129,5 @@ class Car(object):
     def shift_passenger(self, passenger, offset):
         '''shift position of passenger to position in car.'''
         
-        passenger.pos = self.get_shift_pos(passenger, offset)
+        passenger.pos = shift_pos_in_car(passenger.pos, offset, self.angle)
                   
-    
-    def get_shift_pos(self, passenger, offset):
-        '''calculate shifted position of passengers in car'''
-        
-        # generate vector in angle and length PASSENGERSIZE
-        v = Vec2d(PASSENGERSIZE*3,0)
-        v.rotate(self.angle+90)
-                               
-        # add vector for every offset to pos
-        v_pos = Vec2d(passenger.pos)
-        v_new = v_pos + v * offset
-        
-        return (int(v_new.x),int(v_new.y))

@@ -39,17 +39,8 @@ class Passenger(object):
         
     def draw(self,scr,pos,offset=0,angle=0):
 
-        # TODO: duplicated code from Car.get_shift_pos, but we 
-        # have no Car object here.
+        pos = shift_pos_in_car(pos,offset,angle)
         
-        # generate vector in angle and length PASSENGERSIZE
-        v = Vec2d(PASSENGERSIZE*3,0)
-        v.rotate(angle+90)
-        
-        # add vector for every offset to pos
-        v_pos = Vec2d(pos)
-        v_new = v_pos + v * offset
-        pos = (int(v_new.x),int(v_new.y))
         if ANIMALS:
             if self.shape == 'circle':
                 scr.draw_image('ladybeetle.png',pos,PASSENGERSIZE-1,BLACK,angle)

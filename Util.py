@@ -108,6 +108,23 @@ def is_in_range(pos1,pos2,maxdist=STATIONSIZE):
 
 
 def flush_print(string):
+    '''print string without buffering and without newline'''
+    
     print string,
     sys.stdout.flush()
     
+    
+def shift_pos_in_car(pos, offset, angle):
+    '''calculate shifted position of passengers in car'''
+                
+    # generate vector in angle and length PASSENGERSIZE
+    v = Vec2d(PASSENGERSIZE*3,0)
+    v.rotate(angle+90)
+                                        
+    # add vector for every offset to pos
+    v_pos = Vec2d(pos)
+    v_new = v_pos + v * offset
+                                                                
+    return (int(v_new.x),int(v_new.y))
+                                                                    
+
