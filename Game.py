@@ -279,9 +279,10 @@ class Game(object):
                 # fill it with line color later
                 spos = line.tracks[-1].endpos
                 station = self.get_station(spos)
-                station.add_track_here = line.color
-                # if 'track' in DEBUG: print line.color
-                self.add_track_here = station
+                if len(station.get_tracks()) < MAXSTATIONTRACKS:
+                    station.add_track_here = line.color
+                    # if 'track' in DEBUG: print line.color
+                    self.add_track_here = station
                 return
             
             

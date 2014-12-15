@@ -1,8 +1,6 @@
 BUGS:
 =====
 
-- add_track-marker should not be drawn if max tracks at station reached.
-
 - cost of building tracks should be handled at first click at station, not if actual
 builded
 
