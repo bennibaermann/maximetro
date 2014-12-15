@@ -1,20 +1,17 @@
 BUGS:
 =====
 
-- maybe problem with trackbuilding/deleting/marking after line could not be
-build further because of two many tracks at station...
-
-- pathfinding could be better some times.
+- add_track-marker should not be drawn if max tracks at station reached.
 
 - cost of building tracks should be handled at first click at station, not if actual
 builded
-
-- if a circle in a line is constructed with deletion, there is no circle.
 
 FEATURES until first alpha:
 ===========================
 
 - clean up code in main()
+
+- classes Track and Line should be in own file
 
 - no known severe bugs
 
@@ -37,6 +34,26 @@ changes side)
 - fiddling with constants to reach a good game experience
 
 - nice looking font
+
+
+Not severe Bugs
+===============
+
+- CROSSING=True does not work
+
+- pathfinding could be better some times.
+
+- if a circle in a line is constructed with deletion, there is no circle.
+
+
+Roadmap
+=======
+
+Beta: Feature complete single-player
+
+1.0: Bugfree and feature complete single-player
+
+2.0: multi-player
 
 
 Ideas for later versions

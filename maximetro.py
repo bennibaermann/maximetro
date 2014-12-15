@@ -362,8 +362,8 @@ def main():
 
             elif event.type == MOUSEMOTION and not gameover:
                 if event.pos[0] >= MAX_X - RIGHT_OFFSET:
-                        # we are at the right side.
-                        g.mousemoving_controlling(event)
+                    # we are at the right side.
+                    g.mousemoving_controlling(event)
                 if not CROSSING and not g.intersect_any(g.startpos,event.pos):
                     if event.pos[0] < MAX_X - RIGHT_OFFSET:
                         # we are at the left side
@@ -439,7 +439,12 @@ def main():
                         flush_print(str(g.drawing_color))
                         pygame.draw.line(screen,g.drawing_color,g.startpos,g.pos,5)
                     else:
+                        g.status = "to many tracks at station!"
                         g.draw_status = False
+                        g.have_line = False
+                        g.line = None
+                        g.drawing_color = None
+                        g.LINES.pop()
             
                 if not g.pause:
                     g.update(count)

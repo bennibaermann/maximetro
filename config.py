@@ -10,7 +10,7 @@ FREE_PASSENGERS = True # new passengers not at stations
 STATION_PASSENGERS = False # new passengers at stations
 BUILD_STATIONS = True # player can build new stations
 DOUBLE_TRACKS = False # more than one track between same stations allowed?
-CROSSING = False # crossing tracks allowed?
+CROSSING = False # crossing tracks allowed? TODO: Crossing=True does not work
 COLLISION = False # set False if Cars should stop if other car is in the way
 
 MAXWAITING = 40

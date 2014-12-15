@@ -261,10 +261,11 @@ class Game(object):
         self.clean_markings()
         
         color = int (event.pos[1] / 50)
-        # if 'track' in DEBUG: flush_print(str(color))
-        
         in_use = len(COLORS) - len(self.LINES)
+        if 'track' in DEBUG: flush_print(str(color) + str(in_use))
+        
         if color < in_use:
+            if 'track' in DEBUG: flush_print('.')
             line = self.lines[color]
             if event.pos[0] < MAX_X - RIGHT_OFFSET / 2:
                 # mark track to be deleted to draw it later differently
