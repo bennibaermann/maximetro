@@ -261,7 +261,7 @@ class Game(object):
         self.clean_markings()
         
         color = int (event.pos[1] / 50)
-        if 'track' in DEBUG: flush_print(str(color))
+        # if 'track' in DEBUG: flush_print(str(color))
         
         in_use = len(COLORS) - len(self.LINES)
         if color < in_use:
@@ -278,7 +278,8 @@ class Game(object):
                 # fill it with line color later
                 spos = line.tracks[-1].endpos
                 station = self.get_station(spos)
-                station.add_track_here = COLORS[-color-1]
+                station.add_track_here = line.color
+                # if 'track' in DEBUG: print line.color
                 self.add_track_here = station
                 return
             
