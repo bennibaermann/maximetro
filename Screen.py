@@ -13,6 +13,15 @@ class Screen(object):
         self.screen = pygame.display.set_mode((MAX_X, MAX_Y + STATUSHEIGHT))
         self.lines = lines
         
+        
+    def getfont(self):
+        font = pygame.font.match_font('freesans', bold=True)
+        if font:
+            return font
+        else:
+            if 'font' in DEBUG: print "Found no font, fallback to system font." 
+            return pygame.font.get_default_font()
+
 
     def draw_image(self,image,pos,size,color,angle=0):
         image = pygame.image.load(image)
@@ -47,10 +56,10 @@ class Screen(object):
         
     
 
-    def center_text(self,pos,string,color=BLACK,size=12):
+    def center_text(self,pos,string,color=BLACK,size=FONTSIZE):
         """TODO BUGGY: prints string centered at pos"""
     
-        font = pygame.font.Font(pygame.font.get_default_font(),size)
+        font = pygame.font.Font(self.getfont(),size)
         text = font.render(string, False, color)
         rect = text.get_rect()
         pos = list(pos)
@@ -59,10 +68,10 @@ class Screen(object):
         self.screen.blit(text, pos)
     
 
-    def text(self,pos,string,color=BLACK,size=12):
+    def text(self,pos,string,color=BLACK,size=FONTSIZE):
         """prints string in default font at pos"""
         
-        font = pygame.font.Font(pygame.font.get_default_font(),size)
+        font = pygame.font.Font(self.getfont(),size)
         text = font.render(string, False, color)
         self.screen.blit(text, pos)
     

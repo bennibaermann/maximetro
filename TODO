@@ -9,10 +9,9 @@ BUGS:
 - cost of building tracks should be handled at first click at station, not if actual
 builded
 
+
 FEATURES until first alpha:
 ===========================
-
-- classes Track and Line should be in own file
 
 - no known severe bugs
 
@@ -32,7 +31,6 @@ should be displayed coloure
 
 - fiddling with constants to reach a good game experience
 
-- nice looking font
 
 Features in beta-stage
 ======================

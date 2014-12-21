@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 # set which part of the game you want to debug, set all for maximum output
-# DEBUG = ('init', 'track', 'path', 'station', 'passenger', 'random' )
-DEBUG = ('init','track' )
+# DEBUG = ('init', 'font', 'track', 'path', 'station', 'passenger', 'random' )
+DEBUG = ('init','font' )
 
 # these basic gamemodes change the gameplay drastical
 ANIMALS = False # an alternative animals graphic set from erlehmann
@@ -58,11 +58,11 @@ PROBABILITY_DIFF = 0
 MAXWAITING_STATION = 9999
 
 
-RIGHT_OFFSET = 120 # int(MAXWAITING_STATION * STATIONSIZE) 
+RIGHT_OFFSET = 200
 #RIGHT_OFFSET = 200
 MAX_Y = 800
 MAX_X = MAX_Y + RIGHT_OFFSET
-STATUSHEIGHT = 20 # height of status line at the bottom
+STATUSHEIGHT = 30 # height of status line at the bottom
 
 MAX_DEPTH = 99999 # max distance for path finding (means no path)
 
@@ -74,3 +74,5 @@ STATIONCOST = 5
 TRACKCOST = 1
 DELETECOST = 2
 # LINECOST = 5
+
+FONTSIZE = 20 # size of the default font used
