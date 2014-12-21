@@ -10,6 +10,8 @@ from Util import *
 
 import Station
 import Passenger
+import Line
+import Track
 
 class Game(object):
     """ we control from this class all the trains and lines and passengers """
@@ -320,10 +322,10 @@ class Game(object):
                         if self.have_line:
                             if 'track' in DEBUG: print ("appending track to line with color", self.drawing_color)
                             # TODO: parameter in self should not be necessary
-                            newtrack = Track(self,self.startpos,spos,self.drawing_color,self.line,0)
+                            newtrack = Track.Track(self,self.startpos,spos,self.drawing_color,self.line,0)
                         else:
                             if 'track' in DEBUG: print ("creating new line...")
-                            self.line = Line(self,self.startpos, spos)
+                            self.line = Line.Line(self,self.startpos, spos)
                             self.lines.append(self.line)
                             self.have_line = True
                         self.startpos = spos
