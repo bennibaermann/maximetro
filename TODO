@@ -1,13 +1,16 @@
 BUGS:
 =====
 
+- still sometimes wrong line colors (not reproducable)
+
+- still sometimes undeletable lines and lines can not be made longer
+(not reproduceable)
+
 - cost of building tracks should be handled at first click at station, not if actual
 builded
 
 FEATURES until first alpha:
 ===========================
-
-- clean up code in main()
 
 - classes Track and Line should be in own file
 
@@ -15,23 +18,27 @@ FEATURES until first alpha:
 
 - decide next stationtype before clicking and show it in interface
 
-- better use of statusline
+- better use of statusline (or status as popup in the middle?)
 
 - error messages in red
 
-- deletion of tracks with cars should generally be possible
+- deletion of tracks with cars should generally be possible, cars
+should move to next track
 
-- deletion of last or first track should be possible (interface
-needed: maybe right click should change which will be deleted?)
-
-- show append-station with colored station if mouse over add-button.
-
-- append new track at start or begin (interface needed: second click
-changes side) 
+- interface: mouse wheel should change position of adding and deleting
+tracks. deleting in the middle should generate two lines, adding in
+the middle should generate two tracks and delete one. two stations
+should be displayed coloure
 
 - fiddling with constants to reach a good game experience
 
 - nice looking font
+
+Features in beta-stage
+======================
+
+- some way to handle different screen-sizes in a convenient way.
+(maybe sizes of stations et al should depend on screen-size?)
 
 
 Not severe Bugs

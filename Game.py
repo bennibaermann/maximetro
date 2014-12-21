@@ -298,4 +298,38 @@ class Game(object):
                    
             
             
-                    
+    def mousemoving_map(self,event):
+        self.clean_markings()
+    
+        # TODO: there is maybe stil a bug in CROSSING = False in seldom cases?
+        self.pos = event.pos
+        spos = self.is_station_pos(self.pos)
+        # TODO: there should be no station in the way 
+        #       (plus a little extrasize)
+        #       or: minimum angle between tracks
+        if self.draw_status and spos and not is_in_range(self.pos,self.startpos):
+            # create a potential new track
+            if (not DOUBLE_TRACKS and not self.is_track(self.startpos,spos) and
+            not self.is_track(spos,self.startpos)):
+                if (len(self.get_station(spos).get_tracks()) < MAXSTATIONTRACKS and 
+                len(self.get_station(self.startpos).get_tracks()) < MAXSTATIONTRACKS):
+                    if 'track' in DEBUG: print ("stop drawing at " , self.pos , " moving to " , spos)
+                    if self.score >= TRACKCOST:
+                        self.status = "Build track for $" + str(TRACKCOST)
+                        self.score -= TRACKCOST
+                        if self.have_line:
+                            if 'track' in DEBUG: print ("appending track to line with color", self.drawing_color)
+                            # TODO: parameter in self should not be necessary
+                            newtrack = Track(self,self.startpos,spos,self.drawing_color,self.line,0)
+                        else:
+                            if 'track' in DEBUG: print ("creating new line...")
+                            self.line = Line(self,self.startpos, spos)
+                            self.lines.append(self.line)
+                            self.have_line = True
+                        self.startpos = spos
+                    else:
+                        self.status = "Not enough money left to build track for $" + str(TRACKCOST)
+                else:
+                    self.status = "to many tracks at station!"
+            else:
+                self.status = "no doubletracks allowed!"
