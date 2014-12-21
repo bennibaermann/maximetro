@@ -75,4 +75,4 @@ TRACKCOST = 1
 DELETECOST = 2
 # LINECOST = 5
 
-FONTSIZE = 20 # size of the default font used
+FONTSIZE = 18 # size of the default font used

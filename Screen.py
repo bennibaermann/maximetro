@@ -60,7 +60,7 @@ class Screen(object):
         """TODO BUGGY: prints string centered at pos"""
     
         font = pygame.font.Font(self.getfont(),size)
-        text = font.render(string, False, color)
+        text = font.render(string, True, color)
         rect = text.get_rect()
         pos = list(pos)
         pos[0] -= int(rect.width/2)
@@ -72,7 +72,7 @@ class Screen(object):
         """prints string in default font at pos"""
         
         font = pygame.font.Font(self.getfont(),size)
-        text = font.render(string, False, color)
+        text = font.render(string, True, color)
         self.screen.blit(text, pos)
     
     
