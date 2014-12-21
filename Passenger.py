@@ -6,7 +6,7 @@ import random
 
 from config import *
 from Util import *
-from Station import Station
+# from Station import Station
 
 class Passenger(object):
     """they want to travel to a station with shape self.shape!"""
@@ -59,7 +59,7 @@ class Passenger(object):
 
     def enter(self,car,station=None):
         """returns True if this passenger wants to enter this car"""
-        assert self.game.get_station(car.pos) == self.station or isinstance(station,Station), "no station at enter()"
+        # assert self.game.get_station(car.pos) == self.station, "no station at enter()"
         
         if not station:
             station = self.station
@@ -91,7 +91,7 @@ class Passenger(object):
 
     def leave_at(self,station):
         """returns True if this passenger wants to leave the car at the station"""
-        assert isinstance(station,Station), "no station in leave_at()"
+        # assert isinstance(station,Station), "no station in leave_at()"
 
         if station.shape == self.shape:
             return True

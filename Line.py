@@ -8,6 +8,7 @@ from config import *
 from Util import *
 from Semaphore import Semaphore
 import Track
+import Passenger
 
 
 class Line(object):

@@ -7,6 +7,7 @@ import random
 from config import *
 from Util import *
 from Semaphore import Semaphore
+import Passenger
 
 class Station(object):
     """a station"""
@@ -60,7 +61,7 @@ class Station(object):
         
         if STATION_PASSENGERS:
             if random.random() < PROBABILITY_START + counter * PROBABILITY_DIFF:
-                self.passengers.append(Passenger(self))
+                self.passengers.append(Passenger.Passenger(self))
         
         if len(self.passengers) > MAXWAITING_STATION:
             raise GameOver("to many passengers waiting at station")

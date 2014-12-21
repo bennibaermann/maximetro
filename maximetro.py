@@ -139,6 +139,7 @@ def main():
             scr.center_text((int(MAX_X/2),int(MAX_Y/2)),"GAME OVER!",BLACK,52)
             scr.center_text((int(MAX_X/2),int(MAX_Y/2)),"GAME OVER!",RED,50)
             scr.center_text((int(MAX_X/2),int(MAX_Y/2)+100),"click to restart",BLACK,20)
+            scr.center_text((int(MAX_X/2),int(MAX_Y/2)+150),"Score: " + str(g.score),BLACK,20)
             g.status = "GAME OVER. click to restart."
             gameover = True
  
