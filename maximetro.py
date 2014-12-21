@@ -106,7 +106,7 @@ def main():
                 if g.draw_status:
                     # draw a potential new track
                     if (len(g.get_station(g.startpos).get_tracks()) < MAXSTATIONTRACKS):
-                        flush_print(str(g.drawing_color))
+                        # flush_print(str(g.drawing_color))
                         pygame.draw.line(screen,g.drawing_color,g.startpos,g.pos,5)
                     else:
                         g.status = "to many tracks at station!"

@@ -13,7 +13,7 @@ DOUBLE_TRACKS = False # more than one track between same stations allowed?
 CROSSING = False # crossing tracks allowed? TODO: Crossing=True does not work
 COLLISION = False # set False if Cars should stop if other car is in the way
 
-MAXWAITING = 40
+MAXWAITING = 80
 
 BLACK =   (  0,   0,   0)
 VERYLIGHTGREY= (220, 220, 220)
@@ -40,7 +40,7 @@ MAXSTATIONS = 0 # stations build (without mainstation) during game init
 
 PASSENGERSIZE = 7
 PASSENGERSPEED = 0.3 # speed of passengers by foot
-CARCAPACITY = 2
+CARCAPACITY = 3
 
 CARWITH = PASSENGERSIZE + 3        # actually half of it
 CARLENGTH = 13 + PASSENGERSIZE * CARCAPACITY   # actually half of it
@@ -52,9 +52,9 @@ STATIONDISTANCE = CARLENGTH * 3
 MAXSTATIONTRACKS = 5 
 STATIONTRACKDIST = 0 # TODO: minimal distance between tracks and center of station
 
-PROBABILITY_START = .01
-PROBABILITY_DIFF = .0001
-PROBABILITY_DIFF = 0
+PROBABILITY_START = .05
+PROBABILITY_DIFF = .000005
+# PROBABILITY_DIFF = 0
 MAXWAITING_STATION = 9999
 
 
@@ -69,10 +69,10 @@ MAX_DEPTH = 99999 # max distance for path finding (means no path)
 FPS = 30
 
 # money and prices
-STARTMONEY = 300 # 30
+STARTMONEY = 50 # 30
 STATIONCOST = 5
 TRACKCOST = 1
-DELETECOST = 2
+DELETECOST = 1
 # LINECOST = 5
 
 FONTSIZE = 18 # size of the default font used
