@@ -9,6 +9,8 @@ BUGS:
 - cost of building tracks should be handled at first click at station, not if actual
 builded
 
+- pathfinding should be better some times.
+
 
 FEATURES until first alpha:
 ===========================
@@ -43,8 +45,6 @@ Not severe Bugs
 ===============
 
 - CROSSING=True does not work
-
-- pathfinding could be better some times.
 
 - if a circle in a line is constructed with deletion, there is no circle.
 

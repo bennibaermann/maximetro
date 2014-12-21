@@ -35,6 +35,7 @@ class Passenger(object):
         
         self.car = None
         self.visited = [] # visited stations in pathfinding
+        self.angle = random.randint(0,360) # random angle of movement
 
         
     def draw(self,scr,pos,offset=0,angle=0):
@@ -106,8 +107,7 @@ class Passenger(object):
     def update(self):
         """moves to the next station in STATIONDISTANCE if not at station or at car"""
         assert FREE_PASSENGERS, "passenger.update() should only be called with FREEPASSENGERS = True"
-        # global score
-        
+            
         if self.car or self.station:
             return
         
@@ -120,11 +120,8 @@ class Passenger(object):
                 min_dist = d
                 nearest = s
             
-        if not nearest:
-            return
-
-
-        if min_dist > STATIONDISTANCE:
+        if not nearest or min_dist > STATIONDISTANCE:
+            self.move_random()
             return
         
         # move to nearest station
@@ -144,4 +141,18 @@ class Passenger(object):
                 nearest.passengers.append(self)
             else:
                 self.game.score += 1
-                
+
+   
+    def move_random(self):
+        '''moves randomly arround'''
+        
+        # TODO MAYBE: stop passengers if moving out of map?
+        start = Vec2d(self.pos)
+        dist = Vec2d((PASSENGERSPEED,0))
+        if random.random() < PASSENGER_RANDOMNESS:
+            self.angle = random.randint(0,360)
+        dist.rotate(self.angle)
+        new = start + dist
+        self.pos = new
+        
+        

@@ -40,6 +40,7 @@ MAXSTATIONS = 0 # stations build (without mainstation) during game init
 
 PASSENGERSIZE = 7
 PASSENGERSPEED = 0.3 # speed of passengers by foot
+PASSENGER_RANDOMNESS = 0.01 # rate at which passenger in random mode changes direction
 CARCAPACITY = 3
 
 CARWITH = PASSENGERSIZE + 3        # actually half of it
