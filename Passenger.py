@@ -58,6 +58,8 @@ class Passenger(object):
                 scr.draw_square(pos,PASSENGERSIZE-1,BLACK,angle)
             elif self.shape == 'rhombus':
                 scr.draw_rhombus(pos,PASSENGERSIZE-1,BLACK,angle)
+            elif self.shape == 'semicircle':   
+                scr.draw_semicircle(pos,PASSENGERSIZE-1,BLACK,angle)
 
 
     def enter(self,car,station=None):

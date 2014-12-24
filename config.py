@@ -32,8 +32,11 @@ COLORS = [YELLOW,MAGENTA,CYAN,GREEN,BLUE,RED]
 # LINES = list(COLORS)
 COLORNAMES = ['red','blue','green','cyan','magenta','yellow']
 
-SHAPES = ('circle','triangle','square','rhombus')
-OTHERSTATIONS = ('circle','triangle','rhombus')
+SHAPES = ('circle','triangle','square','rhombus','semicircle')
+OTHERSTATIONS = ('circle','triangle','rhombus','semicircle')
+#  use this two lines instead if you don't have the pygame patch from benni:
+# SHAPES = ('circle','triangle','square','rhombus')
+# OTHERSTATIONS = ('circle','triangle','rhombus')
 MAINSTATION = 'square'
 
 MAXSTATIONS = 0 # stations build (without mainstation) during game init

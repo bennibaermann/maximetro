@@ -2,6 +2,7 @@
 from Vec2D import *
 import pygame
 from pygame.locals import *
+import pygame.gfxdraw
 
 from config import *
 from Util import *
@@ -59,7 +60,16 @@ class Screen(object):
         """draw rhombus at pos with size in color"""
         
         self.draw_square(pos,size,color,angle+45)
+        
     
+    def draw_semicircle(self,pos,size,color,angle=0):
+        '''draws a semicircle at pos with size in color'''
+        
+        # rect = pygame.Rect(int(pos[0]-size/2),int(pos[1]-size/2),size,size)
+        # pygame.draw.arc(self.screen,color,rect,0,math.pi/2,0)
+        
+        pygame.gfxdraw.filled_pie(self.screen,int(pos[0]),int(pos[1]),size,0,180,color)
+        
 
     def center_text(self,pos,string,color=BLACK,size=FONTSIZE):
         """TODO BUGGY: prints string centered at pos"""

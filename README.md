@@ -34,6 +34,9 @@ zip from github). The underlying technologies (SDL, Pygame, Python) are all
 very portable, so it should be possible to run it more or less on any system
 which runs python.
 
+PROBLEM: There is a problem with pygame in the moment. I use a patched version.
+Workaround: uncomment the two lines in config.py with OTHERSTATIONS and SHAPES.
+
 Have fun.
 
 (*) http://dinopoloclub.com/minimetro/
