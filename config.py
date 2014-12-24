@@ -32,8 +32,8 @@ COLORS = [YELLOW,MAGENTA,CYAN,GREEN,BLUE,RED]
 # LINES = list(COLORS)
 COLORNAMES = ['red','blue','green','cyan','magenta','yellow']
 
-SHAPES = ('circle','triangle','square')
-OTHERSTATIONS = ('circle','triangle')
+SHAPES = ('circle','triangle','square','rhombus')
+OTHERSTATIONS = ('circle','triangle','rhombus')
 MAINSTATION = 'square'
 
 MAXSTATIONS = 0 # stations build (without mainstation) during game init
@@ -70,7 +70,7 @@ MAX_DEPTH = 99999 # max distance for path finding (means no path)
 FPS = 30
 
 # money and prices
-STARTMONEY = 50 # 30
+STARTMONEY = 200 # 30
 STATIONCOST = 5
 TRACKCOST = 1
 DELETECOST = 1

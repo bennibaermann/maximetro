@@ -9,7 +9,8 @@ BUGS:
 - cost of building tracks should be handled at first click at station, not if actual
 builded
 
-- pathfinding should be better some times.
+- pathfinding should be better some times. for example: if it is shorter at the way back, passengers
+should not enter car.
 
 
 FEATURES until first alpha:

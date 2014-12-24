@@ -50,6 +50,9 @@ class Station(object):
         if self.shape == 'square':
             scr.draw_square(pos,STATIONSIZE-3,BLACK)
             scr.draw_square(pos,STATIONSIZE-STATIONTHICKNESS-3,innercolor)
+        if self.shape == 'rhombus':
+            scr.draw_rhombus(pos,STATIONSIZE-3,BLACK)
+            scr.draw_rhombus(pos,STATIONSIZE-STATIONTHICKNESS-3,innercolor)
 
         count = 0
         for p in self.passengers:

@@ -54,6 +54,11 @@ class Screen(object):
         
         pygame.draw.polygon(self.screen,color,rect,0)
         
+        
+    def draw_rhombus(self,pos,size,color,angle=0):
+        """draw rhombus at pos with size in color"""
+        
+        self.draw_square(pos,size,color,angle+45)
     
 
     def center_text(self,pos,string,color=BLACK,size=FONTSIZE):
@@ -84,8 +89,8 @@ class Screen(object):
         div = float(waiting)/float(MAXWAITING+1)
         red = min(div * float(512),255)
         green = min(255,512 - div * float(512)) 
-        color = (red,green,0)
-        #print color
+        color = (int(red),int(green),0)
+        # flush_print(color)
         part = div * RIGHT_OFFSET
         rect = pygame.Rect(MAX_X-RIGHT_OFFSET,MAX_Y-20,int(part),20)
         pygame.draw.rect(self.screen,color,rect)
