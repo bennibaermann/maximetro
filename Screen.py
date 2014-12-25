@@ -68,7 +68,7 @@ class Screen(object):
         # rect = pygame.Rect(int(pos[0]-size/2),int(pos[1]-size/2),size,size)
         # pygame.draw.arc(self.screen,color,rect,0,math.pi/2,0)
         
-        pygame.gfxdraw.filled_pie(self.screen,int(pos[0]),int(pos[1]),size,0,180,color)
+        pygame.gfxdraw.filled_pie(self.screen,int(pos[0]),int(pos[1]),size,int(0+angle),int(180+angle),color)
         
 
     def center_text(self,pos,string,color=BLACK,size=FONTSIZE):
