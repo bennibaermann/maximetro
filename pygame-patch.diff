@@ -1,0 +1,66 @@
+--- pygame/src/gfxdraw.c	2014-12-25 11:27:11.734089487 +0100
++++ mypygame/src/gfxdraw.c	2014-12-25 00:18:28.265451621 +0100
+@@ -23,7 +23,6 @@
+ 
+   TODO:
+   - fix filledPolygonRGBA to use MT versions for threaded use.
+-  - do a filled pie version using filledPieColor
+   - Determine if SDL video must be initiated for all routines to work.
+     Add check if required, else remove ASSERT_VIDEO_INIT.
+   - Example (Maybe).
+@@ -51,6 +50,7 @@ static PyObject* _gfx_ellipsecolor (PyOb
+ static PyObject* _gfx_aaellipsecolor (PyObject *self, PyObject* args);
+ static PyObject* _gfx_filledellipsecolor (PyObject *self, PyObject* args);
+ static PyObject* _gfx_piecolor (PyObject *self, PyObject* args);
++static PyObject* _gfx_filledpiecolor (PyObject *self, PyObject* args);
+ static PyObject* _gfx_trigoncolor (PyObject *self, PyObject* args);
+ static PyObject* _gfx_aatrigoncolor (PyObject *self, PyObject* args);
+ static PyObject* _gfx_filledtrigoncolor (PyObject *self, PyObject* args);
+@@ -75,6 +75,7 @@ static PyMethodDef _gfxdraw_methods[] =
+     { "aaellipse", _gfx_aaellipsecolor, METH_VARARGS, DOC_PYGAMEGFXDRAWAAELLIPSE },
+     { "filled_ellipse", _gfx_filledellipsecolor, METH_VARARGS, DOC_PYGAMEGFXDRAWFILLEDELLIPSE },
+     { "pie", _gfx_piecolor, METH_VARARGS, DOC_PYGAMEGFXDRAWPIE },
++    { "filled_pie", _gfx_filledpiecolor, METH_VARARGS, DOC_PYGAMEGFXDRAWFILLEDPIE },
+     { "trigon", _gfx_trigoncolor, METH_VARARGS, DOC_PYGAMEGFXDRAWTRIGON },
+     { "aatrigon", _gfx_aatrigoncolor, METH_VARARGS, DOC_PYGAMEGFXDRAWAATRIGON },
+     { "filled_trigon", _gfx_filledtrigoncolor, METH_VARARGS, DOC_PYGAMEGFXDRAWFILLEDTRIGON },
+@@ -594,6 +595,39 @@ _gfx_piecolor (PyObject *self, PyObject*
+                  rgba[0], rgba[1], rgba[2], rgba[3]) == -1)
+     {
+         PyErr_SetString (PyExc_SDLError, SDL_GetError ());
++        return NULL;
++    }
++    Py_RETURN_NONE;
++}
++
++static PyObject*
++_gfx_filledpiecolor (PyObject *self, PyObject* args)
++{
++    PyObject *surface, *color;
++    Sint16 x, y, r, start, end;
++    Uint8 rgba[4];
++
++    ASSERT_VIDEO_INIT (NULL);
++
++    if (!PyArg_ParseTuple (args, "OhhhhhO:pie", &surface, &x, &y, &r,
++            &start, &end, &color))
++        return NULL;
++
++    if (!PySurface_Check (surface))
++    {
++        PyErr_SetString (PyExc_TypeError, "surface must be a Surface");
++        return NULL;
++    }
++    if (!RGBAFromObj (color, rgba))
++    {
++        PyErr_SetString (PyExc_TypeError, "invalid color argument");
++        return NULL;
++    }
++
++    if (filledPieRGBA (PySurface_AsSurface (surface), x, y, r, start, end,
++                 rgba[0], rgba[1], rgba[2], rgba[3]) == -1)
++    {
++        PyErr_SetString (PyExc_SDLError, SDL_GetError ());
+         return NULL;
+     }
+     Py_RETURN_NONE;
