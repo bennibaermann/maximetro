@@ -54,8 +54,8 @@ class Station(object):
             scr.draw_rhombus(pos,STATIONSIZE-3,BLACK)
             scr.draw_rhombus(pos,STATIONSIZE-STATIONTHICKNESS-3,innercolor)
         if self.shape == 'semicircle':
-            scr.draw_semicircle(pos,STATIONSIZE+3,BLACK)
-            scr.draw_semicircle((pos[0],pos[1]+4),STATIONSIZE-STATIONTHICKNESS,innercolor)
+            scr.draw_semicircle((pos[0],pos[1]-STATIONSIZE/2),STATIONSIZE+3,BLACK)
+            scr.draw_semicircle((pos[0],pos[1]-STATIONSIZE/2+4),STATIONSIZE-STATIONTHICKNESS,innercolor)
 
         count = 0
         for p in self.passengers:
