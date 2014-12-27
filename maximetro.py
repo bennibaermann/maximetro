@@ -41,7 +41,7 @@ def main():
       #try:
         count += 1
         
-        # TODO: ugly code. we have to wrote some functions here
+        # event handling
         for event in pygame.event.get():
             if event.type == QUIT:
                 return
@@ -71,7 +71,9 @@ def main():
                     if event.pos[0] < MAX_X - RIGHT_OFFSET:
                         # we are at the left side
                         g.mousemoving_map(event)
-
+            elif event.type == pygame.VIDEORESIZE:
+                # (MAX_X, MAX_Y) = event.size
+                screen = pygame.display.set_mode(event.size, RESIZABLE)
 
                     
         screen.fill(WHITE)

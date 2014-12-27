@@ -11,7 +11,7 @@ class Screen(object):
     """here should happen all the drawing"""
     
     def __init__(self,lines):
-        self.screen = pygame.display.set_mode((MAX_X, MAX_Y + STATUSHEIGHT))
+        self.screen = pygame.display.set_mode((MAX_X, MAX_Y + STATUSHEIGHT),RESIZABLE)
         self.lines = lines
         
         
