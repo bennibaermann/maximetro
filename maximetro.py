@@ -72,11 +72,8 @@ def main():
                     # we are at the left side
                     if not CROSSING and not g.intersect_any(g.startpos,event.pos):
 
-                        #TODO: this calculation should be done by Vec2D
-                        xdiff = g.startpos[0] - event.pos[0]
-                        ydiff = g.startpos[1] - event.pos[1]
-                        length = math.sqrt (xdiff * xdiff + ydiff * ydiff )
-                        if MAXTRACKLENGTH == 0 or length < MAXTRACKLENGTH:
+                        v = Vec2d(g.startpos) - Vec2d(event.pos)
+                        if MAXTRACKLENGTH == 0 or v.get_length() < MAXTRACKLENGTH:
                             g.mousemoving_map(event)
 
             elif event.type == pygame.VIDEORESIZE:
