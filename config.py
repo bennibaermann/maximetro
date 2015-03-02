@@ -35,8 +35,8 @@ COLORNAMES = ['red','blue','green','cyan','magenta','yellow']
 SHAPES = ('circle','triangle','square','rhombus','semicircle')
 OTHERSTATIONS = ('circle','triangle','rhombus','semicircle')
 #  use this two lines instead if you don't have the pygame patch from benni:
-# SHAPES = ('circle','triangle','square','rhombus')
-# OTHERSTATIONS = ('circle','triangle','rhombus')
+SHAPES = ('circle','triangle','square','rhombus')
+OTHERSTATIONS = ('circle','triangle','rhombus')
 MAINSTATION = 'square'
 
 MAXSTATIONS = 0 # stations build (without mainstation) during game init
@@ -50,9 +50,12 @@ CARWITH = PASSENGERSIZE + 3        # actually half of it
 CARLENGTH = 13 + PASSENGERSIZE * CARCAPACITY   # actually half of it
 CARSPEED = 3
 
+MAXTRACKLENGTH = CARLENGTH * 5 # set to 0 for no length restrictions
+# MAXTRACKLENGTH = 0 # set to 0 for no length restrictions
+
 STATIONSIZE = 17
 STATIONTHICKNESS = 5
-STATIONDISTANCE = CARLENGTH * 3
+STATIONDISTANCE = CARLENGTH * 2
 MAXSTATIONTRACKS = 5 
 STATIONTRACKDIST = 0 # TODO: minimal distance between tracks and center of station
 
@@ -64,7 +67,7 @@ MAXWAITING_STATION = 9999
 
 RIGHT_OFFSET = 200
 #RIGHT_OFFSET = 200
-MAX_Y = 800
+MAX_Y = 500
 MAX_X = MAX_Y + RIGHT_OFFSET
 STATUSHEIGHT = 30 # height of status line at the bottom
 
@@ -73,7 +76,7 @@ MAX_DEPTH = 99999 # max distance for path finding (means no path)
 FPS = 30
 
 # money and prices
-STARTMONEY = 200 # 30
+STARTMONEY = 30 # 30
 STATIONCOST = 5
 TRACKCOST = 1
 DELETECOST = 1

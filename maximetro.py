@@ -8,6 +8,7 @@ from pygame.locals import *
 import Vec2D
 from Vec2D import *
 import random
+import math
 
 # own files
 from Semaphore import Semaphore
@@ -67,14 +68,20 @@ def main():
                 if event.pos[0] >= MAX_X - RIGHT_OFFSET:
                     # we are at the right side.
                     g.mousemoving_controlling(event)
-                if not CROSSING and not g.intersect_any(g.startpos,event.pos):
-                    if event.pos[0] < MAX_X - RIGHT_OFFSET:
-                        # we are at the left side
-                        g.mousemoving_map(event)
+                elif event.pos[0] < MAX_X - RIGHT_OFFSET:
+                    # we are at the left side
+                    if not CROSSING and not g.intersect_any(g.startpos,event.pos):
+
+                        #TODO: this calculation should be done by Vec2D
+                        xdiff = g.startpos[0] - event.pos[0]
+                        ydiff = g.startpos[1] - event.pos[1]
+                        length = math.sqrt (xdiff * xdiff + ydiff * ydiff )
+                        if MAXTRACKLENGTH == 0 or length < MAXTRACKLENGTH:
+                            g.mousemoving_map(event)
+
             elif event.type == pygame.VIDEORESIZE:
                 # (MAX_X, MAX_Y) = event.size
                 screen = pygame.display.set_mode(event.size, RESIZABLE)
-
                     
         screen.fill(WHITE)
 
@@ -109,6 +116,7 @@ def main():
                     # draw a potential new track
                     if (len(g.get_station(g.startpos).get_tracks()) < MAXSTATIONTRACKS):
                         # flush_print(str(g.drawing_color))
+                        
                         pygame.draw.line(screen,g.drawing_color,g.startpos,g.pos,5)
                     else:
                         g.status = "to many tracks at station!"

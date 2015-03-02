@@ -16,7 +16,7 @@ class Track(object):
     def __init__(self,game,start,end,color,line,withcar=True):
         """constructor should only be called, if LINES[] is not empty"""
         assert game.LINES, "no more lines available"
-
+        
         self.game = game
         self.line = line
         self.color = color
