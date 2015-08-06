@@ -16,6 +16,9 @@ should not enter car.
 FEATURES until first alpha:
 ===========================
 
+- pathfinding: if to many passengers of one kind waiting at one
+station, choose second best option for them too.
+
 - variable screen size. proportional sizes of stations et al
 
 - no known severe bugs
@@ -34,7 +37,7 @@ should move to next track
 - interface: mouse wheel should change position of adding and deleting
 tracks. deleting in the middle should generate two lines, adding in
 the middle should generate two tracks and delete one. two stations
-should be displayed coloure
+should be displayed colour
 
 - fiddling with constants to reach a good game experience
 
@@ -42,8 +45,7 @@ should be displayed coloure
 Features in beta-stage
 ======================
 
-- some way to handle different screen-sizes in a convenient way.
-(maybe sizes of stations et al should depend on screen-size?)
+- level system
 
 
 Not severe Bugs
